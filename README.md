@@ -1,75 +1,135 @@
-# React + TypeScript + Vite
+# Admissions System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<p align="center">
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=white" alt="pnpm" />
+  <img src="https://img.shields.io/badge/TanStack%20Router-FF4154?style=for-the-badge&logo=reactrouter&logoColor=white" alt="TanStack Router" />
+  <img src="https://img.shields.io/badge/TanStack%20Query-FF4154?style=for-the-badge&logo=reactquery&logoColor=white" alt="TanStack Query" />
+  <br/>
+  <img src="https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white" alt="Axios" />
+  <img src="https://img.shields.io/badge/Ant%20Design-0170FE?style=for-the-badge&logo=antdesign&logoColor=white" alt="Ant Design" />
+  <img src="https://img.shields.io/badge/Zustand-443E38?style=for-the-badge&logo=zustand&logoColor=white" alt="Zustand" />
+  <img src="https://img.shields.io/badge/React%20Hook%20Form-EC5990?style=for-the-badge&logo=reacthookform&logoColor=white" alt="React Hook Form" />
+  <img src="https://img.shields.io/badge/Zod-3E67B1?style=for-the-badge&logo=zod&logoColor=white" alt="Zod" />
+  <img src="https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white" alt="ESLint" />
+  <img src="https://img.shields.io/badge/Husky-1B2A33?style=for-the-badge&logo=git&logoColor=white" alt="Husky" />
+  <img src="https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black" alt="Prettier" />
+</p>
 
-Currently, two official plugins are available:
+Hệ thống quản lý tuyển sinh hiện đại được xây dựng với **React 19**, **TypeScript** và **Vite**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Công nghệ sử dụng
 
-## React Compiler
+| Công nghệ           | Mục đích                                           |
+| ------------------- | -------------------------------------------------- |
+| **React 19**        | Thư viện UI                                        |
+| **TypeScript**      | Ngôn ngữ lập trình với kiểu tĩnh                   |
+| **Vite 8**          | Build tool & dev server                            |
+| **pnpm**            | Package manager                                    |
+| **TanStack Router** | Quản lý routing & điều hướng                       |
+| **TanStack Query**  | Quản lý server state, caching & đồng bộ dữ liệu    |
+| **Axios**           | HTTP client (gọi API)                              |
+| **Ant Design**      | UI component library                               |
+| **Zustand**         | Quản lý state (ứng dụng nhẹ, đơn giản)             |
+| **React Hook Form** | Quản lý form & validation                          |
+| **Zod**             | Schema validation (dữ liệu form & API)             |
+| **ESLint**          | Linting & kiểm tra chất lượng code                 |
+| **Prettier**        | Format code tự động                                |
+| **Husky**           | Git hooks (tự động chạy lint/format trước commit)  |
+| **lint-staged**     | Chạy lint-staged trên file thay đổi khi commit     |
+| **React Compiler**  | Tối ưu hiệu năng qua `babel-plugin-react-compiler` |
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## Cấu trúc thư mục
 
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── apis/          # Định nghĩa các API request (axios instances, endpoints)
+├── assets/        # Tài nguyên tĩnh (hình ảnh, icon, v.v.)
+├── components/    # Component UI tái sử dụng
+│   ├── common/    # Component dùng chung (button, input, v.v.)
+│   └── layout/    # Component bố cục (header, sidebar, footer, v.v.)
+├── configs/       # Cấu hình ứng dụng
+├── constants/     # Hằng số dùng trong toàn bộ ứng dụng
+├── hooks/         # Custom React hooks
+├── layouts/       # Layout bao bọc các trang
+├── locales/       # File dịch đa ngôn ngữ (i18n)
+├── pages/         # Component trang / module theo route
+├── routes/        # Định nghĩa và cấu hình route (TanStack Router)
+├── services/      # Logic nghiệp vụ / tầng service
+├── store/         # Quản lý state (Zustand stores)
+├── types/         # Định nghĩa kiểu dữ liệu TypeScript & interface
+├── utils/         # Hàm tiện ích / helper
+└── validations/   # Schema validate (Zod schemas)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Bắt đầu
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Yêu cầu
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **Node.js** >= 18
+- **pnpm** (cài đặt toàn cục: `npm i -g pnpm`)
+
+### Cài đặt
+
+```bash
+pnpm install
 ```
+
+### Chạy môi trường phát triển
+
+```bash
+pnpm dev
+```
+
+### Build
+
+```bash
+pnpm build
+```
+
+### Xem trước bản build
+
+```bash
+pnpm preview
+```
+
+### Kiểm tra mã nguồn
+
+```bash
+pnpm lint
+```
+
+### Format code
+
+```bash
+pnpm format
+```
+
+## Scripts
+
+| Lệnh           | Mô tả                                            |
+| -------------- | ------------------------------------------------ |
+| `pnpm dev`     | Khởi động Vite dev server                        |
+| `pnpm build`   | Kiểm tra kiểu và build production                |
+| `pnpm preview` | Xem trước bản production build                   |
+| `pnpm lint`    | Chạy ESLint trên toàn bộ dự án                   |
+| `pnpm format`  | Format code với Prettier                         |
+| `pnpm prepare` | Kích hoạt Husky hooks (chạy tự động khi cài đặt) |
+
+## Git Hooks (Husky)
+
+Dự án sử dụng **Husky** kết hợp **lint-staged** để tự động kiểm tra chất lượng code trước mỗi lần commit:
+
+- **pre-commit**: Chạy `lint-staged` để tự động:
+  - `eslint --fix` trên file `.ts`, `.tsx`
+  - `prettier --write` trên file `.ts`, `.tsx`, `.json`, `.css`, `.md`
+
+Cơ chế này giúp đảm bảo code luôn sạch, đúng chuẩn trước khi được commit lên repository.
+
+## Tính năng (Đã lên kế hoạch / Đang phát triển)
+
+## Giấy phép
+
+[MIT](LICENSE)
