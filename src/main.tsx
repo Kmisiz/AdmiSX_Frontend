@@ -5,6 +5,7 @@ import { Route as rootRoute } from "./routes/__root";
 import { Route as indexRoute } from "./routes/index";
 import { Route as dashboardRoute } from "./routes/dashboard";
 import { Route as profileRoute } from "./routes/profile";
+import { Route as admissionsRoute } from "./routes/admissions";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useAuthStore, initAuthFromUrl } from "./store/auth";
 import { authApi } from "./apis/auth";
@@ -38,6 +39,7 @@ const routeTree = rootRoute.addChildren([
   indexRoute,
   dashboardRoute,
   profileRoute,
+  admissionsRoute,
 ]);
 
 const router = createRouter({ routeTree });

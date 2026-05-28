@@ -5,7 +5,7 @@ import { useCallback, useState, useRef, useEffect } from "react";
 
 const NAV_LINKS = [
   { to: "/dashboard", label: "Bảng điều khiển" },
-  { to: "/admissions", label: "Tuyển sinh" },
+  { to: "/dashboard/admissions", label: "Tuyển sinh" },
   { to: "/documents", label: "Tài liệu" },
 ];
 
