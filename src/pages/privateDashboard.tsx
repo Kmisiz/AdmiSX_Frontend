@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, Link } from "@tanstack/react-router";
 import { useAuthStore } from "../store/auth";
 import {
   dashboardApi,
@@ -7,6 +7,7 @@ import {
   type CompletenessData,
   type NotificationData,
 } from "../apis/dashboard";
+import { useSocket } from "../hooks/useSocket";
 
 const PERSONAL_FIELDS = [
   "Số điện thoại",
@@ -81,14 +82,15 @@ const PrivateDashboard = () => {
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const [docCount, setDocCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [timeRemaining, setTimeRemaining] = useState<string>("");
+
+  const safe = <T,>(
+    p: Promise<{ data: { data: T } }>,
+    fallback: T,
+  ): Promise<T> => p.then((r) => r.data.data).catch(() => fallback);
 
   useEffect(() => {
     const fetchData = async () => {
-      const safe = <T,>(
-        p: Promise<{ data: { data: T } }>,
-        fallback: T,
-      ): Promise<T> => p.then((r) => r.data.data).catch(() => fallback);
-
       const [dl, comp, notifs, docs] = await Promise.all([
         safe(dashboardApi.getDeadline(), null as unknown as DeadlineData),
         safe(
@@ -109,11 +111,62 @@ const PrivateDashboard = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (!deadline || deadline.status !== "during" || !deadline.end_date) return;
+
+    const parseDDMMYYYY = (s: string) => {
+      const [d, m, y] = s.split("/").map(Number);
+      return new Date(y, m - 1, d);
+    };
+
+    const tick = () => {
+      const now = new Date();
+      const end = parseDDMMYYYY(deadline.end_date);
+      end.setHours(23, 59, 59, 999);
+      const diff = end.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setTimeRemaining("Đã kết thúc");
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor(
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+      );
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+      if (days > 0) {
+        setTimeRemaining(
+          `Còn ${days} ngày ${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`,
+        );
+      } else {
+        setTimeRemaining(
+          `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`,
+        );
+      }
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [deadline]);
+
+  const refreshNotifications = useCallback(async () => {
+    const notifs = await safe(dashboardApi.getNotifications({ limit: 5 }), []);
+    setNotifications(notifs);
+  }, []);
+
+  useSocket({
+    "status-changed": refreshNotifications,
+  });
+
   const missing = completeness?.missing_fields ?? [];
 
   const getSectionStatus = (fields: string[]): SectionStatus => {
     const hasMissing = fields.some((f) => missing.includes(f));
-    if (!hasMissing && missing.length >= 0) return "completed";
+    if (!hasMissing && missing.length === 0) return "completed";
     if (hasMissing) return "pending";
     return "not_started";
   };
@@ -238,13 +291,13 @@ const PrivateDashboard = () => {
             />
             <SectionStatusBadge
               status={docsComplete}
-              label="Chứng chỉ ngoại ngữ"
+              label="Chứng chỉ, hồ sơ"
             />
           </div>
 
           <div className="flex justify-end mt-6">
             <button
-              onClick={() => navigate({ to: "/dashboard" })}
+              onClick={() => navigate({ to: "/dashboard/admissions" })}
               className="bg-[#032D60] text-white h-[52px] px-7 rounded-full font-semibold text-[15px] hover:bg-[#021a40] transition-all active:scale-95 flex items-center gap-2"
             >
               Tiếp tục hoàn thiện
@@ -285,7 +338,12 @@ const PrivateDashboard = () => {
                     Nộp hồ sơ đợt 1
                   </span>
                   <span className="text-[13px] text-[#667085] mt-0.5">
-                    {getDeadlineLabel(deadline.days_remaining, deadline.status)}
+                    {deadline.status === "during" && timeRemaining
+                      ? timeRemaining
+                      : getDeadlineLabel(
+                          deadline.days_remaining,
+                          deadline.status,
+                        )}
                   </span>
                 </div>
               </div>
@@ -354,9 +412,15 @@ const PrivateDashboard = () => {
               {notifications.map((notif) => {
                 const meta = getNotificationMeta(notif.type);
                 return (
-                  <div
+                  <button
                     key={notif.id}
-                    className="flex items-start gap-4 py-5 border-b border-[#E4E7EC] last:border-b-0 cursor-pointer hover:bg-[#F4F6F9] -mx-6 px-6 transition-colors group"
+                    onClick={() =>
+                      navigate({
+                        to: "/dashboard/notifications/$id",
+                        params: { id: notif.id.toString() },
+                      })
+                    }
+                    className="w-full flex items-start gap-4 py-5 border-b border-[#E4E7EC] last:border-b-0 cursor-pointer hover:bg-[#F4F6F9] -mx-6 px-6 transition-colors group text-left"
                   >
                     <span
                       className={`material-symbols-outlined mt-0.5 ${meta.color}`}
@@ -374,7 +438,7 @@ const PrivateDashboard = () => {
                         {formatTimeAgo(notif.created_at)}
                       </span>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -388,6 +452,19 @@ const PrivateDashboard = () => {
               </p>
             </div>
           )}
+          {notifications.length > 0 && (
+            <div className="border-t border-[#E4E7EC] px-6 py-3">
+              <Link
+                to="/dashboard/notifications"
+                className="flex items-center justify-center gap-1 text-[13px] font-medium text-[#032D60] hover:text-[#021a40] transition-colors"
+              >
+                Xem tất cả thông báo
+                <span className="material-symbols-outlined text-[16px]">
+                  arrow_right_alt
+                </span>
+              </Link>
+            </div>
+          )}
         </section>
 
         {/* Quick Access Card */}
@@ -396,25 +473,39 @@ const PrivateDashboard = () => {
             Truy cập nhanh
           </h2>
           <div className="grid grid-cols-2 gap-4">
-            {[
-              { icon: "description", label: "Tải lên tài liệu" },
-              { icon: "contact_support", label: "Hỗ trợ trực tuyến" },
-              { icon: "account_balance_wallet", label: "Thanh toán lệ phí" },
-              { icon: "history_edu", label: "Lịch sử nộp hồ sơ" },
-            ].map((link) => (
-              <a
-                key={link.label}
-                href="#"
-                className="h-[110px] border border-[#D0D5DD] rounded-xl bg-white flex flex-col items-center justify-center gap-3 transition-all duration-200 hover:border-[#032D60] hover:shadow-[0_4px_12px_rgba(3,45,96,0.12)] group"
-              >
-                <span className="material-symbols-outlined text-[#032D60] text-[32px] group-hover:scale-110 transition-transform">
-                  {link.icon}
-                </span>
-                <span className="text-[13px] font-medium text-[#101828] text-center">
-                  {link.label}
-                </span>
-              </a>
-            ))}
+            <Link
+              to="/dashboard/documents"
+              className="h-[110px] border border-[#D0D5DD] rounded-xl bg-white flex flex-col items-center justify-center gap-3 transition-all duration-200 hover:border-[#032D60] hover:shadow-[0_4px_12px_rgba(3,45,96,0.12)] group"
+            >
+              <span className="material-symbols-outlined text-[#032D60] text-[32px] group-hover:scale-110 transition-transform">
+                description
+              </span>
+              <span className="text-[13px] font-medium text-[#101828] text-center">
+                Tải lên tài liệu
+              </span>
+            </Link>
+            <a
+              href="#"
+              className="h-[110px] border border-[#D0D5DD] rounded-xl bg-white flex flex-col items-center justify-center gap-3 transition-all duration-200 hover:border-[#032D60] hover:shadow-[0_4px_12px_rgba(3,45,96,0.12)] group"
+            >
+              <span className="material-symbols-outlined text-[#032D60] text-[32px] group-hover:scale-110 transition-transform">
+                contact_support
+              </span>
+              <span className="text-[13px] font-medium text-[#101828] text-center">
+                Hỗ trợ trực tuyến
+              </span>
+            </a>
+            <Link
+              to="/dashboard/notifications"
+              className="h-[110px] border border-[#D0D5DD] rounded-xl bg-white flex flex-col items-center justify-center gap-3 transition-all duration-200 hover:border-[#032D60] hover:shadow-[0_4px_12px_rgba(3,45,96,0.12)] group"
+            >
+              <span className="material-symbols-outlined text-[#032D60] text-[32px] group-hover:scale-110 transition-transform">
+                history_edu
+              </span>
+              <span className="text-[13px] font-medium text-[#101828] text-center">
+                Lịch sử nộp hồ sơ
+              </span>
+            </Link>
           </div>
         </section>
       </div>
