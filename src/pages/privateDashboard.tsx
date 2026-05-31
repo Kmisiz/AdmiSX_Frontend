@@ -48,7 +48,7 @@ const SectionStatusBadge = ({
   };
   const cfg = config[status];
   return (
-    <div className="bg-[#F9FAFB] p-4 rounded-xl flex flex-col gap-1">
+    <div className="bg-[#F4F6F9] p-4 rounded-xl flex flex-col gap-1">
       <span className="text-sm text-[#667085]">{label}</span>
       <div className={`flex items-center gap-2 ${cfg.color}`}>
         <span
@@ -140,7 +140,7 @@ const PrivateDashboard = () => {
       case "PASSWORD_RESET":
         return { icon: "lock", color: "text-[#F97316]" };
       default:
-        return { icon: "info", color: "text-[#0EA5E9]" };
+        return { icon: "info", color: "text-[#032D60]" };
     }
   };
 
@@ -175,9 +175,9 @@ const PrivateDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] bg-[#F5F7FB]">
+      <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
-          <span className="material-symbols-outlined text-[#0EA5E9] animate-spin text-[40px]">
+          <span className="material-symbols-outlined text-[#032D60] animate-spin text-[40px]">
             progress_activity
           </span>
           <p className="text-[#667085] text-sm">Đang tải dữ liệu...</p>
@@ -196,10 +196,10 @@ const PrivateDashboard = () => {
   const isPastDeadline = deadline && deadline.status === "after";
 
   return (
-    <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8 bg-[#F5F7FB]">
+    <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
       {/* Welcome Section */}
       <div className="mb-8">
-        <h1 className="text-[32px] sm:text-[40px] font-bold text-[#0B1F44] leading-tight">
+        <h1 className="text-[32px] sm:text-[40px] font-bold text-[#101828] leading-tight">
           Xin chào, {user?.full_name || user?.email || "Thí sinh"}
         </h1>
         <p className="text-[16px] text-[#667085] mt-2">
@@ -210,19 +210,19 @@ const PrivateDashboard = () => {
       {/* Dashboard Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
         {/* Progress Card */}
-        <section className="bg-white border border-[#E4E7EC] rounded-[16px] p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        <section className="bg-white border border-[#E4E7EC] rounded-2xl p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold text-[#101828]">
               Tiến độ hoàn thiện hồ sơ
             </h2>
-            <span className="text-2xl font-bold text-[#0EA5E9]">
+            <span className="text-2xl font-bold text-[#032D60]">
               {progress}%
             </span>
           </div>
 
           <div className="h-3 bg-[#E4E7EC] rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#0EA5E9] rounded-full transition-all duration-500"
+              className="h-full bg-[#032D60] rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -245,7 +245,7 @@ const PrivateDashboard = () => {
           <div className="flex justify-end mt-6">
             <button
               onClick={() => navigate({ to: "/dashboard" })}
-              className="bg-[#0EA5E9] text-white h-[52px] px-7 rounded-[10px] font-semibold text-[15px] hover:bg-[#0095d4] transition-all active:scale-95 flex items-center gap-2"
+              className="bg-[#032D60] text-white h-[52px] px-7 rounded-full font-semibold text-[15px] hover:bg-[#021a40] transition-all active:scale-95 flex items-center gap-2"
             >
               Tiếp tục hoàn thiện
               <span className="material-symbols-outlined text-xl">
@@ -256,7 +256,7 @@ const PrivateDashboard = () => {
         </section>
 
         {/* Deadline Card */}
-        <section className="bg-white border border-[#E4E7EC] rounded-[16px] p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] flex flex-col">
+        <section className="bg-white border border-[#E4E7EC] rounded-2xl p-6 flex flex-col">
           <h2 className="text-xl font-bold text-[#101828] mb-6">
             Hạn chót quan trọng
           </h2>
@@ -265,12 +265,12 @@ const PrivateDashboard = () => {
             <div className="flex-1 flex flex-col gap-5">
               <div className="flex gap-4">
                 <div
-                  className={`flex-shrink-0 w-12 h-12 rounded-[10px] flex flex-col items-center justify-center ${
+                  className={`flex-shrink-0 w-12 h-12 rounded-2xl flex flex-col items-center justify-center ${
                     isPastDeadline
-                      ? "bg-[#F9FAFB] text-[#667085]"
+                      ? "bg-[#F4F6F9] text-[#667085]"
                       : isUrgentDeadline
                         ? "bg-[#FEE2E2] text-[#EF4444]"
-                        : "bg-[#0EA5E9]/10 text-[#0EA5E9]"
+                        : "bg-[#032D60]/10 text-[#032D60]"
                   }`}
                 >
                   <span className="font-bold text-lg leading-none">
@@ -291,7 +291,7 @@ const PrivateDashboard = () => {
               </div>
 
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-[10px] flex flex-col items-center justify-center bg-[#F9FAFB] text-[#667085]">
+                <div className="flex-shrink-0 w-12 h-12 rounded-2xl flex flex-col items-center justify-center bg-[#F4F6F9] text-[#667085]">
                   <span className="font-bold text-lg leading-none">
                     {deadlineDate.day}
                   </span>
@@ -316,7 +316,7 @@ const PrivateDashboard = () => {
               <div className="mt-auto pt-4">
                 <a
                   href="#"
-                  className="text-[#0EA5E9] text-[13px] font-medium hover:underline flex items-center gap-1"
+                  className="text-[#032D60] text-[13px] font-medium hover:underline flex items-center gap-1"
                 >
                   Xem tất cả lịch trình
                   <span className="material-symbols-outlined text-[16px]">
@@ -335,13 +335,13 @@ const PrivateDashboard = () => {
         </section>
 
         {/* Notifications Card */}
-        <section className="bg-white border border-[#E4E7EC] rounded-[16px] p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        <section className="bg-white border border-[#E4E7EC] rounded-2xl p-6">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-xl font-bold text-[#101828]">
               Thông báo từ văn phòng tuyển sinh
             </h2>
             {notifications.length > 0 && (
-              <span className="bg-[#0EA5E9]/10 text-[#0EA5E9] px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">
+              <span className="bg-[#032D60]/10 text-[#032D60] px-3 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">
                 {notifications.length > 1
                   ? `${notifications.length} mới`
                   : "Mới"}
@@ -356,7 +356,7 @@ const PrivateDashboard = () => {
                 return (
                   <div
                     key={notif.id}
-                    className="flex items-start gap-4 py-5 border-b border-[#EAECF0] last:border-b-0 cursor-pointer hover:bg-[#F9FAFB] -mx-6 px-6 transition-colors group"
+                    className="flex items-start gap-4 py-5 border-b border-[#E4E7EC] last:border-b-0 cursor-pointer hover:bg-[#F4F6F9] -mx-6 px-6 transition-colors group"
                   >
                     <span
                       className={`material-symbols-outlined mt-0.5 ${meta.color}`}
@@ -364,7 +364,7 @@ const PrivateDashboard = () => {
                       {meta.icon}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-[15px] font-semibold text-[#101828] group-hover:text-[#0EA5E9] transition-colors truncate">
+                      <h3 className="text-[15px] font-semibold text-[#101828] group-hover:text-[#032D60] transition-colors truncate">
                         {notif.subject}
                       </h3>
                       <p className="text-[13px] text-[#667085] mt-1 line-clamp-2">
@@ -391,7 +391,7 @@ const PrivateDashboard = () => {
         </section>
 
         {/* Quick Access Card */}
-        <section className="bg-white border border-[#E4E7EC] rounded-[16px] p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        <section className="bg-white border border-[#E4E7EC] rounded-2xl p-6">
           <h2 className="text-xl font-bold text-[#101828] mb-6">
             Truy cập nhanh
           </h2>
@@ -405,9 +405,9 @@ const PrivateDashboard = () => {
               <a
                 key={link.label}
                 href="#"
-                className="h-[110px] border border-[#D0D5DD] rounded-xl bg-white flex flex-col items-center justify-center gap-3 transition-all duration-200 hover:border-[#0EA5E9] hover:shadow-[0_4px_12px_rgba(14,165,233,0.12)] group"
+                className="h-[110px] border border-[#D0D5DD] rounded-xl bg-white flex flex-col items-center justify-center gap-3 transition-all duration-200 hover:border-[#032D60] hover:shadow-[0_4px_12px_rgba(3,45,96,0.12)] group"
               >
-                <span className="material-symbols-outlined text-[#0EA5E9] text-[32px] group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-[#032D60] text-[32px] group-hover:scale-110 transition-transform">
                   {link.icon}
                 </span>
                 <span className="text-[13px] font-medium text-[#101828] text-center">

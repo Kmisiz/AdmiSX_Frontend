@@ -6,6 +6,7 @@ import { Route as indexRoute } from "./routes/index";
 import { Route as dashboardRoute } from "./routes/dashboard";
 import { Route as profileRoute } from "./routes/profile";
 import { Route as admissionsRoute } from "./routes/admissions";
+import { Route as documentsRoute } from "./routes/documents";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useAuthStore, initAuthFromUrl } from "./store/auth";
 import { authApi } from "./apis/auth";
@@ -31,7 +32,7 @@ if (loginToken) {
     });
 }
 
-if (loginToken || localStorage.getItem("candidate_token")) {
+if (loginToken) {
   window.history.replaceState(null, "", "/dashboard");
 }
 
@@ -40,6 +41,7 @@ const routeTree = rootRoute.addChildren([
   dashboardRoute,
   profileRoute,
   admissionsRoute,
+  documentsRoute,
 ]);
 
 const router = createRouter({ routeTree });
