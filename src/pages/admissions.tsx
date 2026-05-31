@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import Toast from "../components/common/Toast";
+import DocumentViewer from "../components/common/DocumentViewer";
 import { profileApi } from "../apis/profile";
 import {
   admissionsApi,
@@ -30,28 +32,44 @@ const STEP_LABELS = [
   "Kiểm tra & Xác nhận",
 ];
 
-const NATURAL_SUBJECTS: ScoreEntry[] = [
-  { subject_code: "TOAN", subject_name: "Toán", score: "" },
-  { subject_code: "VAN", subject_name: "Ngữ văn", score: "" },
-  { subject_code: "ANH", subject_name: "Tiếng Anh", score: "" },
-  { subject_code: "LY", subject_name: "Vật lý", score: "" },
-  { subject_code: "HOA", subject_name: "Hóa học", score: "" },
-  { subject_code: "SINH", subject_name: "Sinh học", score: "" },
+const OPTIONAL_SUBJECTS: { code: string; name: string }[] = [
+  { code: "LY", name: "Vật lý" },
+  { code: "HOA", name: "Hóa học" },
+  { code: "SINH", name: "Sinh học" },
+  { code: "SU", name: "Lịch sử" },
+  { code: "DIA", name: "Địa lý" },
+  { code: "GDKTPL", name: "GDKT và PL" },
+  { code: "TINHOC", name: "Tin học" },
+  { code: "CONGNGHE", name: "Công nghệ" },
+  { code: "NGOAINGU", name: "Ngoại ngữ" },
 ];
 
-const SOCIAL_SUBJECTS: ScoreEntry[] = [
-  { subject_code: "TOAN", subject_name: "Toán", score: "" },
-  { subject_code: "VAN", subject_name: "Ngữ văn", score: "" },
-  { subject_code: "ANH", subject_name: "Tiếng Anh", score: "" },
-  { subject_code: "SU", subject_name: "Lịch sử", score: "" },
-  { subject_code: "DIA", subject_name: "Địa lý", score: "" },
-  { subject_code: "GDCD", subject_name: "GDCD", score: "" },
+const FOREIGN_LANGUAGES: { code: string; name: string }[] = [
+  { code: "ANH", name: "Tiếng Anh" },
+  { code: "HAN", name: "Tiếng Hàn" },
+  { code: "NHAT", name: "Tiếng Nhật" },
+  { code: "PHAP", name: "Tiếng Pháp" },
+  { code: "DUC", name: "Tiếng Đức" },
+  { code: "TRUNG", name: "Tiếng Trung" },
+  { code: "NGA", name: "Tiếng Nga" },
 ];
+
+const DOCUMENT_TYPE_LABELS: Record<string, string> = {
+  TRANSCRIPT: "Bảng điểm",
+  CITIZEN_ID_Front: "CMND/CCCD (Mặt trước)",
+  CITIZEN_ID_Back: "CMND/CCCD (Mặt sau)",
+  PORTRAIT: "Ảnh thẻ",
+  CERTIFICATE: "Chứng chỉ khác",
+  EXAM_CERTIFICATE: "Giấy chứng nhận kết quả thi",
+  OTHER: "Khác",
+};
 
 const DOCUMENT_TYPES: { value: string; label: string }[] = [
   { value: "TRANSCRIPT", label: "Bảng điểm" },
-  { value: "CITIZEN_ID", label: "CMND/CCCD" },
+  { value: "CITIZEN_ID_Front", label: "CMND/CCCD (Mặt trước)" },
+  { value: "CITIZEN_ID_Back", label: "CMND/CCCD (Mặt sau)" },
   { value: "PORTRAIT", label: "Ảnh thẻ" },
+  { value: "EXAM_CERTIFICATE", label: "Giấy chứng nhận kết quả thi" },
   { value: "CERTIFICATE", label: "Chứng chỉ khác" },
 ];
 
@@ -78,9 +96,9 @@ const Stepper = ({ current }: { current: Step }) => (
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
               s < current
-                ? "bg-[#0EA5E9] text-white"
+                ? "bg-[#032D60] text-white"
                 : s === current
-                  ? "bg-[#0EA5E9] text-white ring-4 ring-[#0EA5E9]/20"
+                  ? "bg-[#032D60] text-white ring-4 ring-[#032D60]/20"
                   : "bg-[#E4E7EC] text-[#667085]"
             }`}
           >
@@ -106,7 +124,7 @@ const Stepper = ({ current }: { current: Step }) => (
         {i < 3 && (
           <div
             className={`w-12 sm:w-20 h-0.5 mx-2 ${
-              s < current ? "bg-[#0EA5E9]" : "bg-[#E4E7EC]"
+              s < current ? "bg-[#032D60]" : "bg-[#E4E7EC]"
             }`}
           />
         )}
@@ -133,6 +151,7 @@ const AdmissionsPage = () => {
     date_of_birth: string;
     gender: string;
     citizen_id: string;
+    province: string;
     address: string;
   }>({
     full_name: "",
@@ -141,6 +160,7 @@ const AdmissionsPage = () => {
     date_of_birth: "",
     gender: "",
     citizen_id: "",
+    province: "",
     address: "",
   });
 
@@ -154,15 +174,25 @@ const AdmissionsPage = () => {
   const [wishes, setWishes] = useState<Wish[]>([]);
 
   // Step 3 — Scores & documents
-  const [scienceGroup, setScienceGroup] = useState<"NATURAL" | "SOCIAL" | null>(
-    null,
-  );
-  const [showGroupPicker, setShowGroupPicker] = useState(false);
-  const [scores, setScores] = useState<ScoreEntry[]>([]);
+  const [scores, setScores] = useState<ScoreEntry[]>([
+    { subject_code: "TOAN", subject_name: "Toán", score: "" },
+    { subject_code: "VAN", subject_name: "Ngữ văn", score: "" },
+  ]);
+  const [selectedOptional, setSelectedOptional] = useState<string[]>([]);
+  const [foreignLanguage, setForeignLanguage] = useState("");
   const [documents, setDocuments] = useState<DocumentData[]>([]);
   const [uploading, setUploading] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Step 3 — Academic info
+  const [graduationYear, setGraduationYear] = useState("");
+  const [grade12School, setGrade12School] = useState("");
+  const [examCertificate, setExamCertificate] = useState<File | null>(null);
+  const [examTranscript, setExamTranscript] = useState<File | null>(null);
+  const [viewDoc, setViewDoc] = useState<DocumentData | null>(null);
+
+  const dismissMessage = useCallback(() => setMessage(null), []);
 
   useEffect(() => {
     const fetchInitial = async () => {
@@ -180,6 +210,7 @@ const AdmissionsPage = () => {
           date_of_birth: cp.date_of_birth ? cp.date_of_birth.split("T")[0] : "",
           gender: cp.gender || "",
           citizen_id: cp.citizen_id?.toString() || "",
+          province: cp.province || "",
           address: cp.address || "",
         });
         setUniversities(uniRes.data.data || []);
@@ -192,13 +223,14 @@ const AdmissionsPage = () => {
     fetchInitial();
   }, []);
 
-  // Step 1 — save phone & address
+  // Step 1 — save phone, province & address
   const handleStep1Next = async () => {
     setSaving(true);
     setMessage(null);
     try {
       await profileApi.updateProfile({
         phone: profileData.phone || null,
+        province: profileData.province || null,
         address: profileData.address || null,
       } as never);
       setStep(2);
@@ -272,15 +304,57 @@ const AdmissionsPage = () => {
       try {
         const res = await profileApi.getAcademicRecord();
         const ar = res.data.data.academic_record;
-        if (ar?.science_group) {
-          setScienceGroup(ar.science_group);
-          setScores(
-            ar.science_group === "NATURAL"
-              ? NATURAL_SUBJECTS.map((s) => ({ ...s }))
-              : SOCIAL_SUBJECTS.map((s) => ({ ...s })),
+        const ap = res.data.data.academic_progress;
+        if (ar?.graduation_year) {
+          setGraduationYear(ar.graduation_year.toString());
+        }
+        if (ap?.grade_12?.school_name) {
+          setGrade12School(ap.grade_12.school_name);
+        }
+        if (ar?.exam_scores && ar.exam_scores.length > 0) {
+          // Load existing scores
+          const toanScore = ar.exam_scores.find(
+            (s) => s.subject_code === "TOAN",
           );
-        } else {
-          setShowGroupPicker(true);
+          const vanScore = ar.exam_scores.find((s) => s.subject_code === "VAN");
+          const optionalScores = ar.exam_scores.filter(
+            (s) => s.subject_code !== "TOAN" && s.subject_code !== "VAN",
+          );
+
+          const newScores: ScoreEntry[] = [
+            {
+              subject_code: "TOAN",
+              subject_name: "Toán",
+              score: toanScore?.score?.toString() || "",
+            },
+            {
+              subject_code: "VAN",
+              subject_name: "Ngữ văn",
+              score: vanScore?.score?.toString() || "",
+            },
+          ];
+
+          for (const os of optionalScores) {
+            const optDef = OPTIONAL_SUBJECTS.find(
+              (o) => o.code === os.subject_code,
+            );
+            if (optDef) {
+              newScores.push({
+                subject_code: os.subject_code,
+                subject_name: optDef.name,
+                score: os.score.toString(),
+              });
+            }
+          }
+
+          setScores(newScores);
+          setSelectedOptional(optionalScores.map((s) => s.subject_code));
+
+          // Check if NGOAINGU is selected
+          if (optionalScores.some((s) => s.subject_code === "NGOAINGU")) {
+            const lang = ar.foreign_language?.language_code || "";
+            setForeignLanguage(lang);
+          }
         }
       } catch {
         // no academic record yet
@@ -289,14 +363,49 @@ const AdmissionsPage = () => {
     fetchAcademic();
   }, []);
 
-  const handleGroupSelect = (group: "NATURAL" | "SOCIAL") => {
-    setScienceGroup(group);
-    setShowGroupPicker(false);
-    setScores(
-      group === "NATURAL"
-        ? NATURAL_SUBJECTS.map((s) => ({ ...s }))
-        : SOCIAL_SUBJECTS.map((s) => ({ ...s })),
-    );
+  const toggleOptionalSubject = (code: string) => {
+    setSelectedOptional((prev) => {
+      const newSelected = prev.includes(code)
+        ? prev.filter((c) => c !== code)
+        : prev.length < 2
+          ? [...prev, code]
+          : prev;
+
+      // Update scores: keep TOAN + VAN, add/remove optional
+      setScores((prevScores) => {
+        const base: ScoreEntry[] = [
+          prevScores.find((s) => s.subject_code === "TOAN") || {
+            subject_code: "TOAN",
+            subject_name: "Toán",
+            score: "",
+          },
+          prevScores.find((s) => s.subject_code === "VAN") || {
+            subject_code: "VAN",
+            subject_name: "Ngữ văn",
+            score: "",
+          },
+        ];
+        for (const code of newSelected) {
+          const def = OPTIONAL_SUBJECTS.find((o) => o.code === code);
+          if (def) {
+            const existing = prevScores.find((s) => s.subject_code === code);
+            base.push({
+              subject_code: code,
+              subject_name: def.name,
+              score: existing?.score || "",
+            });
+          }
+        }
+        return base;
+      });
+
+      // If NGOAINGU removed, clear foreign language
+      if (code === "NGOAINGU" && !newSelected.includes("NGOAINGU")) {
+        setForeignLanguage("");
+      }
+
+      return newSelected;
+    });
   };
 
   const updateScore = (idx: number, val: string) => {
@@ -368,15 +477,105 @@ const AdmissionsPage = () => {
       setMessage({ type: "error", text: "Chưa có nguyện vọng nào." });
       return;
     }
+
+    // Validate scores: exactly 4 subjects (TOAN + VAN + 2 optional)
+    const optionalCount = selectedOptional.length;
+    if (optionalCount !== 2) {
+      setMessage({
+        type: "error",
+        text: "Vui lòng chọn đúng 2 môn tự chọn.",
+      });
+      return;
+    }
+
+    // Validate all 4 scores are filled
+    const scoreMap: Record<string, number> = {};
+    for (const s of scores) {
+      if (s.score === "" || isNaN(Number(s.score))) {
+        setMessage({
+          type: "error",
+          text: `Vui lòng nhập điểm môn ${s.subject_name}.`,
+        });
+        return;
+      }
+      scoreMap[s.subject_code] = Number(s.score);
+    }
+    if (Object.keys(scoreMap).length !== 4) {
+      setMessage({
+        type: "error",
+        text: "Cần nhập đầy đủ 4 môn thi.",
+      });
+      return;
+    }
+
+    // Validate foreign language if NGOAINGU selected
+    if (selectedOptional.includes("NGOAINGU") && !foreignLanguage) {
+      setMessage({
+        type: "error",
+        text: "Vui lòng chọn ngoại ngữ thi.",
+      });
+      return;
+    }
+
+    // Validate academic info
+    if (!graduationYear) {
+      setMessage({
+        type: "error",
+        text: "Vui lòng nhập năm tốt nghiệp THPT.",
+      });
+      return;
+    }
+    if (!grade12School) {
+      setMessage({
+        type: "error",
+        text: "Vui lòng nhập tên trường THPT (lớp 12).",
+      });
+      return;
+    }
+
+    // Validate documents
+    if (!examTranscript) {
+      setMessage({
+        type: "error",
+        text: "Vui lòng tải lên phiếu điểm thi THPT.",
+      });
+      return;
+    }
+    if (!examCertificate) {
+      setMessage({
+        type: "error",
+        text: "Vui lòng tải lên giấy chứng nhận kết quả thi.",
+      });
+      return;
+    }
+
     setSubmitting(true);
     setMessage(null);
     try {
+      // 1. Save academic record (graduation_year)
+      await profileApi.upsertAcademicRecord({
+        graduation_year: parseInt(graduationYear),
+      } as never);
+
+      // 2. Save academic progress (grade 12 school name)
+      await profileApi.upsertAcademicProgress({
+        grade_12: { school_name: grade12School },
+      } as never);
+
+      // 3. Upload exam scores + exam certificate (EXAM_CERTIFICATE)
+      const hasNgoaiNgu = selectedOptional.includes("NGOAINGU");
+      await admissionsApi.uploadExamScores(
+        scoreMap,
+        examCertificate,
+        hasNgoaiNgu ? { language_code: foreignLanguage } : undefined,
+      );
+
+      // 4. Upload exam transcript (TRANSCRIPT)
+      await admissionsApi.uploadDocument(examTranscript, "TRANSCRIPT");
+
+      // 5. Create and submit applications
       for (const wish of wishes) {
         const comb = wish.combination;
-        const scoreMap: Record<string, string> = {};
-        scores.forEach((s) => {
-          scoreMap[s.subject_code] = s.score;
-        });
 
         const payload: {
           university_id: string;
@@ -394,9 +593,9 @@ const AdmissionsPage = () => {
         const s1 = scoreMap[comb.subject_1];
         const s2 = scoreMap[comb.subject_2];
         const s3 = scoreMap[comb.subject_3];
-        if (s1) payload.subject_1_score = Number(s1);
-        if (s2) payload.subject_2_score = Number(s2);
-        if (s3) payload.subject_3_score = Number(s3);
+        if (s1 !== undefined) payload.subject_1_score = s1;
+        if (s2 !== undefined) payload.subject_2_score = s2;
+        if (s3 !== undefined) payload.subject_3_score = s3;
 
         const createRes = await admissionsApi.createApplication(payload);
         const appId = createRes.data.data.id;
@@ -417,9 +616,9 @@ const AdmissionsPage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] bg-[#F5F7FB]">
+      <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
-          <span className="material-symbols-outlined text-[#0EA5E9] animate-spin text-[40px]">
+          <span className="material-symbols-outlined text-[#032D60] animate-spin text-[40px]">
             progress_activity
           </span>
           <p className="text-[#667085] text-sm">Đang tải thông tin...</p>
@@ -429,9 +628,9 @@ const AdmissionsPage = () => {
   }
 
   return (
-    <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8 bg-[#F5F7FB]">
+    <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
       <div className="mb-6">
-        <h1 className="text-[32px] font-bold text-[#0B1F44]">
+        <h1 className="text-[32px] font-bold text-[#101828]">
           Đăng ký tuyển sinh
         </h1>
         <p className="text-[#667085] text-sm mt-1">
@@ -439,24 +638,14 @@ const AdmissionsPage = () => {
         </p>
       </div>
 
-      {message && (
-        <div
-          className={`mb-6 px-4 py-3 rounded-lg text-sm font-medium ${
-            message.type === "success"
-              ? "bg-[#ECFDF5] text-[#04844B] border border-[#A7F3D0]"
-              : "bg-[#FEF2F2] text-[#EF4444] border border-[#FECACA]"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
+      {message && <Toast message={message} onDismiss={dismissMessage} />}
 
       <Stepper current={step} />
 
       {/* Step 1 — Personal Info */}
       {step === 1 && (
-        <section className="bg-white rounded-xl border border-[#E4E7EC] shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F9FAFB]">
+        <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
             <h3 className="text-lg font-bold text-[#101828]">
               Thông tin cá nhân & Liên lạc
             </h3>
@@ -468,7 +657,7 @@ const AdmissionsPage = () => {
                   type="text"
                   value={profileData.full_name}
                   disabled
-                  className="input-disabled"
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg bg-[#F4F6F9] text-[#667085] cursor-not-allowed w-full text-sm"
                 />
               </Field>
               <Field label="Ngày sinh">
@@ -476,7 +665,7 @@ const AdmissionsPage = () => {
                   type="date"
                   value={profileData.date_of_birth}
                   disabled
-                  className="input-disabled"
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg bg-[#F4F6F9] text-[#667085] cursor-not-allowed w-full text-sm"
                 />
               </Field>
               <Field label="Giới tính">
@@ -492,7 +681,7 @@ const AdmissionsPage = () => {
                           : ""
                   }
                   disabled
-                  className="input-disabled"
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg bg-[#F4F6F9] text-[#667085] cursor-not-allowed w-full text-sm"
                 />
               </Field>
               <Field label="Số CMND/CCCD">
@@ -500,7 +689,7 @@ const AdmissionsPage = () => {
                   type="text"
                   value={profileData.citizen_id}
                   disabled
-                  className="input-disabled"
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg bg-[#F4F6F9] text-[#667085] cursor-not-allowed w-full text-sm"
                 />
               </Field>
               <Field label="Email">
@@ -508,7 +697,7 @@ const AdmissionsPage = () => {
                   type="email"
                   value={profileData.email}
                   disabled
-                  className="input-disabled"
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg bg-[#F4F6F9] text-[#667085] cursor-not-allowed w-full text-sm"
                 />
               </Field>
               <Field label="Số điện thoại">
@@ -521,8 +710,22 @@ const AdmissionsPage = () => {
                       phone: e.target.value.replace(/\D/g, ""),
                     }))
                   }
-                  className="input-base"
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
                   placeholder="Nhập số điện thoại"
+                />
+              </Field>
+              <Field label="Tỉnh/Thành phố">
+                <input
+                  type="text"
+                  value={profileData.province}
+                  onChange={(e) =>
+                    setProfileData((prev) => ({
+                      ...prev,
+                      province: e.target.value,
+                    }))
+                  }
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                  placeholder="Nhập tỉnh/thành phố"
                 />
               </Field>
               <div className="flex flex-col gap-1.5 md:col-span-2">
@@ -537,7 +740,7 @@ const AdmissionsPage = () => {
                       address: e.target.value,
                     }))
                   }
-                  className="input-base min-h-[80px] resize-y"
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full min-h-[80px] resize-y"
                   placeholder="Nhập địa chỉ"
                   rows={3}
                 />
@@ -546,14 +749,14 @@ const AdmissionsPage = () => {
             <div className="flex justify-between pt-4 border-t border-[#E4E7EC]">
               <button
                 onClick={() => navigate({ to: "/dashboard" })}
-                className="btn-secondary"
+                className="px-6 py-2.5 bg-white text-[#475467] border border-[#D0D5DD] rounded-full text-sm font-semibold hover:bg-[#F4F6F9] transition-all active:scale-95"
               >
                 Hủy bỏ
               </button>
               <button
                 onClick={handleStep1Next}
                 disabled={saving}
-                className="btn-primary"
+                className="px-6 py-2.5 bg-[#032D60] text-white rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? "Đang lưu..." : "Tiếp theo"}
               </button>
@@ -566,8 +769,8 @@ const AdmissionsPage = () => {
       {step === 2 && (
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 lg:w-5/12">
-            <section className="bg-white rounded-xl border border-[#E4E7EC] shadow-sm overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F9FAFB]">
+            <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
+              <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
                 <h3 className="text-lg font-bold text-[#101828]">
                   Thêm nguyện vọng
                 </h3>
@@ -577,7 +780,7 @@ const AdmissionsPage = () => {
                   <select
                     value={selectedUni}
                     onChange={(e) => handleUniChange(e.target.value)}
-                    className="input-base"
+                    className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
                   >
                     <option value="">Chọn trường</option>
                     {universities.map((u) => (
@@ -591,7 +794,7 @@ const AdmissionsPage = () => {
                   <select
                     value={selectedMajor}
                     onChange={(e) => handleMajorChange(e.target.value)}
-                    className="input-base"
+                    className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full disabled:bg-[#F4F6F9] disabled:text-[#667085] disabled:cursor-not-allowed"
                     disabled={!selectedUni}
                   >
                     <option value="">Chọn ngành</option>
@@ -609,7 +812,7 @@ const AdmissionsPage = () => {
                   <select
                     value={selectedComb}
                     onChange={(e) => setSelectedComb(e.target.value)}
-                    className="input-base"
+                    className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full disabled:bg-[#F4F6F9] disabled:text-[#667085] disabled:cursor-not-allowed"
                     disabled={!selectedMajor}
                   >
                     <option value="">Chọn tổ hợp</option>
@@ -622,15 +825,18 @@ const AdmissionsPage = () => {
                     ))}
                   </select>
                 </Field>
-                <button onClick={addWish} className="btn-primary w-full">
+                <button
+                  onClick={addWish}
+                  className="px-6 py-2.5 bg-[#032D60] text-white rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95 w-full"
+                >
                   Thêm vào danh sách
                 </button>
               </div>
             </section>
           </div>
           <div className="flex-1 lg:w-7/12">
-            <section className="bg-white rounded-xl border border-[#E4E7EC] shadow-sm overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F9FAFB] flex justify-between items-center">
+            <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
+              <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9] flex justify-between items-center">
                 <h3 className="text-lg font-bold text-[#101828]">
                   Danh sách nguyện vọng
                 </h3>
@@ -654,9 +860,9 @@ const AdmissionsPage = () => {
                     {wishes.map((w, i) => (
                       <div
                         key={i}
-                        className="flex items-start gap-3 p-4 border border-[#E4E7EC] rounded-lg hover:bg-[#F9FAFB] transition-colors"
+                        className="flex items-start gap-3 p-4 border border-[#E4E7EC] rounded-xl hover:bg-[#F4F6F9] transition-colors"
                       >
-                        <div className="w-8 h-8 rounded-full bg-[#0EA5E9]/10 text-[#0EA5E9] flex items-center justify-center text-sm font-bold flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-[#032D60]/10 text-[#032D60] flex items-center justify-center text-sm font-bold flex-shrink-0">
                           {i + 1}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -687,7 +893,7 @@ const AdmissionsPage = () => {
                 )}
               </div>
             </section>
-            <div className="mt-4 p-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg">
+            <div className="mt-4 p-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-xl">
               <div className="flex items-start gap-2">
                 <span className="material-symbols-outlined text-[#F59E0B] text-[20px]">
                   info
@@ -705,10 +911,16 @@ const AdmissionsPage = () => {
               </div>
             </div>
             <div className="flex justify-between mt-6">
-              <button onClick={() => setStep(1)} className="btn-secondary">
+              <button
+                onClick={() => setStep(1)}
+                className="px-6 py-2.5 bg-white text-[#475467] border border-[#D0D5DD] rounded-full text-sm font-semibold hover:bg-[#F4F6F9] transition-all active:scale-95"
+              >
                 Quay lại
               </button>
-              <button onClick={() => setStep(3)} className="btn-primary">
+              <button
+                onClick={() => setStep(3)}
+                className="px-6 py-2.5 bg-[#032D60] text-white rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95"
+              >
                 Tiếp tục bước 3
               </button>
             </div>
@@ -720,79 +932,311 @@ const AdmissionsPage = () => {
       {step === 3 && (
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 lg:w-7/12">
-            <section className="bg-white rounded-xl border border-[#E4E7EC] shadow-sm overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F9FAFB]">
+            <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
+              <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
                 <h3 className="text-lg font-bold text-[#101828]">
-                  Nhập điểm thi
+                  Nhập điểm thi THPT
                 </h3>
+                <p className="text-xs text-[#667085] mt-1">
+                  Bắt buộc 2 môn Toán + Văn. Chọn thêm 2 môn tự chọn.
+                </p>
               </div>
-              <div className="p-6 space-y-5">
-                {showGroupPicker ? (
-                  <div className="text-center py-8">
-                    <p className="text-sm text-[#667085] mb-4">
-                      Vui lòng chọn khối thi để nhập điểm
-                    </p>
-                    <div className="flex gap-4 justify-center">
-                      <button
-                        onClick={() => handleGroupSelect("NATURAL")}
-                        className="btn-primary"
+              <div className="p-6 space-y-6">
+                {/* Required subjects */}
+                <div>
+                  <h4 className="text-sm font-bold text-[#101828] mb-3">
+                    Môn bắt buộc
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    {scores
+                      .filter(
+                        (s) =>
+                          s.subject_code === "TOAN" || s.subject_code === "VAN",
+                      )
+                      .map((s) => {
+                        const globalIdx = scores.findIndex(
+                          (x) => x.subject_code === s.subject_code,
+                        );
+                        return (
+                          <div
+                            key={s.subject_code}
+                            className="flex flex-col gap-1.5"
+                          >
+                            <label className="text-xs font-semibold text-[#344054]">
+                              {s.subject_name} *
+                            </label>
+                            <input
+                              type="number"
+                              step="0.1"
+                              min="0"
+                              max="10"
+                              value={s.score}
+                              onChange={(e) =>
+                                updateScore(globalIdx, e.target.value)
+                              }
+                              className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                              placeholder="0.0 - 10.0"
+                            />
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+
+                {/* Optional subjects */}
+                <div>
+                  <h4 className="text-sm font-bold text-[#101828] mb-1">
+                    Môn tự chọn{" "}
+                    <span className="text-[#667085] font-normal">
+                      (Chọn đúng 2)
+                    </span>
+                  </h4>
+                  <p className="text-xs text-[#667085] mb-3">
+                    Đã chọn: {selectedOptional.length}/2
+                  </p>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mb-4">
+                    {OPTIONAL_SUBJECTS.map((opt) => {
+                      const isSelected = selectedOptional.includes(opt.code);
+                      const isFull =
+                        selectedOptional.length >= 2 && !isSelected;
+                      return (
+                        <button
+                          key={opt.code}
+                          onClick={() => toggleOptionalSubject(opt.code)}
+                          disabled={isFull}
+                          className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all ${
+                            isSelected
+                              ? "bg-[#032D60] text-white border-[#032D60]"
+                              : isFull
+                                ? "bg-[#F4F6F9] text-[#98A2B3] border-[#E4E7EC] cursor-not-allowed"
+                                : "bg-white text-[#475467] border-[#D0D5DD] hover:border-[#032D60] hover:text-[#032D60]"
+                          }`}
+                        >
+                          {opt.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Score inputs for selected optional subjects */}
+                  {selectedOptional.length > 0 && (
+                    <div className="grid grid-cols-2 gap-4">
+                      {scores
+                        .filter(
+                          (s) =>
+                            selectedOptional.includes(s.subject_code) &&
+                            s.subject_code !== "NGOAINGU",
+                        )
+                        .map((s) => {
+                          const globalIdx = scores.findIndex(
+                            (x) => x.subject_code === s.subject_code,
+                          );
+                          return (
+                            <div
+                              key={s.subject_code}
+                              className="flex flex-col gap-1.5"
+                            >
+                              <label className="text-xs font-semibold text-[#344054]">
+                                {s.subject_name} *
+                              </label>
+                              <input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="10"
+                                value={s.score}
+                                onChange={(e) =>
+                                  updateScore(globalIdx, e.target.value)
+                                }
+                                className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                                placeholder="0.0 - 10.0"
+                              />
+                            </div>
+                          );
+                        })}
+                    </div>
+                  )}
+
+                  {/* Foreign language picker if NGOAINGU selected */}
+                  {selectedOptional.includes("NGOAINGU") && (
+                    <div className="mt-4 p-3 bg-[#032D60]/5 border border-[#032D60]/20 rounded-xl">
+                      <label className="text-xs font-semibold text-[#032D60] mb-2 block">
+                        Chọn ngoại ngữ thi *
+                      </label>
+                      <select
+                        value={foreignLanguage}
+                        onChange={(e) => {
+                          const langCode = e.target.value;
+                          setForeignLanguage(langCode);
+                          // Replace NGOAINGU in scores with the actual language name
+                          if (langCode) {
+                            const langDef = FOREIGN_LANGUAGES.find(
+                              (l) => l.code === langCode,
+                            );
+                            if (langDef) {
+                              setScores((prev) =>
+                                prev.map((s) =>
+                                  s.subject_code === "NGOAINGU"
+                                    ? {
+                                        ...s,
+                                        subject_name: langDef.name,
+                                      }
+                                    : s,
+                                ),
+                              );
+                            }
+                          }
+                        }}
+                        className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
                       >
-                        Khối A (Tự nhiên)
-                      </button>
-                      <button
-                        onClick={() => handleGroupSelect("SOCIAL")}
-                        className="btn-primary"
-                      >
-                        Khối C (Xã hội)
-                      </button>
+                        <option value="">-- Chọn ngoại ngữ --</option>
+                        {FOREIGN_LANGUAGES.map((lang) => (
+                          <option key={lang.code} value={lang.code}>
+                            {lang.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Score input for foreign language */}
+                  {selectedOptional.includes("NGOAINGU") && foreignLanguage && (
+                    <div className="mt-3 grid grid-cols-2 gap-4">
+                      {scores
+                        .filter((s) => s.subject_code === "NGOAINGU")
+                        .map((s) => {
+                          const globalIdx = scores.findIndex(
+                            (x) => x.subject_code === "NGOAINGU",
+                          );
+                          return (
+                            <div
+                              key={s.subject_code}
+                              className="flex flex-col gap-1.5"
+                            >
+                              <label className="text-xs font-semibold text-[#344054]">
+                                {s.subject_name} *
+                              </label>
+                              <input
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="10"
+                                value={s.score}
+                                onChange={(e) =>
+                                  updateScore(globalIdx, e.target.value)
+                                }
+                                className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                                placeholder="0.0 - 10.0"
+                              />
+                            </div>
+                          );
+                        })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Academic info */}
+                <div className="border-t border-[#E4E7EC] pt-5">
+                  <h4 className="text-sm font-bold text-[#101828] mb-4">
+                    Thông tin học tập
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-semibold text-[#344054]">
+                        Năm tốt nghiệp THPT *
+                      </label>
+                      <input
+                        type="number"
+                        value={graduationYear}
+                        onChange={(e) => setGraduationYear(e.target.value)}
+                        className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                        placeholder="VD: 2025"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-semibold text-[#344054]">
+                        Trường THPT (lớp 12) *
+                      </label>
+                      <input
+                        type="text"
+                        value={grade12School}
+                        onChange={(e) => setGrade12School(e.target.value)}
+                        className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                        placeholder="Tên trường lớp 12"
+                      />
                     </div>
                   </div>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-semibold text-[#344054]">
-                        Khối:{" "}
-                        {scienceGroup === "NATURAL"
-                          ? "A (Tự nhiên)"
-                          : "C (Xã hội)"}
+                </div>
+
+                {/* Phiếu điểm thi THPT */}
+                <div className="border-t border-[#E4E7EC] pt-5">
+                  <h4 className="text-sm font-bold text-[#101828] mb-1">
+                    Phiếu điểm thi THPT *
+                  </h4>
+                  <p className="text-xs text-[#667085] mb-3">
+                    Tải lên phiếu điểm thi để xác thực điểm
+                  </p>
+                  <div className="border border-dashed border-[#D0D5DD] rounded-xl p-4 text-center hover:border-[#032D60] transition-colors">
+                    <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#032D60] hover:text-[#021a40]">
+                      <span className="material-symbols-outlined text-[20px]">
+                        cloud_upload
                       </span>
-                      <button
-                        onClick={() => setShowGroupPicker(true)}
-                        className="text-xs text-[#0EA5E9] hover:underline"
-                      >
-                        (Đổi khối)
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {scores.map((s, i) => (
-                        <div
-                          key={s.subject_code}
-                          className="flex flex-col gap-1.5"
-                        >
-                          <label className="text-xs font-semibold text-[#344054]">
-                            {s.subject_name}
-                          </label>
-                          <input
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            max="10"
-                            value={s.score}
-                            onChange={(e) => updateScore(i, e.target.value)}
-                            className="input-base"
-                            placeholder="0.0"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
+                      {examTranscript
+                        ? examTranscript.name
+                        : "Chọn file phiếu điểm thi"}
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setExamTranscript(file);
+                        }}
+                      />
+                    </label>
+                    <p className="text-[10px] text-[#667085] mt-1">
+                      PDF, JPG, PNG tối đa 5MB
+                    </p>
+                  </div>
+                </div>
+
+                {/* Giấy chứng nhận kết quả thi */}
+                <div className="border-t border-[#E4E7EC] pt-5">
+                  <h4 className="text-sm font-bold text-[#101828] mb-1">
+                    Giấy chứng nhận kết quả thi *
+                  </h4>
+                  <p className="text-xs text-[#667085] mb-3">
+                    Giấy chứng nhận từ Sở GD&ĐT
+                  </p>
+                  <div className="border border-dashed border-[#D0D5DD] rounded-xl p-4 text-center hover:border-[#032D60] transition-colors">
+                    <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#032D60] hover:text-[#021a40]">
+                      <span className="material-symbols-outlined text-[20px]">
+                        cloud_upload
+                      </span>
+                      {examCertificate
+                        ? examCertificate.name
+                        : "Chọn file giấy chứng nhận"}
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setExamCertificate(file);
+                        }}
+                      />
+                    </label>
+                    <p className="text-[10px] text-[#667085] mt-1">
+                      PDF, JPG, PNG tối đa 5MB
+                    </p>
+                  </div>
+                </div>
               </div>
             </section>
           </div>
           <div className="flex-1 lg:w-5/12">
-            <section className="bg-white rounded-xl border border-[#E4E7EC] shadow-sm overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F9FAFB]">
+            <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
+              <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
                 <h3 className="text-lg font-bold text-[#101828]">
                   Tải lên minh chứng
                 </h3>
@@ -801,12 +1245,12 @@ const AdmissionsPage = () => {
                 {DOCUMENT_TYPES.map((dt) => (
                   <div
                     key={dt.value}
-                    className="border border-dashed border-[#D0D5DD] rounded-lg p-4 text-center hover:border-[#0EA5E9] transition-colors"
+                    className="border border-dashed border-[#D0D5DD] rounded-xl p-4 text-center hover:border-[#032D60] transition-colors"
                   >
                     <p className="text-sm font-medium text-[#344054] mb-2">
                       {dt.label}
                     </p>
-                    <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#0EA5E9] hover:text-[#0095d4]">
+                    <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#032D60] hover:text-[#021a40]">
                       <span className="material-symbols-outlined text-[20px]">
                         cloud_upload
                       </span>
@@ -833,21 +1277,28 @@ const AdmissionsPage = () => {
                       {documents.map((doc) => (
                         <div
                           key={doc.id}
-                          className="flex items-center justify-between p-2 bg-[#F9FAFB] rounded-lg"
+                          className="flex items-center justify-between p-2 bg-[#F4F6F9] rounded-lg"
                         >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="material-symbols-outlined text-[#0EA5E9] text-[18px]">
-                              description
+                          <button
+                            onClick={() => setViewDoc(doc)}
+                            className="flex items-center gap-2 min-w-0 flex-1 text-left"
+                          >
+                            <span className="material-symbols-outlined text-[#032D60] text-[18px]">
+                              {doc.file_type === "application/pdf" ||
+                              /\.pdf$/i.test(doc.file_url)
+                                ? "picture_as_pdf"
+                                : "image"}
                             </span>
                             <div className="min-w-0">
                               <p className="text-xs font-medium text-[#101828] truncate">
                                 {doc.file_name}
                               </p>
                               <p className="text-[10px] text-[#667085]">
-                                {doc.document_type}
+                                {DOCUMENT_TYPE_LABELS[doc.document_type] ||
+                                  doc.document_type}
                               </p>
                             </div>
-                          </div>
+                          </button>
                           <button
                             onClick={() => handleDeleteDoc(doc.id)}
                             className="text-[#EF4444] hover:text-[#DC2626] p-1 flex-shrink-0"
@@ -866,12 +1317,18 @@ const AdmissionsPage = () => {
           </div>
         </div>
       )}
-      {step === 3 && !showGroupPicker && (
+      {step === 3 && (
         <div className="flex justify-between mt-6">
-          <button onClick={() => setStep(2)} className="btn-secondary">
+          <button
+            onClick={() => setStep(2)}
+            className="px-6 py-2.5 bg-white text-[#475467] border border-[#D0D5DD] rounded-full text-sm font-semibold hover:bg-[#F4F6F9] transition-all active:scale-95"
+          >
             Quay lại
           </button>
-          <button onClick={() => setStep(4)} className="btn-primary">
+          <button
+            onClick={() => setStep(4)}
+            className="px-6 py-2.5 bg-[#032D60] text-white rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95"
+          >
             Tiếp tục
           </button>
         </div>
@@ -879,8 +1336,8 @@ const AdmissionsPage = () => {
 
       {/* Step 4 — Confirmation */}
       {step === 4 && (
-        <section className="bg-white rounded-xl border border-[#E4E7EC] shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F9FAFB]">
+        <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
             <h3 className="text-lg font-bold text-[#101828]">
               Kiểm tra & Xác nhận
             </h3>
@@ -890,10 +1347,11 @@ const AdmissionsPage = () => {
               <h4 className="text-sm font-bold text-[#101828] mb-3">
                 Thông tin cá nhân
               </h4>
-              <div className="grid grid-cols-2 gap-4 p-4 bg-[#F9FAFB] rounded-lg">
+              <div className="grid grid-cols-2 gap-4 p-4 bg-[#F4F6F9] rounded-xl">
                 <InfoRow label="Họ và tên" value={profileData.full_name} />
                 <InfoRow label="Email" value={profileData.email} />
                 <InfoRow label="Số điện thoại" value={profileData.phone} />
+                <InfoRow label="Tỉnh/Thành phố" value={profileData.province} />
                 <InfoRow label="Ngày sinh" value={profileData.date_of_birth} />
                 <InfoRow
                   label="Giới tính"
@@ -927,9 +1385,9 @@ const AdmissionsPage = () => {
                   {wishes.map((w, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-3 p-3 bg-[#F9FAFB] rounded-lg"
+                      className="flex items-center gap-3 p-3 bg-[#F4F6F9] rounded-xl"
                     >
-                      <span className="w-6 h-6 rounded-full bg-[#0EA5E9] text-white text-xs flex items-center justify-center font-bold">
+                      <span className="w-6 h-6 rounded-full bg-[#032D60] text-white text-xs flex items-center justify-center font-bold">
                         {i + 1}
                       </span>
                       <div>
@@ -952,9 +1410,9 @@ const AdmissionsPage = () => {
             {scores.length > 0 && (
               <div>
                 <h4 className="text-sm font-bold text-[#101828] mb-3">
-                  Điểm thi
+                  Điểm thi ({scores.length} môn)
                 </h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 p-4 bg-[#F9FAFB] rounded-lg">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-[#F4F6F9] rounded-xl">
                   {scores.map((s) => (
                     <div
                       key={s.subject_code}
@@ -969,6 +1427,30 @@ const AdmissionsPage = () => {
                     </div>
                   ))}
                 </div>
+                {foreignLanguage && (
+                  <p className="text-xs text-[#667085] mt-2">
+                    Ngoại ngữ:{" "}
+                    {FOREIGN_LANGUAGES.find((l) => l.code === foreignLanguage)
+                      ?.name || foreignLanguage}
+                    {" — "}
+                    {scores.find((s) => s.subject_code === "NGOAINGU")?.score ||
+                      "—"}
+                  </p>
+                )}
+                <div className="grid grid-cols-2 gap-3 mt-3 text-xs text-[#667085]">
+                  <span>Năm tốt nghiệp: {graduationYear || "—"}</span>
+                  <span>Trường lớp 12: {grade12School || "—"}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 mt-1 text-xs text-[#667085]">
+                  <span>
+                    Phiếu điểm thi:{" "}
+                    {examTranscript ? examTranscript.name : "Chưa tải"}
+                  </span>
+                  <span>
+                    Giấy chứng nhận:{" "}
+                    {examCertificate ? examCertificate.name : "Chưa tải"}
+                  </span>
+                </div>
               </div>
             )}
 
@@ -979,22 +1461,27 @@ const AdmissionsPage = () => {
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {documents.map((doc) => (
-                    <div
+                    <button
                       key={doc.id}
-                      className="flex items-center gap-2 p-3 bg-[#F9FAFB] rounded-lg"
+                      onClick={() => setViewDoc(doc)}
+                      className="flex items-center gap-2 p-3 bg-[#F4F6F9] rounded-xl text-left hover:bg-[#E4E7EC] transition-colors"
                     >
-                      <span className="material-symbols-outlined text-[#0EA5E9] text-[18px]">
-                        description
+                      <span className="material-symbols-outlined text-[#032D60] text-[18px]">
+                        {doc.file_type === "application/pdf" ||
+                        /\.pdf$/i.test(doc.file_url)
+                          ? "picture_as_pdf"
+                          : "image"}
                       </span>
                       <div className="min-w-0">
                         <p className="text-xs font-medium text-[#101828] truncate">
                           {doc.file_name}
                         </p>
                         <p className="text-[10px] text-[#667085]">
-                          {doc.document_type}
+                          {DOCUMENT_TYPE_LABELS[doc.document_type] ||
+                            doc.document_type}
                         </p>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -1006,7 +1493,7 @@ const AdmissionsPage = () => {
                   type="checkbox"
                   checked={agreed}
                   onChange={(e) => setAgreed(e.target.checked)}
-                  className="mt-1 w-4 h-4 rounded border-[#D0D5DD] text-[#0EA5E9] focus:ring-[#0EA5E9]"
+                  className="mt-1 w-4 h-4 rounded border-[#D0D5DD] text-[#032D60] focus:ring-[#032D60]"
                 />
                 <span className="text-sm text-[#667085]">
                   Tôi cam đoan những thông tin đã khai báo là đúng sự thật và
@@ -1017,19 +1504,30 @@ const AdmissionsPage = () => {
             </div>
 
             <div className="flex justify-between pt-4 border-t border-[#E4E7EC]">
-              <button onClick={() => setStep(3)} className="btn-secondary">
+              <button
+                onClick={() => setStep(3)}
+                className="px-6 py-2.5 bg-white text-[#475467] border border-[#D0D5DD] rounded-full text-sm font-semibold hover:bg-[#F4F6F9] transition-all active:scale-95"
+              >
                 Quay lại
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={submitting || !agreed || wishes.length === 0}
-                className="btn-primary"
+                className="px-6 py-2.5 bg-[#032D60] text-white rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? "Đang nộp..." : "Gửi hồ sơ"}
               </button>
             </div>
           </div>
         </section>
+      )}
+      {viewDoc && (
+        <DocumentViewer
+          fileUrl={viewDoc.file_url}
+          fileType={viewDoc.file_type}
+          fileName={viewDoc.file_name}
+          onClose={() => setViewDoc(null)}
+        />
       )}
     </div>
   );
@@ -1056,73 +1554,4 @@ const InfoRow = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
-// Global styles (added once via style tag)
-const STYLES = `
-.input-base {
-  height: 40px;
-  padding: 0 12px;
-  border: 1px solid #D0D5DD;
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
-  transition: all 0.15s;
-  background: white;
-  width: 100%;
-}
-.input-base:focus {
-  border-color: #0EA5E9;
-  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1);
-}
-.input-disabled {
-  height: 40px;
-  padding: 0 12px;
-  border: 1px solid #D0D5DD;
-  border-radius: 8px;
-  font-size: 14px;
-  background: #F9FAFB;
-  color: #667085;
-  cursor: not-allowed;
-  width: 100%;
-}
-textarea.input-base {
-  height: auto;
-  padding: 10px 12px;
-}
-.btn-primary {
-  padding: 10px 24px;
-  background: #0EA5E9;
-  color: white;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.15s;
-  border: none;
-  cursor: pointer;
-}
-.btn-primary:hover { background: #0095d4; }
-.btn-primary:active { transform: scale(0.97); }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-secondary {
-  padding: 10px 24px;
-  background: white;
-  color: #344054;
-  border: 1px solid #D0D5DD;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.15s;
-  cursor: pointer;
-}
-.btn-secondary:hover { background: #F9FAFB; }
-.btn-secondary:active { transform: scale(0.97); }
-select.input-base { appearance: auto; }
-`;
-
-const AdmissionsPageWithStyles = () => (
-  <>
-    <style>{STYLES}</style>
-    <AdmissionsPage />
-  </>
-);
-
-export default AdmissionsPageWithStyles;
+export default AdmissionsPage;

@@ -30,7 +30,6 @@ export interface AcademicRecordData {
     id: number | null;
     candidate_id: number;
     graduation_year: number | null;
-    science_group: "NATURAL" | "SOCIAL" | null;
     priority_score: number;
     exam_scores: Array<{
       subject_code: string;

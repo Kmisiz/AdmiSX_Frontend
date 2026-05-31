@@ -124,4 +124,29 @@ export const admissionsApi = {
 
   deleteDocument: (id: number) =>
     apiClient.delete<ApiResponse<null>>(`/candidate/profile/documents/${id}`),
+
+  deleteExamScores: () =>
+    apiClient.delete<ApiResponse<unknown>>(
+      "/candidate/profile/exam-scores-by-group",
+    ),
+
+  uploadExamScores: (
+    scores: Record<string, number>,
+    examCertificate: File,
+    foreignLanguage?: { language_code: string },
+  ) => {
+    const formData = new FormData();
+    formData.append("scores", JSON.stringify(scores));
+    formData.append("exam_certificate", examCertificate);
+    if (foreignLanguage) {
+      formData.append("foreign_language", JSON.stringify(foreignLanguage));
+    }
+    return apiClient.put<ApiResponse<unknown>>(
+      "/candidate/profile/exam-scores-by-group",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      },
+    );
+  },
 };
