@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import Toast from "../components/common/Toast";
+import ConfirmDialog from "../components/common/ConfirmDialog";
 import DocumentViewer from "../components/common/DocumentViewer";
 import { profileApi } from "../apis/profile";
 import {
@@ -64,13 +65,28 @@ const DOCUMENT_TYPE_LABELS: Record<string, string> = {
   OTHER: "Khác",
 };
 
-const DOCUMENT_TYPES: { value: string; label: string }[] = [
-  { value: "TRANSCRIPT", label: "Bảng điểm" },
-  { value: "CITIZEN_ID_Front", label: "CMND/CCCD (Mặt trước)" },
-  { value: "CITIZEN_ID_Back", label: "CMND/CCCD (Mặt sau)" },
-  { value: "PORTRAIT", label: "Ảnh thẻ" },
-  { value: "EXAM_CERTIFICATE", label: "Giấy chứng nhận kết quả thi" },
-  { value: "CERTIFICATE", label: "Chứng chỉ khác" },
+const CERTIFICATE_OPTIONS = [
+  "IELTS (Academic)",
+  "TOEFL iBT",
+  "TOEIC (4 kỹ năng)",
+  "DELF/DALF (Tiếng Pháp)",
+  "JLPT (Tiếng Nhật)",
+  "HSK/HSKK (Tiếng Trung)",
+  "TOPIK (Tiếng Hàn)",
+  "TestDaF/Goethe-Zertifikat (Tiếng Đức)",
+];
+
+const DOCUMENT_TYPES: { value: string; label: string; required: boolean }[] = [
+  { value: "TRANSCRIPT", label: "Bảng điểm", required: true },
+  { value: "CITIZEN_ID_Front", label: "CMND/CCCD (Mặt trước)", required: true },
+  { value: "CITIZEN_ID_Back", label: "CMND/CCCD (Mặt sau)", required: true },
+  { value: "PORTRAIT", label: "Ảnh thẻ", required: true },
+  {
+    value: "EXAM_CERTIFICATE",
+    label: "Giấy chứng nhận kết quả thi",
+    required: true,
+  },
+  { value: "CERTIFICATE", label: "Chứng chỉ khác", required: false },
 ];
 
 const normalizeSubjectName = (code: string): string => {
@@ -188,9 +204,14 @@ const AdmissionsPage = () => {
   // Step 3 — Academic info
   const [graduationYear, setGraduationYear] = useState("");
   const [grade12School, setGrade12School] = useState("");
-  const [examCertificate, setExamCertificate] = useState<File | null>(null);
-  const [examTranscript, setExamTranscript] = useState<File | null>(null);
   const [viewDoc, setViewDoc] = useState<DocumentData | null>(null);
+  const [editingDocType, setEditingDocType] = useState<string | null>(null);
+  const [newDocFile, setNewDocFile] = useState<File | null>(null);
+  const [deleteDocTarget, setDeleteDocTarget] = useState<DocumentData | null>(
+    null,
+  );
+  const [deleteWishIndex, setDeleteWishIndex] = useState<number | null>(null);
+  const [certEntries, setCertEntries] = useState<string[]>([""]);
 
   const dismissMessage = useCallback(() => setMessage(null), []);
 
@@ -207,7 +228,9 @@ const AdmissionsPage = () => {
           full_name: cp.full_name || "",
           email: p.user?.email || "",
           phone: cp.phone || "",
-          date_of_birth: cp.date_of_birth ? cp.date_of_birth.split("T")[0] : "",
+          date_of_birth: cp.date_of_birth
+            ? new Date(cp.date_of_birth).toLocaleDateString("en-CA")
+            : "",
           gender: cp.gender || "",
           citizen_id: cp.citizen_id?.toString() || "",
           province: cp.province || "",
@@ -282,6 +305,16 @@ const AdmissionsPage = () => {
     const major = majors.find((m) => m.code === selectedMajor);
     const comb = combinations.find((c) => c.code === selectedComb);
     if (!uni || !major || !comb) return;
+    const exists = wishes.some(
+      (w) => w.university.id === uni.id && w.major.id === major.id,
+    );
+    if (exists) {
+      setMessage({
+        type: "error",
+        text: "Nguyện vọng này đã tồn tại. Vui lòng chọn trường/ngành khác.",
+      });
+      return;
+    }
     setWishes((prev) => [
       ...prev,
       { university: uni, major, combination: comb },
@@ -294,8 +327,13 @@ const AdmissionsPage = () => {
     setMessage(null);
   };
 
+  const confirmRemoveWish = (idx: number) => {
+    setDeleteWishIndex(idx);
+  };
+
   const removeWish = (idx: number) => {
     setWishes((prev) => prev.filter((_, i) => i !== idx));
+    setDeleteWishIndex(null);
   };
 
   // Step 3 — scores
@@ -443,13 +481,20 @@ const AdmissionsPage = () => {
   const handleUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     docType: string,
+    displayName?: string,
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
     try {
-      await admissionsApi.uploadDocument(file, docType);
+      await admissionsApi.uploadDocument(file, docType, displayName);
       await fetchDocuments();
+      if (docType === "CERTIFICATE" && displayName) {
+        setCertEntries((prev) => {
+          const next = prev.filter((t) => t !== displayName);
+          return next.length === 0 ? [""] : next;
+        });
+      }
     } catch {
       setMessage({ type: "error", text: "Tải file thất bại." });
     } finally {
@@ -462,8 +507,26 @@ const AdmissionsPage = () => {
     try {
       await admissionsApi.deleteDocument(id);
       setDocuments((prev) => prev.filter((d) => d.id !== id));
+      setDeleteDocTarget(null);
     } catch {
       setMessage({ type: "error", text: "Xóa file thất bại." });
+      setDeleteDocTarget(null);
+    }
+  };
+
+  const handleReplaceDoc = async (docId: number, docType: string) => {
+    if (!newDocFile) return;
+    setUploading(true);
+    try {
+      await admissionsApi.deleteDocument(docId);
+      await admissionsApi.uploadDocument(newDocFile, docType);
+      await fetchDocuments();
+      setEditingDocType(null);
+      setNewDocFile(null);
+    } catch {
+      setMessage({ type: "error", text: "Cập nhật file thất bại." });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -533,20 +596,23 @@ const AdmissionsPage = () => {
       return;
     }
 
-    // Validate documents
-    if (!examTranscript) {
-      setMessage({
-        type: "error",
-        text: "Vui lòng tải lên phiếu điểm thi THPT.",
-      });
-      return;
-    }
-    if (!examCertificate) {
-      setMessage({
-        type: "error",
-        text: "Vui lòng tải lên giấy chứng nhận kết quả thi.",
-      });
-      return;
+    // Validate required documents
+    const requiredTypes = [
+      "TRANSCRIPT",
+      "CITIZEN_ID_Front",
+      "CITIZEN_ID_Back",
+      "PORTRAIT",
+      "EXAM_CERTIFICATE",
+    ];
+    for (const type of requiredTypes) {
+      if (!documents.some((d) => d.document_type === type)) {
+        const label = DOCUMENT_TYPE_LABELS[type] || type;
+        setMessage({
+          type: "error",
+          text: `Vui lòng tải lên ${label}.`,
+        });
+        return;
+      }
     }
 
     setSubmitting(true);
@@ -562,16 +628,13 @@ const AdmissionsPage = () => {
         grade_12: { school_name: grade12School },
       } as never);
 
-      // 3. Upload exam scores + exam certificate (EXAM_CERTIFICATE)
+      // 3. Upload exam scores (certificate already uploaded via document upload)
       const hasNgoaiNgu = selectedOptional.includes("NGOAINGU");
       await admissionsApi.uploadExamScores(
         scoreMap,
-        examCertificate,
+        undefined,
         hasNgoaiNgu ? { language_code: foreignLanguage } : undefined,
       );
-
-      // 4. Upload exam transcript (TRANSCRIPT)
-      await admissionsApi.uploadDocument(examTranscript, "TRANSCRIPT");
 
       // 5. Create and submit applications
       for (const wish of wishes) {
@@ -880,7 +943,7 @@ const AdmissionsPage = () => {
                           </p>
                         </div>
                         <button
-                          onClick={() => removeWish(i)}
+                          onClick={() => confirmRemoveWish(i)}
                           className="text-[#EF4444] hover:text-[#DC2626] p-1 flex-shrink-0"
                         >
                           <span className="material-symbols-outlined text-[20px]">
@@ -1167,70 +1230,6 @@ const AdmissionsPage = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Phiếu điểm thi THPT */}
-                <div className="border-t border-[#E4E7EC] pt-5">
-                  <h4 className="text-sm font-bold text-[#101828] mb-1">
-                    Phiếu điểm thi THPT *
-                  </h4>
-                  <p className="text-xs text-[#667085] mb-3">
-                    Tải lên phiếu điểm thi để xác thực điểm
-                  </p>
-                  <div className="border border-dashed border-[#D0D5DD] rounded-xl p-4 text-center hover:border-[#032D60] transition-colors">
-                    <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#032D60] hover:text-[#021a40]">
-                      <span className="material-symbols-outlined text-[20px]">
-                        cloud_upload
-                      </span>
-                      {examTranscript
-                        ? examTranscript.name
-                        : "Chọn file phiếu điểm thi"}
-                      <input
-                        type="file"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) setExamTranscript(file);
-                        }}
-                      />
-                    </label>
-                    <p className="text-[10px] text-[#667085] mt-1">
-                      PDF, JPG, PNG tối đa 5MB
-                    </p>
-                  </div>
-                </div>
-
-                {/* Giấy chứng nhận kết quả thi */}
-                <div className="border-t border-[#E4E7EC] pt-5">
-                  <h4 className="text-sm font-bold text-[#101828] mb-1">
-                    Giấy chứng nhận kết quả thi *
-                  </h4>
-                  <p className="text-xs text-[#667085] mb-3">
-                    Giấy chứng nhận từ Sở GD&ĐT
-                  </p>
-                  <div className="border border-dashed border-[#D0D5DD] rounded-xl p-4 text-center hover:border-[#032D60] transition-colors">
-                    <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#032D60] hover:text-[#021a40]">
-                      <span className="material-symbols-outlined text-[20px]">
-                        cloud_upload
-                      </span>
-                      {examCertificate
-                        ? examCertificate.name
-                        : "Chọn file giấy chứng nhận"}
-                      <input
-                        type="file"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) setExamCertificate(file);
-                        }}
-                      />
-                    </label>
-                    <p className="text-[10px] text-[#667085] mt-1">
-                      PDF, JPG, PNG tối đa 5MB
-                    </p>
-                  </div>
-                </div>
               </div>
             </section>
           </div>
@@ -1241,77 +1240,315 @@ const AdmissionsPage = () => {
                   Tải lên minh chứng
                 </h3>
               </div>
-              <div className="p-6 space-y-5">
-                {DOCUMENT_TYPES.map((dt) => (
-                  <div
-                    key={dt.value}
-                    className="border border-dashed border-[#D0D5DD] rounded-xl p-4 text-center hover:border-[#032D60] transition-colors"
-                  >
-                    <p className="text-sm font-medium text-[#344054] mb-2">
-                      {dt.label}
-                    </p>
-                    <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#032D60] hover:text-[#021a40]">
-                      <span className="material-symbols-outlined text-[20px]">
-                        cloud_upload
-                      </span>
-                      Chọn file
-                      <input
-                        type="file"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        className="hidden"
-                        onChange={(e) => handleUpload(e, dt.value)}
-                        disabled={uploading}
-                      />
-                    </label>
-                    <p className="text-[10px] text-[#667085] mt-1">
-                      PDF, JPG, PNG tối đa 5MB
-                    </p>
-                  </div>
-                ))}
-                {documents.length > 0 && (
-                  <div className="border-t border-[#E4E7EC] pt-4 mt-4">
-                    <h4 className="text-xs font-semibold text-[#667085] mb-3 uppercase tracking-wide">
-                      Đã tải lên
-                    </h4>
-                    <div className="space-y-2">
-                      {documents.map((doc) => (
-                        <div
-                          key={doc.id}
-                          className="flex items-center justify-between p-2 bg-[#F4F6F9] rounded-lg"
-                        >
-                          <button
-                            onClick={() => setViewDoc(doc)}
-                            className="flex items-center gap-2 min-w-0 flex-1 text-left"
+              <div className="p-6 space-y-3">
+                {DOCUMENT_TYPES.map((dt) => {
+                  const existingDoc = documents.find(
+                    (d) => d.document_type === dt.value,
+                  );
+                  const isEditing = editingDocType === dt.value;
+                  const certDocs = documents.filter(
+                    (d) => d.document_type === "CERTIFICATE",
+                  );
+
+                  // CERTIFICATE type: multiple entries, each with type selector + upload
+                  if (dt.value === "CERTIFICATE") {
+                    const usedTypes = new Set(
+                      documents
+                        .filter(
+                          (d) =>
+                            d.document_type === "CERTIFICATE" && d.display_name,
+                        )
+                        .map((d) => d.display_name!),
+                    );
+                    const availableOptions = CERTIFICATE_OPTIONS.filter(
+                      (opt) => !usedTypes.has(opt),
+                    );
+                    return (
+                      <div
+                        key={dt.value}
+                        className="border border-[#E4E7EC] rounded-xl p-4 space-y-3"
+                      >
+                        <p className="text-sm font-medium text-[#344054]">
+                          {dt.label}{" "}
+                          <span className="text-[#98A2B3] font-normal">
+                            (Tùy chọn)
+                          </span>
+                        </p>
+                        {/* Uploaded certs — cards */}
+                        {certDocs.map((cert) => {
+                          const isImage =
+                            cert.file_type.startsWith("image/") ||
+                            /\.(jpg|jpeg|png|gif|webp)$/i.test(cert.file_url);
+                          return (
+                            <div
+                              key={cert.id}
+                              className="border border-[#E4E7EC] rounded-xl overflow-hidden"
+                            >
+                              <div className="bg-[#F9FAFB] p-3">
+                                <div className="flex items-center gap-3">
+                                  {isImage ? (
+                                    <img
+                                      src={cert.file_url}
+                                      alt={cert.file_name}
+                                      className="w-12 h-12 object-cover rounded border border-[#E4E7EC]"
+                                    />
+                                  ) : (
+                                    <span className="material-symbols-outlined text-[28px] text-[#032D60]">
+                                      picture_as_pdf
+                                    </span>
+                                  )}
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-xs font-medium text-[#101828] truncate">
+                                      {cert.display_name || cert.file_name}
+                                    </p>
+                                    <p className="text-[10px] text-[#667085]">
+                                      {cert.display_name || cert.file_name}
+                                    </p>
+                                  </div>
+                                  <button
+                                    onClick={() => setViewDoc(cert)}
+                                    className="text-[#032D60] hover:text-[#021a40] flex-shrink-0"
+                                  >
+                                    <span className="material-symbols-outlined text-[18px]">
+                                      open_in_new
+                                    </span>
+                                  </button>
+                                </div>
+                                <div className="flex gap-2 mt-2">
+                                  <button
+                                    onClick={() => setDeleteDocTarget(cert)}
+                                    className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[#EF4444] border border-[#EF4444] rounded hover:bg-[#FEF2F2] transition-colors"
+                                  >
+                                    <span className="material-symbols-outlined text-[14px]">
+                                      delete
+                                    </span>
+                                    Xóa
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {/* Pending entries — pick type + upload */}
+                        {certEntries.map((entry, idx) => (
+                          <div
+                            key={idx}
+                            className="border border-dashed border-[#D0D5DD] rounded-xl p-4 text-center hover:border-[#032D60] transition-colors space-y-2"
                           >
-                            <span className="material-symbols-outlined text-[#032D60] text-[18px]">
-                              {doc.file_type === "application/pdf" ||
-                              /\.pdf$/i.test(doc.file_url)
-                                ? "picture_as_pdf"
-                                : "image"}
-                            </span>
-                            <div className="min-w-0">
+                            <select
+                              value={entry}
+                              onChange={(e) => {
+                                const next = [...certEntries];
+                                next[idx] = e.target.value;
+                                setCertEntries(next);
+                              }}
+                              className="w-full h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm"
+                            >
+                              <option value="">-- Loại chứng chỉ --</option>
+                              {availableOptions.map((opt) => (
+                                <option key={opt} value={opt}>
+                                  {opt}
+                                </option>
+                              ))}
+                            </select>
+                            {entry && (
+                              <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#032D60] hover:text-[#021a40]">
+                                <span className="material-symbols-outlined text-[20px]">
+                                  cloud_upload
+                                </span>
+                                Chọn file
+                                <input
+                                  type="file"
+                                  accept=".pdf,.jpg,.jpeg,.png"
+                                  className="hidden"
+                                  disabled={uploading}
+                                  onChange={(e) =>
+                                    handleUpload(e, "CERTIFICATE", entry)
+                                  }
+                                />
+                              </label>
+                            )}
+                            <p className="text-[10px] text-[#667085]">
+                              PDF, JPG, PNG tối đa 5MB
+                            </p>
+                          </div>
+                        ))}
+                        {/* Add more button */}
+                        {certEntries.every((t) => t) &&
+                          availableOptions.length > 0 && (
+                            <button
+                              onClick={() =>
+                                setCertEntries([...certEntries, ""])
+                              }
+                              className="w-full flex items-center justify-center gap-1.5 h-10 border-2 border-dashed border-[#D0D5DD] rounded-xl text-sm text-[#667085] hover:text-[#032D60] hover:border-[#032D60] transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">
+                                add
+                              </span>
+                              Thêm chứng chỉ khác
+                            </button>
+                          )}
+                      </div>
+                    );
+                  }
+
+                  if (existingDoc && !isEditing) {
+                    const isImage =
+                      existingDoc.file_type.startsWith("image/") ||
+                      /\.(jpg|jpeg|png|gif|webp)$/i.test(existingDoc.file_url);
+                    return (
+                      <div
+                        key={dt.value}
+                        className="border border-[#E4E7EC] rounded-xl overflow-hidden"
+                      >
+                        <div className="bg-[#F9FAFB] p-3">
+                          <div className="flex items-center gap-3">
+                            {isImage ? (
+                              <img
+                                src={existingDoc.file_url}
+                                alt={existingDoc.file_name}
+                                className="w-12 h-12 object-cover rounded border border-[#E4E7EC]"
+                              />
+                            ) : (
+                              <span className="material-symbols-outlined text-[28px] text-[#032D60]">
+                                picture_as_pdf
+                              </span>
+                            )}
+                            <div className="min-w-0 flex-1">
                               <p className="text-xs font-medium text-[#101828] truncate">
-                                {doc.file_name}
+                                {existingDoc.document_type === "CERTIFICATE" &&
+                                existingDoc.display_name
+                                  ? existingDoc.display_name
+                                  : existingDoc.file_name}
                               </p>
                               <p className="text-[10px] text-[#667085]">
-                                {DOCUMENT_TYPE_LABELS[doc.document_type] ||
-                                  doc.document_type}
+                                {dt.label}
                               </p>
                             </div>
+                            <button
+                              onClick={() => setViewDoc(existingDoc)}
+                              className="text-[#032D60] hover:text-[#021a40] flex-shrink-0"
+                            >
+                              <span className="material-symbols-outlined text-[18px]">
+                                open_in_new
+                              </span>
+                            </button>
+                          </div>
+                          <div className="flex gap-2 mt-2">
+                            <button
+                              onClick={() => {
+                                setEditingDocType(dt.value);
+                                setNewDocFile(null);
+                              }}
+                              className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[#032D60] border border-[#032D60] rounded hover:bg-[#EFF6FF] transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[14px]">
+                                edit
+                              </span>
+                              Sửa
+                            </button>
+                            <button
+                              onClick={() => setDeleteDocTarget(existingDoc)}
+                              className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[#EF4444] border border-[#EF4444] rounded hover:bg-[#FEF2F2] transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[14px]">
+                                delete
+                              </span>
+                              Xóa
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  if (isEditing) {
+                    return (
+                      <div
+                        key={dt.value}
+                        className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl p-4"
+                      >
+                        <p className="text-xs text-[#1E40AF] mb-2 font-semibold">
+                          {dt.label}
+                        </p>
+                        <p className="text-xs text-[#1E40AF] mb-2">
+                          Chọn file mới:
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <label className="flex-1 flex items-center justify-center gap-2 h-9 px-3 border border-dashed border-[#93C5FD] rounded-lg cursor-pointer hover:border-[#3B82F6] transition-colors bg-white">
+                            <span className="material-symbols-outlined text-[16px] text-[#3B82F6]">
+                              cloud_upload
+                            </span>
+                            <span className="text-xs text-[#3B82F6]">
+                              {newDocFile ? newDocFile.name : "Chọn file"}
+                            </span>
+                            <input
+                              type="file"
+                              accept=".pdf,.jpg,.jpeg,.png"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) setNewDocFile(file);
+                              }}
+                            />
+                          </label>
+                          <button
+                            onClick={() =>
+                              handleReplaceDoc(existingDoc!.id, dt.value)
+                            }
+                            disabled={!newDocFile || uploading}
+                            className="h-9 px-3 bg-[#032D60] text-white text-xs font-semibold rounded-lg hover:bg-[#021a40] disabled:opacity-50 transition-colors"
+                          >
+                            {uploading ? "Đang tải..." : "Lưu"}
                           </button>
                           <button
-                            onClick={() => handleDeleteDoc(doc.id)}
-                            className="text-[#EF4444] hover:text-[#DC2626] p-1 flex-shrink-0"
+                            onClick={() => {
+                              setEditingDocType(null);
+                              setNewDocFile(null);
+                            }}
+                            className="h-9 px-3 text-xs font-semibold text-[#667085] border border-[#D0D5DD] rounded-lg hover:bg-[#F9FAFB] transition-colors"
                           >
-                            <span className="material-symbols-outlined text-[18px]">
-                              delete
-                            </span>
+                            Hủy
                           </button>
                         </div>
-                      ))}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div
+                      key={dt.value}
+                      className="border border-dashed border-[#D0D5DD] rounded-xl p-4 text-center hover:border-[#032D60] transition-colors"
+                    >
+                      <p className="text-sm font-medium text-[#344054] mb-2">
+                        {dt.label}
+                        {dt.required ? (
+                          <span className="text-[#EF4444] ml-0.5">*</span>
+                        ) : (
+                          <span className="text-[#98A2B3] font-normal ml-1">
+                            (Tùy chọn)
+                          </span>
+                        )}
+                      </p>
+                      <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#032D60] hover:text-[#021a40]">
+                        <span className="material-symbols-outlined text-[20px]">
+                          cloud_upload
+                        </span>
+                        Chọn file
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          className="hidden"
+                          onChange={(e) => handleUpload(e, dt.value)}
+                          disabled={uploading}
+                        />
+                      </label>
+                      <p className="text-[10px] text-[#667085] mt-1">
+                        PDF, JPG, PNG tối đa 5MB
+                      </p>
                     </div>
-                  </div>
-                )}
+                  );
+                })}
               </div>
             </section>
           </div>
@@ -1441,16 +1678,6 @@ const AdmissionsPage = () => {
                   <span>Năm tốt nghiệp: {graduationYear || "—"}</span>
                   <span>Trường lớp 12: {grade12School || "—"}</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3 mt-1 text-xs text-[#667085]">
-                  <span>
-                    Phiếu điểm thi:{" "}
-                    {examTranscript ? examTranscript.name : "Chưa tải"}
-                  </span>
-                  <span>
-                    Giấy chứng nhận:{" "}
-                    {examCertificate ? examCertificate.name : "Chưa tải"}
-                  </span>
-                </div>
               </div>
             )}
 
@@ -1477,8 +1704,11 @@ const AdmissionsPage = () => {
                           {doc.file_name}
                         </p>
                         <p className="text-[10px] text-[#667085]">
-                          {DOCUMENT_TYPE_LABELS[doc.document_type] ||
-                            doc.document_type}
+                          {doc.document_type === "CERTIFICATE" &&
+                          doc.display_name
+                            ? doc.display_name
+                            : DOCUMENT_TYPE_LABELS[doc.document_type] ||
+                              doc.document_type}
                         </p>
                       </div>
                     </button>
@@ -1520,6 +1750,24 @@ const AdmissionsPage = () => {
             </div>
           </div>
         </section>
+      )}
+      {deleteDocTarget && (
+        <ConfirmDialog
+          message={`Xóa tài liệu "${deleteDocTarget.file_name}"?`}
+          confirmLabel="Xóa"
+          danger
+          onConfirm={() => handleDeleteDoc(deleteDocTarget.id)}
+          onCancel={() => setDeleteDocTarget(null)}
+        />
+      )}
+      {deleteWishIndex !== null && (
+        <ConfirmDialog
+          message="Xóa nguyện vọng này?"
+          confirmLabel="Xóa"
+          danger
+          onConfirm={() => removeWish(deleteWishIndex)}
+          onCancel={() => setDeleteWishIndex(null)}
+        />
       )}
       {viewDoc && (
         <DocumentViewer

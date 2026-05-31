@@ -83,10 +83,14 @@ const DocumentsPage = () => {
     };
   }, []);
 
-  const handleUpload = async (docType: string, file: File) => {
+  const handleUpload = async (
+    docType: string,
+    file: File,
+    displayName?: string,
+  ) => {
     setUploading(true);
     try {
-      await admissionsApi.uploadDocument(file, docType);
+      await admissionsApi.uploadDocument(file, docType, displayName);
       await fetchDocuments();
       setShowUploadModal(false);
       setMessage({ type: "success", text: "Tải lên tài liệu thành công!" });
@@ -281,11 +285,18 @@ const DocumentsPage = () => {
                       </div>
                       <div>
                         <h3 className="text-[15px] font-semibold text-[#101828]">
-                          {DOCUMENT_TYPE_LABELS[doc.document_type] ||
-                            doc.document_type}
+                          {doc.document_type === "CERTIFICATE" &&
+                          doc.display_name
+                            ? doc.display_name
+                            : DOCUMENT_TYPE_LABELS[doc.document_type] ||
+                              doc.document_type}
                         </h3>
                         <p className="text-[11px] text-[#667085] font-medium">
-                          Cập nhật: {formatDate(doc.uploaded_at)}
+                          {doc.document_type === "CERTIFICATE" &&
+                          doc.display_name
+                            ? DOCUMENT_TYPE_LABELS[doc.document_type] ||
+                              doc.document_type
+                            : `Cập nhật: ${formatDate(doc.uploaded_at)}`}
                         </p>
                       </div>
                     </div>
@@ -481,15 +492,28 @@ function UploadModal({
   uploading,
 }: {
   onClose: () => void;
-  onUpload: (docType: string, file: File) => void;
+  onUpload: (docType: string, file: File, displayName?: string) => void;
   uploading: boolean;
 }) {
+  const CERTIFICATE_OPTIONS = [
+    "IELTS (Academic)",
+    "TOEFL iBT",
+    "TOEIC (4 kỹ năng)",
+    "DELF/DALF (Tiếng Pháp)",
+    "JLPT (Tiếng Nhật)",
+    "HSK/HSKK (Tiếng Trung)",
+    "TOPIK (Tiếng Hàn)",
+    "TestDaF/Goethe-Zertifikat (Tiếng Đức)",
+  ];
+
   const [selectedType, setSelectedType] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [displayName, setDisplayName] = useState("");
 
   const handleSubmit = () => {
     if (!selectedType || !selectedFile) return;
-    onUpload(selectedType, selectedFile);
+    if (selectedType === "CERTIFICATE" && !displayName) return;
+    onUpload(selectedType, selectedFile, displayName || undefined);
   };
 
   return (
@@ -552,6 +576,26 @@ function UploadModal({
               />
             </label>
           </div>
+
+          {selectedType === "CERTIFICATE" && (
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-[#344054]">
+                Loại chứng chỉ <span className="text-[#EF4444]">*</span>
+              </label>
+              <select
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm"
+              >
+                <option value="">-- Chọn loại chứng chỉ --</option>
+                {CERTIFICATE_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
@@ -563,7 +607,12 @@ function UploadModal({
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!selectedType || !selectedFile || uploading}
+            disabled={
+              !selectedType ||
+              !selectedFile ||
+              uploading ||
+              (selectedType === "CERTIFICATE" && !displayName)
+            }
             className="px-5 py-2.5 text-sm font-semibold text-white bg-[#032D60] rounded-full hover:bg-[#021a40] transition-colors disabled:opacity-50"
           >
             {uploading ? "Đang tải..." : "Tải lên"}
