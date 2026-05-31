@@ -110,7 +110,12 @@ export const admissionsApi = {
   getDocuments: () =>
     apiClient.get<ApiResponse<DocumentData[]>>("/candidate/profile/documents"),
 
-  uploadDocument: (file: File, documentType: string, displayName?: string) => {
+  uploadDocument: (
+    file: File,
+    documentType: string,
+    displayName?: string,
+    onProgress?: (pct: number) => void,
+  ) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("document_type", documentType);
@@ -120,6 +125,7 @@ export const admissionsApi = {
     return apiClient.post<ApiResponse<DocumentData>>(
       "/candidate/profile/documents",
       formData,
+      onProgress ? { onUploadProgress: (e) => { if (e.total) onProgress(Math.round((e.loaded / e.total) * 100)); } } : undefined,
     );
   },
 
@@ -135,6 +141,7 @@ export const admissionsApi = {
     scores: Record<string, number>,
     examCertificate?: File,
     foreignLanguage?: { language_code: string },
+    onProgress?: (pct: number) => void,
   ) => {
     const formData = new FormData();
     formData.append("scores", JSON.stringify(scores));
@@ -147,6 +154,7 @@ export const admissionsApi = {
     return apiClient.put<ApiResponse<unknown>>(
       "/candidate/profile/exam-scores-by-group",
       formData,
+      onProgress ? { onUploadProgress: (e) => { if (e.total) onProgress(Math.round((e.loaded / e.total) * 100)); } } : undefined,
     );
   },
 };
