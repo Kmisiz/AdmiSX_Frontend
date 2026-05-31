@@ -42,6 +42,7 @@ export interface DocumentData {
   id: number;
   document_type: string;
   file_name: string;
+  display_name?: string;
   file_url: string;
   file_type: string;
   uploaded_at: string;
@@ -109,16 +110,16 @@ export const admissionsApi = {
   getDocuments: () =>
     apiClient.get<ApiResponse<DocumentData[]>>("/candidate/profile/documents"),
 
-  uploadDocument: (file: File, documentType: string) => {
+  uploadDocument: (file: File, documentType: string, displayName?: string) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("document_type", documentType);
+    if (displayName) {
+      formData.append("display_name", displayName);
+    }
     return apiClient.post<ApiResponse<DocumentData>>(
       "/candidate/profile/documents",
       formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      },
     );
   },
 
@@ -132,21 +133,20 @@ export const admissionsApi = {
 
   uploadExamScores: (
     scores: Record<string, number>,
-    examCertificate: File,
+    examCertificate?: File,
     foreignLanguage?: { language_code: string },
   ) => {
     const formData = new FormData();
     formData.append("scores", JSON.stringify(scores));
-    formData.append("exam_certificate", examCertificate);
+    if (examCertificate) {
+      formData.append("exam_certificate", examCertificate);
+    }
     if (foreignLanguage) {
       formData.append("foreign_language", JSON.stringify(foreignLanguage));
     }
     return apiClient.put<ApiResponse<unknown>>(
       "/candidate/profile/exam-scores-by-group",
       formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      },
     );
   },
 };
