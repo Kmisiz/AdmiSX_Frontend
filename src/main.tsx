@@ -7,6 +7,8 @@ import { Route as dashboardRoute } from "./routes/dashboard";
 import { Route as profileRoute } from "./routes/profile";
 import { Route as admissionsRoute } from "./routes/admissions";
 import { Route as documentsRoute } from "./routes/documents";
+import { Route as notificationsRoute } from "./routes/notifications";
+import { Route as notificationDetailRoute } from "./routes/notificationDetail";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useAuthStore, initAuthFromUrl } from "./store/auth";
 import { authApi } from "./apis/auth";
@@ -42,6 +44,8 @@ const routeTree = rootRoute.addChildren([
   profileRoute,
   admissionsRoute,
   documentsRoute,
+  notificationsRoute,
+  notificationDetailRoute,
 ]);
 
 const router = createRouter({ routeTree });

@@ -13,12 +13,13 @@
   <img src="https://img.shields.io/badge/Zustand-443E38?style=for-the-badge&logo=zustand&logoColor=white" alt="Zustand" />
   <img src="https://img.shields.io/badge/React%20Hook%20Form-EC5990?style=for-the-badge&logo=reacthookform&logoColor=white" alt="React Hook Form" />
   <img src="https://img.shields.io/badge/Zod-3E67B1?style=for-the-badge&logo=zod&logoColor=white" alt="Zod" />
+  <img src="https://img.shields.io/badge/Socket.IO-010101?style=for-the-badge&logo=socketdotio&logoColor=white" alt="Socket.IO" />
   <img src="https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white" alt="ESLint" />
   <img src="https://img.shields.io/badge/Husky-1B2A33?style=for-the-badge&logo=git&logoColor=white" alt="Husky" />
   <img src="https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black" alt="Prettier" />
 </p>
 
-Hệ thống quản lý tuyển sinh hiện đại được xây dựng với **React 19**, **TypeScript** và **Vite**.
+Hệ thống quản lý tuyển sinh hiện đại được xây dựng với **React 19**, **TypeScript**, **Vite** và real-time notifications qua **Socket.IO**.
 
 ## Công nghệ sử dụng
 
@@ -35,6 +36,7 @@ Hệ thống quản lý tuyển sinh hiện đại được xây dựng với **
 | **Zustand**         | Quản lý state (ứng dụng nhẹ, đơn giản)             |
 | **React Hook Form** | Quản lý form & validation                          |
 | **Zod**             | Schema validation (dữ liệu form & API)             |
+| **Socket.IO**       | Real-time notifications & cập nhật trạng thái hồ sơ |
 | **ESLint**          | Linting & kiểm tra chất lượng code                 |
 | **Prettier**        | Format code tự động                                |
 | **Husky**           | Git hooks (tự động chạy lint/format trước commit)  |
