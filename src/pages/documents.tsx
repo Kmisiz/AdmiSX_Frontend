@@ -45,6 +45,7 @@ const DocumentsPage = () => {
   const [documents, setDocuments] = useState<DocumentData[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -89,8 +90,9 @@ const DocumentsPage = () => {
     displayName?: string,
   ) => {
     setUploading(true);
+    setUploadProgress(0);
     try {
-      await admissionsApi.uploadDocument(file, docType, displayName);
+      await admissionsApi.uploadDocument(file, docType, displayName, setUploadProgress);
       await fetchDocuments();
       setShowUploadModal(false);
       setMessage({ type: "success", text: "Tải lên tài liệu thành công!" });
@@ -599,6 +601,13 @@ function UploadModal({
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
+          {uploading && (
+            <div className="flex-1 flex items-center">
+              <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full bg-[#032D60] rounded-full transition-all duration-200" style={{ width: `${uploadProgress}%` }} />
+              </div>
+            </div>
+          )}
           <button
             onClick={onClose}
             className="px-5 py-2.5 text-sm font-semibold text-[#475467] border border-[#D0D5DD] rounded-full hover:bg-[#F4F6F9] transition-colors"
@@ -615,7 +624,7 @@ function UploadModal({
             }
             className="px-5 py-2.5 text-sm font-semibold text-white bg-[#032D60] rounded-full hover:bg-[#021a40] transition-colors disabled:opacity-50"
           >
-            {uploading ? "Đang tải..." : "Tải lên"}
+            {uploading ? `${uploadProgress}%` : "Tải lên"}
           </button>
         </div>
       </div>

@@ -1,16 +1,16 @@
-import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import Toast from "../components/common/Toast";
-import ConfirmDialog from "../components/common/ConfirmDialog";
-import DocumentViewer from "../components/common/DocumentViewer";
-import { profileApi } from "../apis/profile";
+import { useCallback, useEffect, useState } from "react";
 import {
   admissionsApi,
-  type University,
-  type Major,
   type Combination,
   type DocumentData,
+  type Major,
+  type University,
 } from "../apis/admissions";
+import { profileApi } from "../apis/profile";
+import ConfirmDialog from "../components/common/ConfirmDialog";
+import DocumentViewer from "../components/common/DocumentViewer";
+import Toast from "../components/common/Toast";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -169,6 +169,7 @@ const AdmissionsPage = () => {
     citizen_id: string;
     province: string;
     address: string;
+    nation: string;
   }>({
     full_name: "",
     email: "",
@@ -178,6 +179,7 @@ const AdmissionsPage = () => {
     citizen_id: "",
     province: "",
     address: "",
+    nation: "",
   });
 
   // Step 2 — Wishes
@@ -198,8 +200,10 @@ const AdmissionsPage = () => {
   const [foreignLanguage, setForeignLanguage] = useState("");
   const [documents, setDocuments] = useState<DocumentData[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   // Step 3 — Academic info
   const [graduationYear, setGraduationYear] = useState("");
@@ -218,9 +222,10 @@ const AdmissionsPage = () => {
   useEffect(() => {
     const fetchInitial = async () => {
       try {
-        const [profileRes, uniRes] = await Promise.all([
+        const [profileRes, uniRes, appsRes] = await Promise.all([
           profileApi.getProfile(),
           admissionsApi.getUniversities(),
+          admissionsApi.getApplications({ page: 1, limit: 100 }),
         ]);
         const p = profileRes.data.data;
         const cp = p.candidate_profile;
@@ -235,8 +240,14 @@ const AdmissionsPage = () => {
           citizen_id: cp.citizen_id?.toString() || "",
           province: cp.province || "",
           address: cp.address || "",
+          nation: cp.nation || "",
         });
         setUniversities(uniRes.data.data || []);
+
+        const submittedApps = appsRes.data.data.filter((a) => a.submitted_at !== null);
+        if (submittedApps.length > 0) {
+          setHasSubmitted(true);
+        }
       } catch {
         setMessage({ type: "error", text: "Không thể tải thông tin." });
       } finally {
@@ -255,6 +266,7 @@ const AdmissionsPage = () => {
         phone: profileData.phone || null,
         province: profileData.province || null,
         address: profileData.address || null,
+        nation: profileData.nation || null,
       } as never);
       setStep(2);
     } catch {
@@ -486,8 +498,14 @@ const AdmissionsPage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setUploadProgress(0);
     try {
-      await admissionsApi.uploadDocument(file, docType, displayName);
+      await admissionsApi.uploadDocument(
+        file,
+        docType,
+        displayName,
+        setUploadProgress,
+      );
       await fetchDocuments();
       if (docType === "CERTIFICATE" && displayName) {
         setCertEntries((prev) => {
@@ -517,9 +535,15 @@ const AdmissionsPage = () => {
   const handleReplaceDoc = async (docId: number, docType: string) => {
     if (!newDocFile) return;
     setUploading(true);
+    setUploadProgress(0);
     try {
       await admissionsApi.deleteDocument(docId);
-      await admissionsApi.uploadDocument(newDocFile, docType);
+      await admissionsApi.uploadDocument(
+        newDocFile,
+        docType,
+        undefined,
+        setUploadProgress,
+      );
       await fetchDocuments();
       setEditingDocType(null);
       setNewDocFile(null);
@@ -532,6 +556,10 @@ const AdmissionsPage = () => {
 
   // Step 4 — submit
   const handleSubmit = async () => {
+    if (hasSubmitted) {
+      setMessage({ type: "error", text: "Bạn đã đăng ký xét tuyển trong kỳ này. Không thể nộp thêm hồ sơ." });
+      return;
+    }
     if (!agreed) {
       setMessage({ type: "error", text: "Vui lòng đồng ý với điều khoản." });
       return;
@@ -690,6 +718,30 @@ const AdmissionsPage = () => {
     );
   }
 
+  if (hasSubmitted) {
+    return (
+      <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <span className="material-symbols-outlined text-[64px] text-[#F97316]">
+            gavel
+          </span>
+          <h2 className="text-2xl font-bold text-[#101828] mt-4">
+            Bạn đã đăng ký xét tuyển trong kỳ này
+          </h2>
+          <p className="text-[#667085] text-sm mt-2 max-w-md">
+            Mỗi thí sinh chỉ được đăng ký xét tuyển một lần trong mỗi kỳ tuyển sinh. Nếu cần hỗ trợ, vui lòng liên hệ văn phòng tuyển sinh.
+          </p>
+          <button
+            onClick={() => navigate({ to: "/dashboard" })}
+            className="mt-6 px-6 py-2.5 bg-[#032D60] text-white rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95"
+          >
+            Quay lại bảng điều khiển
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
       <div className="mb-6">
@@ -775,6 +827,20 @@ const AdmissionsPage = () => {
                   }
                   className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
                   placeholder="Nhập số điện thoại"
+                />
+              </Field>
+              <Field label="Quốc tịch">
+                <input
+                  type="text"
+                  value={profileData.nation}
+                  onChange={(e) =>
+                    setProfileData((prev) => ({
+                      ...prev,
+                      nation: e.target.value,
+                    }))
+                  }
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                  placeholder="Nhập quốc tịch"
                 />
               </Field>
               <Field label="Tỉnh/Thành phố">
@@ -1492,24 +1558,34 @@ const AdmissionsPage = () => {
                               }}
                             />
                           </label>
-                          <button
-                            onClick={() =>
-                              handleReplaceDoc(existingDoc!.id, dt.value)
-                            }
-                            disabled={!newDocFile || uploading}
-                            className="h-9 px-3 bg-[#032D60] text-white text-xs font-semibold rounded-lg hover:bg-[#021a40] disabled:opacity-50 transition-colors"
-                          >
-                            {uploading ? "Đang tải..." : "Lưu"}
-                          </button>
-                          <button
-                            onClick={() => {
-                              setEditingDocType(null);
-                              setNewDocFile(null);
-                            }}
-                            className="h-9 px-3 text-xs font-semibold text-[#667085] border border-[#D0D5DD] rounded-lg hover:bg-[#F9FAFB] transition-colors"
-                          >
-                            Hủy
-                          </button>
+                          <div className="flex items-center gap-2">
+                            {uploading && (
+                              <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-[#032D60] rounded-full transition-all duration-200"
+                                  style={{ width: `${uploadProgress}%` }}
+                                />
+                              </div>
+                            )}
+                            <button
+                              onClick={() =>
+                                handleReplaceDoc(existingDoc!.id, dt.value)
+                              }
+                              disabled={!newDocFile || uploading}
+                              className="h-9 px-3 bg-[#032D60] text-white text-xs font-semibold rounded-lg hover:bg-[#021a40] disabled:opacity-50 transition-colors"
+                            >
+                              {uploading ? `${uploadProgress}%` : "Lưu"}
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingDocType(null);
+                                setNewDocFile(null);
+                              }}
+                              className="h-9 px-3 text-xs font-semibold text-[#667085] border border-[#D0D5DD] rounded-lg hover:bg-[#F9FAFB] transition-colors"
+                            >
+                              Hủy
+                            </button>
+                          </div>
                         </div>
                       </div>
                     );

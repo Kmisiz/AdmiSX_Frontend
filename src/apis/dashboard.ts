@@ -85,4 +85,12 @@ export const dashboardApi = {
 
   getDocuments: () =>
     apiClient.get<ApiResponse<DocumentData[]>>("/candidate/profile/documents"),
+
+  getNotificationById: (id: number) =>
+    apiClient.get<ApiResponse<NotificationData>>(
+      `/candidate/notifications/${id}`,
+    ),
+
+  markNotificationRead: (id: number) =>
+    apiClient.put<ApiResponse<null>>(`/candidate/notifications/${id}/read`),
 };

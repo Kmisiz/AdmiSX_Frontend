@@ -56,6 +56,7 @@ const ProfilePage = () => {
     address: "",
     ethnic: "",
     religion: "",
+    nation: "",
   });
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -80,6 +81,7 @@ const ProfilePage = () => {
   const [foreignLanguage, setForeignLanguage] = useState("");
   const [examCertificate, setExamCertificate] = useState<File | null>(null);
   const [uploadingScores, setUploadingScores] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [examMode, setExamMode] = useState<"view" | "edit">("view");
   const [documents, setDocuments] = useState<DocumentData[]>([]);
   const [certEditing, setCertEditing] = useState(false);
@@ -354,6 +356,7 @@ const ProfilePage = () => {
     }
 
     setUploadingScores(true);
+    setUploadProgress(0);
     setMessage(null);
     try {
       const hasNgoaiNgu = selectedOptional.includes("NGOAINGU");
@@ -361,6 +364,7 @@ const ProfilePage = () => {
         scoreMap,
         examCertificate ?? undefined,
         hasNgoaiNgu ? { language_code: foreignLanguage } : undefined,
+        setUploadProgress,
       );
       // Refresh academic record + documents
       const [academicRes, docsRes] = await Promise.all([
@@ -391,9 +395,10 @@ const ProfilePage = () => {
   const handleReplaceCertificate = async (certDocId: number) => {
     if (!newCertFile) return;
     setUploadingScores(true);
+    setUploadProgress(0);
     try {
       await admissionsApi.deleteDocument(certDocId);
-      await admissionsApi.uploadDocument(newCertFile, "EXAM_CERTIFICATE");
+      await admissionsApi.uploadDocument(newCertFile, "EXAM_CERTIFICATE", undefined, setUploadProgress);
       const docsRes = await admissionsApi.getDocuments();
       setDocuments(docsRes.data.data || []);
       setCertEditing(false);
@@ -438,6 +443,7 @@ const ProfilePage = () => {
           address: cp.address || "",
           ethnic: cp.ethnic || "",
           religion: cp.religion || "",
+          nation: cp.nation || "",
         });
 
         const ar = a.academic_record;
@@ -561,6 +567,7 @@ const ProfilePage = () => {
         address: formData.address,
         ethnic: formData.ethnic,
         religion: formData.religion,
+        nation: formData.nation,
       };
       const res = await profileApi.updateProfile(payload as never);
       setProfile(res.data.data);
@@ -927,10 +934,25 @@ const ProfilePage = () => {
                           </p>
                         )}
                       </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-semibold text-[#344054]">
+                          Quốc tịch
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.nation}
+                          onChange={(e) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              nation: e.target.value,
+                            }));
+                          }}
+                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${fieldErrors.nation ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                        />
+                      </div>
                       <div className="flex flex-col gap-1.5 md:col-span-2">
                         <label className="text-xs font-semibold text-[#344054]">
-                          Tỉnh/Thành phố{" "}
-                          <span className="text-[#EF4444]">*</span>
+                          Tỉnh/Thành phố <span className="text-[#EF4444]">*</span>
                         </label>
                         <input
                           type="text"
@@ -1203,6 +1225,11 @@ const ProfilePage = () => {
                                       }}
                                     />
                                   </label>
+                                  {uploadingScores && (
+                                    <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                      <div className="h-full bg-[#032D60] rounded-full transition-all duration-200" style={{ width: `${uploadProgress}%` }} />
+                                    </div>
+                                  )}
                                   <button
                                     onClick={() =>
                                       handleReplaceCertificate(certDoc.id)
@@ -1210,7 +1237,7 @@ const ProfilePage = () => {
                                     disabled={!newCertFile || uploadingScores}
                                     className="h-9 px-3 bg-[#032D60] text-white text-xs font-semibold rounded-lg hover:bg-[#021a40] disabled:opacity-50 transition-colors"
                                   >
-                                    {uploadingScores ? "Đang tải..." : "Lưu"}
+                                    {uploadingScores ? `${uploadProgress}%` : "Lưu"}
                                   </button>
                                   <button
                                     onClick={() => {
@@ -1439,12 +1466,17 @@ const ProfilePage = () => {
                           </label>
                         </div>
                       </div>
+                      {uploadingScores && (
+                        <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-full bg-[#032D60] rounded-full transition-all duration-200" style={{ width: `${uploadProgress}%` }} />
+                        </div>
+                      )}
                       <button
                         onClick={handleUploadExamScores}
                         disabled={uploadingScores}
                         className="bg-[#032D60] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95 disabled:opacity-50"
                       >
-                        {uploadingScores ? "Đang tải..." : "Cập nhật điểm thi"}
+                        {uploadingScores ? `${uploadProgress}%` : "Cập nhật điểm thi"}
                       </button>
                     </div>
                   )}
