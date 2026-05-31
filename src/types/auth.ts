@@ -15,6 +15,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   setAuth: (user: User, token: string) => void;
+  setUser: (user: User) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
 }

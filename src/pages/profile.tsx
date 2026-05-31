@@ -8,6 +8,7 @@ import {
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import DocumentViewer from "../components/common/DocumentViewer";
 import { admissionsApi, type DocumentData } from "../apis/admissions";
+import { useAuthStore } from "../store/auth";
 
 type ActiveTab = "personal" | "academic" | "security";
 
@@ -358,7 +359,7 @@ const ProfilePage = () => {
       const hasNgoaiNgu = selectedOptional.includes("NGOAINGU");
       await admissionsApi.uploadExamScores(
         scoreMap,
-        examCertificate,
+        examCertificate ?? undefined,
         hasNgoaiNgu ? { language_code: foreignLanguage } : undefined,
       );
       // Refresh academic record + documents
@@ -429,7 +430,9 @@ const ProfilePage = () => {
         setFormData({
           full_name: cp.full_name || "",
           phone: cp.phone || "",
-          date_of_birth: cp.date_of_birth ? cp.date_of_birth.split("T")[0] : "",
+          date_of_birth: cp.date_of_birth
+            ? new Date(cp.date_of_birth).toLocaleDateString("en-CA")
+            : "",
           gender: cp.gender || "",
           province: cp.province || "",
           address: cp.address || "",
@@ -561,6 +564,10 @@ const ProfilePage = () => {
       };
       const res = await profileApi.updateProfile(payload as never);
       setProfile(res.data.data);
+      useAuthStore.getState().setUser({
+        ...useAuthStore.getState().user!,
+        full_name: formData.full_name.trim(),
+      });
       setMessage({ type: "success", text: "Cập nhật thông tin thành công!" });
     } catch (err: unknown) {
       const apiErr = err as { response?: { data?: { message?: string } } };
