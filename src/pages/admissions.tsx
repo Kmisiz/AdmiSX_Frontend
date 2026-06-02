@@ -221,12 +221,11 @@ const AdmissionsPage = () => {
 
   useEffect(() => {
     const fetchInitial = async () => {
+      let hasError = false;
+
+      // 1. Load profile
       try {
-        const [profileRes, uniRes, appsRes] = await Promise.all([
-          profileApi.getProfile(),
-          admissionsApi.getUniversities(),
-          admissionsApi.getApplications({ page: 1, limit: 100 }),
-        ]);
+        const profileRes = await profileApi.getProfile();
         const p = profileRes.data.data;
         const cp = p.candidate_profile;
         setProfileData({
@@ -242,17 +241,38 @@ const AdmissionsPage = () => {
           address: cp.address || "",
           nation: cp.nation || "",
         });
-        setUniversities(uniRes.data.data || []);
+      } catch {
+        hasError = true;
+      }
 
-        const submittedApps = appsRes.data.data.filter((a) => a.submitted_at !== null);
+      // 2. Load universities
+      try {
+        const uniRes = await admissionsApi.getUniversities();
+        setUniversities(uniRes.data.data || []);
+      } catch {
+        hasError = true;
+      }
+
+      // 3. Load applications (có thể fail nếu backend chưa sẵn sàng)
+      try {
+        const appsRes = await admissionsApi.getApplications({
+          page: 1,
+          limit: 100,
+        });
+        const submittedApps = (appsRes.data.data || []).filter(
+          (a) => a.submitted_at !== null,
+        );
         if (submittedApps.length > 0) {
           setHasSubmitted(true);
         }
       } catch {
-        setMessage({ type: "error", text: "Không thể tải thông tin." });
-      } finally {
-        setLoading(false);
+        // Applications không critical — bỏ qua, không báo lỗi
       }
+
+      if (hasError) {
+        setMessage({ type: "error", text: "Không thể tải thông tin." });
+      }
+      setLoading(false);
     };
     fetchInitial();
   }, []);
@@ -263,6 +283,9 @@ const AdmissionsPage = () => {
     setMessage(null);
     try {
       await profileApi.updateProfile({
+        full_name: profileData.full_name || null,
+        date_of_birth: profileData.date_of_birth || null,
+        gender: profileData.gender || null,
         phone: profileData.phone || null,
         province: profileData.province || null,
         address: profileData.address || null,
@@ -557,7 +580,7 @@ const AdmissionsPage = () => {
   // Step 4 — submit
   const handleSubmit = async () => {
     if (hasSubmitted) {
-      setMessage({ type: "error", text: "Bạn đã đăng ký xét tuyển trong kỳ này. Không thể nộp thêm hồ sơ." });
+      setMessage({ type: "error", text: "Bạn đã nộp hồ sơ, hãy đợi đợt sau." });
       return;
     }
     if (!agreed) {
@@ -726,10 +749,11 @@ const AdmissionsPage = () => {
             gavel
           </span>
           <h2 className="text-2xl font-bold text-[#101828] mt-4">
-            Bạn đã đăng ký xét tuyển trong kỳ này
+            Bạn đã nộp hồ sơ, hãy đợi đợt sau
           </h2>
           <p className="text-[#667085] text-sm mt-2 max-w-md">
-            Mỗi thí sinh chỉ được đăng ký xét tuyển một lần trong mỗi kỳ tuyển sinh. Nếu cần hỗ trợ, vui lòng liên hệ văn phòng tuyển sinh.
+            Mỗi đợt tuyển sinh hệ thống sẽ mở khóa lại để bạn có thể nộp hồ sơ
+            mới. Nếu cần hỗ trợ, vui lòng liên hệ văn phòng tuyển sinh.
           </p>
           <button
             onClick={() => navigate({ to: "/dashboard" })}
@@ -771,33 +795,45 @@ const AdmissionsPage = () => {
                 <input
                   type="text"
                   value={profileData.full_name}
-                  disabled
-                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg bg-[#F4F6F9] text-[#667085] cursor-not-allowed w-full text-sm"
+                  onChange={(e) =>
+                    setProfileData((prev) => ({
+                      ...prev,
+                      full_name: e.target.value,
+                    }))
+                  }
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                  placeholder="Nhập họ và tên"
                 />
               </Field>
               <Field label="Ngày sinh">
                 <input
                   type="date"
                   value={profileData.date_of_birth}
-                  disabled
-                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg bg-[#F4F6F9] text-[#667085] cursor-not-allowed w-full text-sm"
+                  onChange={(e) =>
+                    setProfileData((prev) => ({
+                      ...prev,
+                      date_of_birth: e.target.value,
+                    }))
+                  }
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
                 />
               </Field>
               <Field label="Giới tính">
-                <input
-                  type="text"
-                  value={
-                    profileData.gender === "MALE"
-                      ? "Nam"
-                      : profileData.gender === "FEMALE"
-                        ? "Nữ"
-                        : profileData.gender === "OTHER"
-                          ? "Khác"
-                          : ""
+                <select
+                  value={profileData.gender}
+                  onChange={(e) =>
+                    setProfileData((prev) => ({
+                      ...prev,
+                      gender: e.target.value,
+                    }))
                   }
-                  disabled
-                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg bg-[#F4F6F9] text-[#667085] cursor-not-allowed w-full text-sm"
-                />
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                >
+                  <option value="">Chọn giới tính</option>
+                  <option value="MALE">Nam</option>
+                  <option value="FEMALE">Nữ</option>
+                  <option value="OTHER">Khác</option>
+                </select>
               </Field>
               <Field label="Số CMND/CCCD">
                 <input
@@ -1660,7 +1696,7 @@ const AdmissionsPage = () => {
               <h4 className="text-sm font-bold text-[#101828] mb-3">
                 Thông tin cá nhân
               </h4>
-              <div className="grid grid-cols-2 gap-4 p-4 bg-[#F4F6F9] rounded-xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-[#F4F6F9] rounded-xl">
                 <InfoRow label="Họ và tên" value={profileData.full_name} />
                 <InfoRow label="Email" value={profileData.email} />
                 <InfoRow label="Số điện thoại" value={profileData.phone} />
@@ -1750,7 +1786,7 @@ const AdmissionsPage = () => {
                       "—"}
                   </p>
                 )}
-                <div className="grid grid-cols-2 gap-3 mt-3 text-xs text-[#667085]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 text-xs text-[#667085]">
                   <span>Năm tốt nghiệp: {graduationYear || "—"}</span>
                   <span>Trường lớp 12: {grade12School || "—"}</span>
                 </div>
