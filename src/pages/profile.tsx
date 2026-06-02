@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Toast from "../components/common/Toast";
 import {
   profileApi,
@@ -8,6 +8,7 @@ import {
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import DocumentViewer from "../components/common/DocumentViewer";
 import { admissionsApi, type DocumentData } from "../apis/admissions";
+import { authApi } from "../apis/auth";
 import { useAuthStore } from "../store/auth";
 
 type ActiveTab = "personal" | "academic" | "security";
@@ -136,6 +137,58 @@ const ProfilePage = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const { user, setUser } = useAuthStore();
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setMessage({ type: "error", text: "Vui lòng chọn file ảnh" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ type: "error", text: "Ảnh tối đa 5MB" });
+      return;
+    }
+    setAvatarBusy(true);
+    try {
+      const res = await authApi.uploadAvatar(file);
+      if (res.success && res.data) {
+        setUser(res.data);
+        setMessage({ type: "success", text: "Cập nhật avatar thành công!" });
+      }
+    } catch (err: unknown) {
+      const apiErr = err as { response?: { data?: { message?: string } } };
+      setMessage({
+        type: "error",
+        text: apiErr?.response?.data?.message || "Upload thất bại. Vui lòng thử lại.",
+      });
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
+
+  const handleDeleteAvatar = async () => {
+    setAvatarBusy(true);
+    try {
+      const res = await authApi.deleteAvatar();
+      if (res.success && res.data) {
+        setUser(res.data);
+        setMessage({ type: "success", text: "Đã xoá avatar" });
+      }
+    } catch (err: unknown) {
+      const apiErr = err as { response?: { data?: { message?: string } } };
+      setMessage({
+        type: "error",
+        text: apiErr?.response?.data?.message || "Xoá thất bại. Vui lòng thử lại.",
+      });
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
 
   const dismissMessage = useCallback(() => setMessage(null), []);
 
@@ -700,9 +753,17 @@ const ProfilePage = () => {
             <div className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden sticky top-24">
               <div className="p-5 border-b border-[#E4E7EC]">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#032D60] flex items-center justify-center text-white font-bold">
-                    {profile?.candidate_profile?.full_name?.charAt(0) || "?"}
-                  </div>
+                  {user?.avatar_url ? (
+                    <img
+                      src={user.avatar_url}
+                      alt="avatar"
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-[#032D60] flex items-center justify-center text-white font-bold">
+                      {profile?.candidate_profile?.full_name?.charAt(0) || "?"}
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-[#101828] truncate">
                       {profile?.candidate_profile?.full_name || "Thí sinh"}
@@ -752,12 +813,58 @@ const ProfilePage = () => {
                 <div className="p-6 space-y-6">
                   <div className="flex flex-col md:flex-row gap-6 items-start">
                     <div className="relative group">
-                      <div className="w-24 h-24 rounded-full border-4 border-[#E4E7EC] overflow-hidden bg-[#032D60] flex items-center justify-center">
-                        <span className="text-white text-3xl font-bold">
-                          {profile?.candidate_profile?.full_name?.charAt(0) ||
-                            "?"}
-                        </span>
-                      </div>
+                      <input
+                        ref={avatarInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        className="hidden"
+                        onChange={handleAvatarChange}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => avatarInputRef.current?.click()}
+                        disabled={avatarBusy}
+                        title={user?.avatar_url ? "Đổi avatar" : "Tải avatar lên"}
+                        className="relative w-24 h-24 rounded-full border-4 border-[#E4E7EC] overflow-hidden bg-[#032D60] flex items-center justify-center disabled:opacity-60 cursor-pointer"
+                      >
+                        {user?.avatar_url ? (
+                          <img
+                            src={user.avatar_url}
+                            alt="avatar"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-white text-3xl font-bold">
+                            {profile?.candidate_profile?.full_name?.charAt(0) ||
+                              "?"}
+                          </span>
+                        )}
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="material-symbols-outlined text-white text-2xl">
+                            photo_camera
+                          </span>
+                        </div>
+                        {avatarBusy && (
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <span className="material-symbols-outlined text-white text-2xl animate-spin">
+                              progress_activity
+                            </span>
+                          </div>
+                        )}
+                      </button>
+                      {user?.avatar_url && (
+                        <button
+                          type="button"
+                          onClick={handleDeleteAvatar}
+                          disabled={avatarBusy}
+                          title="Xoá avatar"
+                          className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#EF4444] text-white flex items-center justify-center shadow-md hover:bg-[#DC2626] transition-colors disabled:opacity-60"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">
+                            delete
+                          </span>
+                        </button>
+                      )}
                     </div>
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div className="flex flex-col gap-1.5">
