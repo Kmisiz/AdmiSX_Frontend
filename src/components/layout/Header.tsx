@@ -14,17 +14,20 @@ const NAV_LINKS = [
 ];
 
 const Header = () => {
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isAuthenticated, user, logout, setUser } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const notifRef = useRef<HTMLDivElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const [avatarMsg, setAvatarMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -36,6 +39,49 @@ const Header = () => {
     logout();
     navigate({ to: "/" });
   }, [logout, navigate]);
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setAvatarMsg({ type: "err", text: "Vui lòng chọn file ảnh" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarMsg({ type: "err", text: "Ảnh tối đa 5MB" });
+      return;
+    }
+    setAvatarBusy(true);
+    try {
+      const res = await authApi.uploadAvatar(file);
+      if (res.success && res.data) {
+        setUser(res.data);
+        setAvatarMsg({ type: "ok", text: "Cập nhật avatar thành công" });
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Upload thất bại";
+      setAvatarMsg({ type: "err", text: msg });
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
+
+  const handleDeleteAvatar = async () => {
+    setAvatarBusy(true);
+    try {
+      const res = await authApi.deleteAvatar();
+      if (res.success && res.data) {
+        setUser(res.data);
+        setAvatarMsg({ type: "ok", text: "Đã xoá avatar" });
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Xoá thất bại";
+      setAvatarMsg({ type: "err", text: msg });
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -55,6 +101,12 @@ const Header = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!avatarMsg) return;
+    const t = setTimeout(() => setAvatarMsg(null), 3000);
+    return () => clearTimeout(t);
+  }, [avatarMsg]);
 
   const fetchNotifs = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -112,6 +164,17 @@ const Header = () => {
 
   return (
     <header className="bg-white border-b border-[#E4E7EC] sticky top-0 z-50">
+      {avatarMsg && (
+        <div
+          className={`fixed top-20 right-4 z-[100] px-4 py-3 rounded-lg shadow-lg text-sm font-medium ${
+            avatarMsg.type === "ok"
+              ? "bg-[#04844B] text-white"
+              : "bg-[#EF4444] text-white"
+          }`}
+        >
+          {avatarMsg.text}
+        </div>
+      )}
       <div className="flex justify-between items-center h-[72px] w-full max-w-[1280px] mx-auto px-4 sm:px-8">
         <div className="flex items-center gap-6 h-full">
           <Link to="/" className="flex items-center gap-4">
@@ -225,13 +288,21 @@ const Header = () => {
                   onClick={() => setShowDropdown((prev) => !prev)}
                   className="flex items-center gap-2 cursor-pointer group"
                 >
-                  <div className="w-8 h-8 rounded-full bg-[#032D60] flex items-center justify-center overflow-hidden border border-[#E4E7EC]">
-                    <span className="text-white text-sm font-bold">
-                      {user?.full_name?.charAt(0) ||
-                        user?.email?.charAt(0)?.toUpperCase() ||
-                        "?"}
-                    </span>
-                  </div>
+                  {user?.avatar_url ? (
+                    <img
+                      src={user.avatar_url}
+                      alt={user.full_name || user.email}
+                      className="w-8 h-8 rounded-full object-cover border border-[#E4E7EC]"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-[#032D60] flex items-center justify-center overflow-hidden border border-[#E4E7EC]">
+                      <span className="text-white text-sm font-bold">
+                        {user?.full_name?.charAt(0) ||
+                          user?.email?.charAt(0)?.toUpperCase() ||
+                          "?"}
+                      </span>
+                    </div>
+                  )}
                   <span className="text-[#475467] text-sm font-medium hidden sm:block group-hover:text-[#101828] transition-colors">
                     {user?.full_name || user?.email || ""}
                   </span>
@@ -240,7 +311,50 @@ const Header = () => {
                   </span>
                 </button>
                 {showDropdown && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl border border-[#E4E7EC] shadow-lg overflow-hidden z-50">
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl border border-[#E4E7EC] shadow-lg overflow-hidden z-50">
+                    <div className="px-4 py-3 border-b border-[#E4E7EC]">
+                      <p className="text-[13px] font-semibold text-[#101828] truncate">
+                        {user?.full_name || "Người dùng"}
+                      </p>
+                      <p className="text-[11px] text-[#667085] truncate">
+                        {user?.email}
+                      </p>
+                    </div>
+                    <input
+                      ref={avatarInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      className="hidden"
+                      onChange={handleAvatarChange}
+                    />
+                    <button
+                      onClick={() => {
+                        setShowDropdown(false);
+                        avatarInputRef.current?.click();
+                      }}
+                      disabled={avatarBusy}
+                      className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm text-[#101828] hover:bg-[#F4F6F9] transition-colors disabled:opacity-50"
+                    >
+                      <span className="material-symbols-outlined text-[#667085] text-[20px]">
+                        upload
+                      </span>
+                      {avatarBusy ? "Đang tải..." : user?.avatar_url ? "Đổi avatar" : "Tải avatar lên"}
+                    </button>
+                    {user?.avatar_url && (
+                      <button
+                        onClick={() => {
+                          setShowDropdown(false);
+                          handleDeleteAvatar();
+                        }}
+                        disabled={avatarBusy}
+                        className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm text-[#101828] hover:bg-[#F4F6F9] transition-colors disabled:opacity-50"
+                      >
+                        <span className="material-symbols-outlined text-[#667085] text-[20px]">
+                          delete
+                        </span>
+                        Xoá avatar
+                      </button>
+                    )}
                     <Link
                       to="/dashboard/profile"
                       onClick={() => setShowDropdown(false)}

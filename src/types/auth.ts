@@ -4,6 +4,7 @@ export interface User {
   role: "CANDIDATE" | "ADMIN";
   full_name?: string;
   status: "ACTIVE" | "LOCKED" | "PENDING";
+  avatar_url?: string | null;
   last_login_at: string | null;
   created_at: string;
   updated_at: string;
