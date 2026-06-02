@@ -456,6 +456,7 @@ const DocumentsPage = () => {
           onClose={() => setShowUploadModal(false)}
           onUpload={handleUpload}
           uploading={uploading}
+          uploadProgress={uploadProgress}
         />
       )}
 
@@ -492,10 +493,12 @@ function UploadModal({
   onClose,
   onUpload,
   uploading,
+  uploadProgress,
 }: {
   onClose: () => void;
   onUpload: (docType: string, file: File, displayName?: string) => void;
   uploading: boolean;
+  uploadProgress: number;
 }) {
   const CERTIFICATE_OPTIONS = [
     "IELTS (Academic)",

@@ -4,6 +4,7 @@ import { authApi } from "../../apis/auth";
 import { dashboardApi, type NotificationData } from "../../apis/dashboard";
 import { useCallback, useState, useRef, useEffect } from "react";
 import { useSocket } from "../../hooks/useSocket";
+import logoSrc from "../../assets/hero/logo.jpg";
 
 const NAV_LINKS = [
   { to: "/dashboard", label: "Bảng điều khiển" },
@@ -116,7 +117,7 @@ const Header = () => {
             <img
               alt="AdmiSX Logo"
               className="h-8 w-8 object-contain rounded-lg"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhAifkTCFt4mxv986qY6FxhCNWdsy9P7xE99MBx9qTbzBXjnaYPEqSlR5RJLMu6Tcy_PvucAfM6Bbjk96Wapf2v5LXfiFdvdLCFYZtkpFT9rCbkXpDt7z-0DmilKJ0k2VL_ueQrYJli-XALn-tjN0IC3bJFeOBPdK2UWvZ5egUn3nesAFatPkGRQiMv3F5MHj7CysleluG92vTeLvsUeYTZ6gkqq1c5qH2Pc0nbZJ6DsSQCoR2kuXDh-XJfLGYLzZUb7uJyMu-deE"
+              src={logoSrc}
             />
             <span className="text-xl font-bold text-[#101828] leading-tight">
               AdmiSX
