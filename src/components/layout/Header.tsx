@@ -24,6 +24,7 @@ const Header = () => {
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const notifRef = useRef<HTMLDivElement>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -111,7 +112,7 @@ const Header = () => {
 
   return (
     <header className="bg-white border-b border-[#E4E7EC] sticky top-0 z-50">
-      <div className="flex justify-between items-center h-[72px] w-full max-w-[1280px] mx-auto px-8">
+      <div className="flex justify-between items-center h-[72px] w-full max-w-[1280px] mx-auto px-4 sm:px-8">
         <div className="flex items-center gap-6 h-full">
           <Link to="/" className="flex items-center gap-4">
             <img
@@ -145,6 +146,15 @@ const Header = () => {
         <div className="flex items-center gap-4">
           {isAuthenticated ? (
             <>
+              {/* Mobile hamburger */}
+              <button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="md:hidden text-[#667085] hover:text-[#101828] p-2 rounded-lg hover:bg-[#F4F6F9] transition-all"
+              >
+                <span className="material-symbols-outlined text-[24px]">
+                  {mobileOpen ? "close" : "menu"}
+                </span>
+              </button>
               <div className="relative" ref={notifRef}>
                 <button
                   onClick={() => { setNotifOpen(!notifOpen); }}
@@ -158,7 +168,7 @@ const Header = () => {
                   )}
                 </button>
                 {notifOpen && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl border border-[#E4E7EC] shadow-lg overflow-hidden z-50">
+                  <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-xl border border-[#E4E7EC] shadow-lg overflow-hidden z-50">
                     <div className="px-4 py-3 border-b border-[#E4E7EC] flex items-center justify-between">
                       <h3 className="font-bold text-sm text-[#101828]">Thông báo</h3>
                       <span className="text-xs text-[#667085]">{notifications.length} gần đây</span>
@@ -259,14 +269,19 @@ const Header = () => {
             <>
               <button
                 onClick={() =>
-                  (window.location.href = "http://localhost:5173/login")
+                  window.location.href =
+                    (import.meta.env.VITE_ADMIS_URL || window.location.origin) +
+                    "/login"
                 }
                 className="text-[#475467] text-sm font-medium hover:text-[#101828] transition-colors cursor-pointer"
               >
                 Đăng nhập
               </button>
               <a
-                href="http://localhost:5173/register"
+                href={
+                  (import.meta.env.VITE_ADMIS_URL || window.location.origin) +
+                  "/register"
+                }
                 className="bg-[#032D60] text-white font-semibold px-6 py-2 rounded-full shadow-sm hover:bg-[#021a40] transition-all cursor-pointer active:scale-95 text-sm"
               >
                 Đăng ký
@@ -275,6 +290,27 @@ const Header = () => {
           )}
         </div>
       </div>
+      {/* Mobile nav drawer */}
+      {isAuthenticated && mobileOpen && (
+        <div className="md:hidden border-t border-[#E4E7EC] bg-white px-4 py-3 shadow-lg">
+          <nav className="flex flex-col gap-1">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setMobileOpen(false)}
+                className={`text-[15px] font-medium px-3 py-2.5 rounded-lg transition-colors ${
+                  isActive(link.to)
+                    ? "text-[#032D60] bg-[#F0F4FF]"
+                    : "text-[#667085] hover:text-[#101828] hover:bg-[#F4F6F9]"
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
