@@ -472,7 +472,7 @@ const PrivateDashboard = () => {
           <h2 className="text-xl font-bold text-[#101828] mb-6">
             Truy cập nhanh
           </h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Link
               to="/dashboard/documents"
               className="h-[110px] border border-[#D0D5DD] rounded-xl bg-white flex flex-col items-center justify-center gap-3 transition-all duration-200 hover:border-[#032D60] hover:shadow-[0_4px_12px_rgba(3,45,96,0.12)] group"
