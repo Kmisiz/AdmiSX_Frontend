@@ -36,6 +36,10 @@ export interface AcademicRecordData {
       subject_name: string;
       score: number;
     }>;
+    foreign_language?: {
+      language_code: string;
+      language_name: string;
+    } | null;
   } | null;
   academic_progress: {
     grade_10: { school_name: string | null; avg_score: number | null };
