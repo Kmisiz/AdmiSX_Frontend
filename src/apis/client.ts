@@ -22,10 +22,7 @@ apiClient.interceptors.response.use(
       localStorage.removeItem("candidate_token");
       localStorage.removeItem("candidate_user");
       window.location.href =
-        import.meta.env.VITE_API_URL?.replace("/api", "")?.replace(
-          ":5000",
-          ":5173",
-        ) + "/login";
+        (import.meta.env.VITE_ADMIS_URL || window.location.origin) + "/login";
     }
     return Promise.reject(error);
   },
