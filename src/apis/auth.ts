@@ -22,4 +22,20 @@ export const authApi = {
     const response = await apiClient.post<ActionResponse>("/auth/logout");
     return response.data;
   },
+
+  uploadAvatar: async (file: File): Promise<ProfileResponse> => {
+    const formData = new FormData();
+    formData.append("avatar", file);
+    const response = await apiClient.post<ProfileResponse>(
+      "/users/me/avatar",
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } },
+    );
+    return response.data;
+  },
+
+  deleteAvatar: async (): Promise<ProfileResponse> => {
+    const response = await apiClient.delete<ProfileResponse>("/users/me/avatar");
+    return response.data;
+  },
 };
