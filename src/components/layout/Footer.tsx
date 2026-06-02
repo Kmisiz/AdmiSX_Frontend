@@ -5,7 +5,7 @@ const Footer = () => {
         <div className="flex items-center gap-2">
           <span className="text-base font-semibold text-[#101828]">AdmiSX</span>
           <span className="text-sm text-[#667085] ml-2">
-            &copy; 2024 AdmiSX Admissions Portal. All rights reserved.
+            &copy; 2026 AdmiSX Admissions Portal. All rights reserved.
           </span>
         </div>
         <div className="flex gap-6">

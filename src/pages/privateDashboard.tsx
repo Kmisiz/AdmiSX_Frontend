@@ -16,7 +16,15 @@ const PERSONAL_FIELDS = [
   "Tỉnh/Thành phố",
   "Địa chỉ",
 ];
-const ACADEMIC_FIELDS = ["Năm tốt nghiệp", "Khối"];
+const ACADEMIC_FIELDS = ["Năm tốt nghiệp", "Trường THPT (lớp 12)"];
+const EXAM_SCORE_FIELDS = [
+  "Điểm thi phải đủ đúng 4 môn",
+  "Điểm thi bắt buộc có TOÁN và VĂN",
+  "2 môn tự chọn chưa hợp lệ",
+  "Thiếu thông tin ngoại ngữ cho môn NGOAINGU",
+  "Dữ liệu ngoại ngữ không khớp môn đã chọn",
+];
+const CERTIFICATE_FIELDS = ["Giấy chứng nhận kết quả thi"];
 
 type SectionStatus = "completed" | "pending" | "not_started";
 
@@ -80,7 +88,6 @@ const PrivateDashboard = () => {
     null,
   );
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
-  const [docCount, setDocCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [timeRemaining, setTimeRemaining] = useState<string>("");
 
@@ -91,20 +98,18 @@ const PrivateDashboard = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [dl, comp, notifs, docs] = await Promise.all([
+      const [dl, comp, notifs] = await Promise.all([
         safe(dashboardApi.getDeadline(), null as unknown as DeadlineData),
         safe(
           dashboardApi.getCompleteness(),
           null as unknown as CompletenessData,
         ),
         safe(dashboardApi.getNotifications({ limit: 5 }), []),
-        safe(dashboardApi.getDocuments(), []),
       ]);
 
       setDeadline(dl);
       setCompleteness(comp);
       setNotifications(notifs);
-      setDocCount(Array.isArray(docs) ? docs.length : 0);
       setLoading(false);
     };
 
@@ -162,23 +167,42 @@ const PrivateDashboard = () => {
     "status-changed": refreshNotifications,
   });
 
+  // Backend early-returns if profile or academic record is missing, so
+  // missing_fields won't contain the granular fields below in that case.
+  // Treat those as pending for all dependent sections.
   const missing = completeness?.missing_fields ?? [];
+  const profileNotCreated = missing.includes("Hồ sơ cá nhân chưa được tạo");
+  const academicNotCreated =
+    profileNotCreated ||
+    missing.includes("Thông tin học tập (chưa có bảng điểm)");
 
   const getSectionStatus = (fields: string[]): SectionStatus => {
-    const hasMissing = fields.some((f) => missing.includes(f));
-    if (!hasMissing && missing.length === 0) return "completed";
-    if (hasMissing) return "pending";
+    if (fields.some((f) => missing.includes(f))) return "pending";
+    if (fields.length > 0) return "completed";
     return "not_started";
   };
 
-  const personalComplete = getSectionStatus(PERSONAL_FIELDS);
-  const academicComplete = getSectionStatus(ACADEMIC_FIELDS);
-  const docsComplete: SectionStatus =
-    docCount > 0 ? "completed" : "not_started";
+  const personalComplete: SectionStatus = profileNotCreated
+    ? "pending"
+    : getSectionStatus(PERSONAL_FIELDS);
+  const academicComplete: SectionStatus = academicNotCreated
+    ? "pending"
+    : getSectionStatus(ACADEMIC_FIELDS);
+  const examComplete: SectionStatus = academicNotCreated
+    ? "pending"
+    : getSectionStatus(EXAM_SCORE_FIELDS);
+  const docsComplete: SectionStatus = profileNotCreated
+    ? "pending"
+    : getSectionStatus(CERTIFICATE_FIELDS);
 
-  const sections = [personalComplete, academicComplete, docsComplete];
+  const sections = [
+    personalComplete,
+    academicComplete,
+    examComplete,
+    docsComplete,
+  ];
   const completedCount = sections.filter((s) => s === "completed").length;
-  const progress = Math.round((completedCount / 3) * 100);
+  const progress = Math.round((completedCount / 4) * 100);
 
   const getNotificationMeta = (type: string) => {
     switch (type) {
@@ -280,7 +304,7 @@ const PrivateDashboard = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
             <SectionStatusBadge
               status={personalComplete}
               label="Thông tin cá nhân"
@@ -289,10 +313,8 @@ const PrivateDashboard = () => {
               status={academicComplete}
               label="Hồ sơ học tập"
             />
-            <SectionStatusBadge
-              status={docsComplete}
-              label="Chứng chỉ, hồ sơ"
-            />
+            <SectionStatusBadge status={examComplete} label="Điểm thi" />
+            <SectionStatusBadge status={docsComplete} label="Chứng chỉ" />
           </div>
 
           <div className="flex justify-end mt-6">
@@ -472,7 +494,7 @@ const PrivateDashboard = () => {
           <h2 className="text-xl font-bold text-[#101828] mb-6">
             Truy cập nhanh
           </h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Link
               to="/dashboard/documents"
               className="h-[110px] border border-[#D0D5DD] rounded-xl bg-white flex flex-col items-center justify-center gap-3 transition-all duration-200 hover:border-[#032D60] hover:shadow-[0_4px_12px_rgba(3,45,96,0.12)] group"
