@@ -28,6 +28,10 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     font-family: "Montserrat", "Inter", sans-serif;
     background-color: var(--color-canvas);
@@ -54,6 +58,45 @@
 
 .hero-gradient {
   background: linear-gradient(135deg, #021a40 0%, #003b5c 100%);
+}
+
+.hero-title-animate,
+.hero-subtitle-animate,
+.hero-actions-animate {
+  animation: heroTextEnter 0.72s ease-out both;
+}
+
+.hero-title-animate {
+  animation-delay: 0.08s;
+}
+
+.hero-subtitle-animate {
+  animation-delay: 0.24s;
+}
+
+.hero-actions-animate {
+  animation-delay: 0.4s;
+}
+
+@keyframes heroTextEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-title-animate,
+  .hero-subtitle-animate,
+  .hero-actions-animate {
+    animation: none;
+  }
 }
 
 .bento-card {
