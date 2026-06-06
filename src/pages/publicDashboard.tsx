@@ -126,7 +126,7 @@ const PublicDashboard = () => {
         className="scroll-mt-24 py-12 px-6 max-w-7xl mx-auto"
       >
         <div className="text-center mb-12">
-          <h2 className="text-[#101828] font-bold mb-2 text-[32px] leading-tight">
+          <h2 className="text-[#344054] font-bold mb-2 text-[32px] leading-tight">
             Quy trình tuyển sinh
           </h2>
           <div className="h-1 w-20 bg-[#032D60] mx-auto rounded-full" />
@@ -167,7 +167,7 @@ const PublicDashboard = () => {
                   {step.icon}
                 </span>
               </div>
-              <h3 className="text-[#101828] font-bold mb-2 text-[20px] leading-tight">
+              <h3 className="text-[#344054] font-bold mb-2 text-[20px] leading-tight">
                 {step.title}
               </h3>
               <p className="text-[#667085] text-[14px] leading-relaxed">
@@ -186,7 +186,7 @@ const PublicDashboard = () => {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 px-6">
           {/* Featured Programs (2/3) */}
           <div className="lg:col-span-2">
-            <h2 className="text-[#101828] font-bold mb-6 text-[32px] leading-tight">
+            <h2 className="text-[#344054] font-bold mb-6 text-[32px] leading-tight">
               Chương trình nổi bật
             </h2>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -203,7 +203,7 @@ const PublicDashboard = () => {
                       </div>
                     </div>
 
-                    <h3 className="text-[20px] font-bold leading-tight text-[#101828]">
+                    <h3 className="text-[20px] font-bold leading-tight text-[#344054]">
                       {program.title}
                     </h3>
                     <p className="mt-2 text-sm font-semibold text-[#032D60]">
@@ -240,7 +240,7 @@ const PublicDashboard = () => {
 
           {/* Why Choose AdmiSX (1/3) */}
           <div className="lg:col-span-1">
-            <h2 className="text-[#101828] font-bold mb-6 text-[32px] leading-tight">
+            <h2 className="text-[#344054] font-bold mb-6 text-[32px] leading-tight">
               Tại sao chọn AdmiSX?
             </h2>
             <div className="flex flex-col gap-4">
@@ -271,7 +271,7 @@ const PublicDashboard = () => {
                     </span>
                   </div>
                   <div>
-                    <p className="text-[#101828] font-semibold text-[16px] leading-relaxed">
+                    <p className="text-[#344054] font-semibold text-[16px] leading-relaxed">
                       {benefit.title}
                     </p>
                     <p className="text-[#667085] text-[13px] leading-relaxed">

@@ -95,7 +95,7 @@ const ContactPage = () => {
                 <p className="text-sm font-semibold text-[#667085]">
                   {channel.title}
                 </p>
-                <h3 className="mt-1 text-[18px] font-bold leading-tight text-[#101828]">
+                <h3 className="mt-1 text-[18px] font-bold leading-tight text-[#344054]">
                   {channel.value}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-[#667085]">
@@ -106,7 +106,7 @@ const ContactPage = () => {
           ))}
 
           <div className="rounded-3xl border border-[#E4E7EC] bg-white p-6">
-            <h2 className="text-xl font-bold text-[#101828]">
+            <h2 className="text-xl font-bold text-[#344054]">
               Chủ đề hỗ trợ thường gặp
             </h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -130,7 +130,7 @@ const ContactPage = () => {
             <p className="text-sm font-semibold uppercase tracking-wide text-[#032D60]">
               Gửi yêu cầu tư vấn
             </p>
-            <h2 className="mt-2 text-[28px] font-bold leading-tight text-[#101828]">
+            <h2 className="mt-2 text-[28px] font-bold leading-tight text-[#344054]">
               Để lại thông tin, AdmiSX sẽ liên hệ lại
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-[#667085]">
@@ -164,7 +164,7 @@ const ContactPage = () => {
                   required
                   name="name"
                   placeholder="Nguyễn Văn A"
-                  className="h-12 rounded-2xl border border-[#D0D5DD] px-4 text-sm font-normal text-[#101828] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#032D60]"
+                  className="h-12 rounded-2xl border border-[#D0D5DD] px-4 text-sm font-normal text-[#344054] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#032D60]"
                 />
               </label>
               <label className="grid gap-2 text-sm font-semibold text-[#344054]">
@@ -174,7 +174,7 @@ const ContactPage = () => {
                   name="phone"
                   inputMode="tel"
                   placeholder="0901 234 567"
-                  className="h-12 rounded-2xl border border-[#D0D5DD] px-4 text-sm font-normal text-[#101828] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#032D60]"
+                  className="h-12 rounded-2xl border border-[#D0D5DD] px-4 text-sm font-normal text-[#344054] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#032D60]"
                 />
               </label>
             </div>
@@ -185,7 +185,7 @@ const ContactPage = () => {
                 name="email"
                 type="email"
                 placeholder="email@example.com"
-                className="h-12 rounded-2xl border border-[#D0D5DD] px-4 text-sm font-normal text-[#101828] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#032D60]"
+                className="h-12 rounded-2xl border border-[#D0D5DD] px-4 text-sm font-normal text-[#344054] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#032D60]"
               />
             </label>
 
@@ -196,7 +196,7 @@ const ContactPage = () => {
                 name="message"
                 rows={5}
                 placeholder="Cậu cần tư vấn về hồ sơ, ngành học hoặc trạng thái đăng ký?"
-                className="resize-none rounded-2xl border border-[#D0D5DD] px-4 py-3 text-sm font-normal leading-relaxed text-[#101828] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#032D60]"
+                className="resize-none rounded-2xl border border-[#D0D5DD] px-4 py-3 text-sm font-normal leading-relaxed text-[#344054] outline-none transition-colors placeholder:text-[#98A2B3] focus:border-[#032D60]"
               />
             </label>
 
