@@ -24,7 +24,8 @@ dist-ssr
 *.sw?
 .qodo/
 .kilo/
+.vercel/
 .env
 !.env.example
-.vercel
+.env.*
 .env*.local
