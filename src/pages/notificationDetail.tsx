@@ -2,14 +2,23 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { dashboardApi, type NotificationData } from "../apis/dashboard";
 
-const NOTIFICATION_TYPE_LABELS: Record<string, { label: string; color: string }> = {
-  APPLICATION_SUBMITTED: { label: "Đã nộp hồ sơ", color: "bg-[#04844B]/10 text-[#04844B]" },
+const NOTIFICATION_TYPE_LABELS: Record<
+  string,
+  { label: string; color: string }
+> = {
+  APPLICATION_SUBMITTED: {
+    label: "Đã nộp hồ sơ",
+    color: "bg-[#04844B]/10 text-[#04844B]",
+  },
   APPROVAL: { label: "Đã duyệt", color: "bg-[#04844B]/10 text-[#04844B]" },
   REJECTION: { label: "Bị từ chối", color: "bg-[#EF4444]/10 text-[#EF4444]" },
   RESULT: { label: "Kết quả", color: "bg-[#032D60]/10 text-[#032D60]" },
   PASSED: { label: "Đỗ", color: "bg-[#04844B]/10 text-[#04844B]" },
   FAILED: { label: "Trượt", color: "bg-[#EF4444]/10 text-[#EF4444]" },
-  PASSWORD_RESET: { label: "Mật khẩu", color: "bg-[#F97316]/10 text-[#F97316]" },
+  PASSWORD_RESET: {
+    label: "Mật khẩu",
+    color: "bg-[#F97316]/10 text-[#F97316]",
+  },
 };
 
 const formatDateTime = (dateStr: string) => {
@@ -26,7 +35,9 @@ const formatDateTime = (dateStr: string) => {
 const NotificationDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams({ from: "/dashboard/notifications/$id" });
-  const [notification, setNotification] = useState<NotificationData | null>(null);
+  const [notification, setNotification] = useState<NotificationData | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -88,7 +99,7 @@ const NotificationDetailPage = () => {
     <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
       <button
         onClick={() => navigate({ to: "/dashboard/notifications" })}
-        className="flex items-center gap-2 text-[#667085] hover:text-[#101828] transition-colors mb-6 text-sm font-medium"
+        className="flex items-center gap-2 text-[#667085] hover:text-[#344054] transition-colors mb-6 text-sm font-medium"
       >
         <span className="material-symbols-outlined text-[18px]">
           arrow_back
@@ -108,7 +119,7 @@ const NotificationDetailPage = () => {
               {formatDateTime(notification.created_at)}
             </span>
           </div>
-          <h1 className="text-[22px] sm:text-[28px] font-bold text-[#101828] leading-tight">
+          <h1 className="text-[22px] sm:text-[28px] font-bold text-[#344054] leading-tight">
             {notification.subject}
           </h1>
         </div>

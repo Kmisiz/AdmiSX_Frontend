@@ -131,7 +131,7 @@ const Stepper = ({ current }: { current: Step }) => (
           </div>
           <span
             className={`text-sm font-medium hidden sm:inline ${
-              s <= current ? "text-[#101828]" : "text-[#667085]"
+              s <= current ? "text-[#344054]" : "text-[#667085]"
             }`}
           >
             {STEP_LABELS[i]}
@@ -748,7 +748,7 @@ const AdmissionsPage = () => {
           <span className="material-symbols-outlined text-[64px] text-[#F97316]">
             gavel
           </span>
-          <h2 className="text-2xl font-bold text-[#101828] mt-4">
+          <h2 className="text-2xl font-bold text-[#344054] mt-4">
             Bạn đã nộp hồ sơ, hãy đợi đợt sau
           </h2>
           <p className="text-[#667085] text-sm mt-2 max-w-md">
@@ -769,7 +769,7 @@ const AdmissionsPage = () => {
   return (
     <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
       <div className="mb-6">
-        <h1 className="text-[32px] font-bold text-[#101828]">
+        <h1 className="text-[32px] font-bold text-[#344054]">
           Đăng ký tuyển sinh
         </h1>
         <p className="text-[#667085] text-sm mt-1">
@@ -785,7 +785,7 @@ const AdmissionsPage = () => {
       {step === 1 && (
         <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
           <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
-            <h3 className="text-lg font-bold text-[#101828]">
+            <h3 className="text-lg font-bold text-[#344054]">
               Thông tin cá nhân & Liên lạc
             </h3>
           </div>
@@ -936,7 +936,7 @@ const AdmissionsPage = () => {
           <div className="flex-1 lg:w-5/12">
             <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
               <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
-                <h3 className="text-lg font-bold text-[#101828]">
+                <h3 className="text-lg font-bold text-[#344054]">
                   Thêm nguyện vọng
                 </h3>
               </div>
@@ -1002,7 +1002,7 @@ const AdmissionsPage = () => {
           <div className="flex-1 lg:w-7/12">
             <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
               <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9] flex justify-between items-center">
-                <h3 className="text-lg font-bold text-[#101828]">
+                <h3 className="text-lg font-bold text-[#344054]">
                   Danh sách nguyện vọng
                 </h3>
                 <span className="text-sm text-[#667085]">
@@ -1031,7 +1031,7 @@ const AdmissionsPage = () => {
                           {i + 1}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-[#101828]">
+                          <p className="text-sm font-semibold text-[#344054]">
                             {w.university.name}
                           </p>
                           <p className="text-xs text-[#667085] mt-0.5">
@@ -1099,7 +1099,7 @@ const AdmissionsPage = () => {
           <div className="flex-1 lg:w-7/12">
             <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
               <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
-                <h3 className="text-lg font-bold text-[#101828]">
+                <h3 className="text-lg font-bold text-[#344054]">
                   Nhập điểm thi THPT
                 </h3>
                 <p className="text-xs text-[#667085] mt-1">
@@ -1109,7 +1109,7 @@ const AdmissionsPage = () => {
               <div className="p-6 space-y-6">
                 {/* Required subjects */}
                 <div>
-                  <h4 className="text-sm font-bold text-[#101828] mb-3">
+                  <h4 className="text-sm font-bold text-[#344054] mb-3">
                     Môn bắt buộc
                   </h4>
                   <div className="grid grid-cols-2 gap-4">
@@ -1150,7 +1150,7 @@ const AdmissionsPage = () => {
 
                 {/* Optional subjects */}
                 <div>
-                  <h4 className="text-sm font-bold text-[#101828] mb-1">
+                  <h4 className="text-sm font-bold text-[#344054] mb-1">
                     Môn tự chọn{" "}
                     <span className="text-[#667085] font-normal">
                       (Chọn đúng 2)
@@ -1302,7 +1302,7 @@ const AdmissionsPage = () => {
 
                 {/* Academic info */}
                 <div className="border-t border-[#E4E7EC] pt-5">
-                  <h4 className="text-sm font-bold text-[#101828] mb-4">
+                  <h4 className="text-sm font-bold text-[#344054] mb-4">
                     Thông tin học tập
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1338,7 +1338,7 @@ const AdmissionsPage = () => {
           <div className="flex-1 lg:w-5/12">
             <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
               <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
-                <h3 className="text-lg font-bold text-[#101828]">
+                <h3 className="text-lg font-bold text-[#344054]">
                   Tải lên minh chứng
                 </h3>
               </div>
@@ -1400,7 +1400,7 @@ const AdmissionsPage = () => {
                                     </span>
                                   )}
                                   <div className="min-w-0 flex-1">
-                                    <p className="text-xs font-medium text-[#101828] truncate">
+                                    <p className="text-xs font-medium text-[#344054] truncate">
                                       {cert.display_name || cert.file_name}
                                     </p>
                                     <p className="text-[10px] text-[#667085]">
@@ -1517,7 +1517,7 @@ const AdmissionsPage = () => {
                               </span>
                             )}
                             <div className="min-w-0 flex-1">
-                              <p className="text-xs font-medium text-[#101828] truncate">
+                              <p className="text-xs font-medium text-[#344054] truncate">
                                 {existingDoc.document_type === "CERTIFICATE" &&
                                 existingDoc.display_name
                                   ? existingDoc.display_name
@@ -1687,13 +1687,13 @@ const AdmissionsPage = () => {
       {step === 4 && (
         <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
           <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
-            <h3 className="text-lg font-bold text-[#101828]">
+            <h3 className="text-lg font-bold text-[#344054]">
               Kiểm tra & Xác nhận
             </h3>
           </div>
           <div className="p-6 space-y-6">
             <div>
-              <h4 className="text-sm font-bold text-[#101828] mb-3">
+              <h4 className="text-sm font-bold text-[#344054] mb-3">
                 Thông tin cá nhân
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-[#F4F6F9] rounded-xl">
@@ -1722,7 +1722,7 @@ const AdmissionsPage = () => {
             </div>
 
             <div>
-              <h4 className="text-sm font-bold text-[#101828] mb-3">
+              <h4 className="text-sm font-bold text-[#344054] mb-3">
                 Nguyện vọng
               </h4>
               {wishes.length === 0 ? (
@@ -1740,7 +1740,7 @@ const AdmissionsPage = () => {
                         {i + 1}
                       </span>
                       <div>
-                        <p className="text-sm font-medium text-[#101828]">
+                        <p className="text-sm font-medium text-[#344054]">
                           {w.university.name} — {w.major.name}
                         </p>
                         <p className="text-xs text-[#667085]">
@@ -1758,7 +1758,7 @@ const AdmissionsPage = () => {
 
             {scores.length > 0 && (
               <div>
-                <h4 className="text-sm font-bold text-[#101828] mb-3">
+                <h4 className="text-sm font-bold text-[#344054] mb-3">
                   Điểm thi ({scores.length} môn)
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-[#F4F6F9] rounded-xl">
@@ -1770,7 +1770,7 @@ const AdmissionsPage = () => {
                       <span className="text-sm text-[#667085]">
                         {s.subject_name}
                       </span>
-                      <span className="text-sm font-bold text-[#101828]">
+                      <span className="text-sm font-bold text-[#344054]">
                         {s.score || "—"}
                       </span>
                     </div>
@@ -1795,7 +1795,7 @@ const AdmissionsPage = () => {
 
             {documents.length > 0 && (
               <div>
-                <h4 className="text-sm font-bold text-[#101828] mb-3">
+                <h4 className="text-sm font-bold text-[#344054] mb-3">
                   Tài liệu đính kèm
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -1812,7 +1812,7 @@ const AdmissionsPage = () => {
                           : "image"}
                       </span>
                       <div className="min-w-0">
-                        <p className="text-xs font-medium text-[#101828] truncate">
+                        <p className="text-xs font-medium text-[#344054] truncate">
                           {doc.file_name}
                         </p>
                         <p className="text-[10px] text-[#667085]">
@@ -1910,7 +1910,7 @@ const Field = ({
 const InfoRow = ({ label, value }: { label: string; value: string }) => (
   <div className="flex flex-col">
     <span className="text-xs text-[#667085]">{label}</span>
-    <span className="text-sm font-medium text-[#101828]">{value || "—"}</span>
+    <span className="text-sm font-medium text-[#344054]">{value || "—"}</span>
   </div>
 );
 
