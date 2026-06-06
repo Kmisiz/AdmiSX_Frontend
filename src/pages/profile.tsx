@@ -762,11 +762,13 @@ const ProfilePage = () => {
               <div className="p-5 border-b border-[#E4E7EC]">
                 <div className="flex items-center gap-3">
                   {user?.avatar_url ? (
-                    <img
-                      src={user.avatar_url}
-                      alt="avatar"
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
+                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-[#E4E7EC]">
+                      <img
+                        src={user.avatar_url}
+                        alt="avatar"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-[#032D60] flex items-center justify-center text-white font-bold">
                       {profile?.candidate_profile?.full_name?.charAt(0) || "?"}
