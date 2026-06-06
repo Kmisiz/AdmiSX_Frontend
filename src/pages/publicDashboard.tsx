@@ -90,22 +90,32 @@ const PublicDashboard = () => {
               Nền tảng tuyển sinh hiện đại giúp bạn kết nối với những cơ hội học
               tập hàng đầu. Đơn giản, minh bạch và định hướng tương lai.
             </p>
-            <div className="hero-actions-animate flex gap-4">
-              <a
-                href={
-                  isAuthenticated ? "/register/step-1" : `${ADMIS_URL}/register`
-                }
-                className="bg-white text-[#032D60] font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 text-[16px]"
-              >
-                Đăng ký ngay
-              </a>
-              <a
-                href="#admissions-process"
-                className="inline-flex items-center justify-center rounded-full border-2 border-white/80 bg-white/15 px-8 py-4 text-[16px] font-bold text-white shadow-lg backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-[#032D60] hover:shadow-xl active:scale-95"
-              >
-                Tìm hiểu thêm
-              </a>
-            </div>
+            {!isAuthenticated && (
+              <div className="hero-actions-animate flex gap-4">
+                <a
+                  href={`${ADMIS_URL}/register`}
+                  className="bg-white text-[#032D60] font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 text-[16px]"
+                >
+                  Đăng ký ngay
+                </a>
+                <a
+                  href="#admissions-process"
+                  className="inline-flex items-center justify-center rounded-full border-2 border-white/80 bg-white/15 px-8 py-4 text-[16px] font-bold text-white shadow-lg backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-[#032D60] hover:shadow-xl active:scale-95"
+                >
+                  Tìm hiểu thêm
+                </a>
+              </div>
+            )}
+            {isAuthenticated && (
+              <div className="hero-actions-animate flex gap-4">
+                <a
+                  href="/dashboard"
+                  className="bg-white text-[#032D60] font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 text-[16px]"
+                >
+                  Vào Dashboard
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </section>
