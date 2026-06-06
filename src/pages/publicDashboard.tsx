@@ -18,19 +18,29 @@ const PublicDashboard = () => {
               Nền tảng tuyển sinh hiện đại giúp bạn kết nối với những cơ hội học
               tập hàng đầu. Đơn giản, minh bạch và định hướng tương lai.
             </p>
-            <div className="flex gap-4">
-              <a
-                href={
-                  isAuthenticated ? "/register/step-1" : `${ADMIS_URL}/register`
-                }
-                className="bg-white text-[#032D60] font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 text-[16px]"
-              >
-                Đăng ký ngay
-              </a>
-              <button className="border-2 border-white text-white font-semibold px-8 py-4 rounded-full hover:bg-white/10 transition-all cursor-pointer text-[16px]">
-                Tìm hiểu thêm
-              </button>
-            </div>
+            {!isAuthenticated && (
+              <div className="flex gap-4">
+                <a
+                  href={`${ADMIS_URL}/register`}
+                  className="bg-white text-[#032D60] font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 text-[16px]"
+                >
+                  Đăng ký ngay
+                </a>
+                <button className="border-2 border-white text-white font-semibold px-8 py-4 rounded-full hover:bg-white/10 transition-all cursor-pointer text-[16px]">
+                  Tìm hiểu thêm
+                </button>
+              </div>
+            )}
+            {isAuthenticated && (
+              <div className="flex gap-4">
+                <a
+                  href="/dashboard"
+                  className="bg-white text-[#032D60] font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 text-[16px]"
+                >
+                  Vào Dashboard
+                </a>
+              </div>
+            )}
           </div>
           <div className="md:w-2/5 hidden md:block">
             <div className="relative bg-white/10 backdrop-blur-md p-6 rounded-full border border-white/20 aspect-square flex items-center justify-center animate-pulse">
