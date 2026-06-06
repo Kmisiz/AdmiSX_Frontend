@@ -766,7 +766,7 @@ const ProfilePage = () => {
                       <img
                         src={user.avatar_url}
                         alt="avatar"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover rounded-full"
                       />
                     </div>
                   ) : (
@@ -843,7 +843,7 @@ const ProfilePage = () => {
                           <img
                             src={user.avatar_url}
                             alt="avatar"
-                            className="absolute inset-0 w-full h-full object-cover"
+                            className="absolute inset-0 w-full h-full object-cover rounded-full"
                           />
                         ) : (
                           <span className="relative z-10 text-white text-3xl font-bold">
