@@ -325,7 +325,7 @@ const PrivateDashboard = () => {
           <div className="flex justify-end mt-6">
             <button
               onClick={() => navigate({ to: "/dashboard/admissions" })}
-              className="bg-[#032D60] text-white h-[52px] px-7 rounded-full font-semibold text-[15px] hover:bg-[#021a40] transition-all active:scale-95 flex items-center gap-2"
+              className="bg-[#2563EB] text-white h-[52px] px-7 rounded-full font-semibold text-[15px] hover:bg-[#1D4ED8] transition-all active:scale-95 flex items-center gap-2"
             >
               Tiếp tục hoàn thiện
               <span className="material-symbols-outlined text-xl">

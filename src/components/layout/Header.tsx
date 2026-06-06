@@ -368,6 +368,13 @@ const Header = () => {
                 )}
               </div>
               <div className="relative" ref={dropdownRef}>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={handleAvatarChange}
+                />
                 <button
                   onClick={() => setShowDropdown((prev) => !prev)}
                   className="flex cursor-pointer items-center gap-2 rounded-full border border-transparent px-1.5 py-1.5 transition-all hover:border-[#E4E7EC] hover:bg-[#F4F6F9] group"
@@ -404,13 +411,6 @@ const Header = () => {
                         {user?.email}
                       </p>
                     </div>
-                    <input
-                      ref={avatarInputRef}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/gif"
-                      className="hidden"
-                      onChange={handleAvatarChange}
-                    />
                     <button
                       onClick={() => {
                         setShowDropdown(false);
@@ -562,7 +562,7 @@ const Header = () => {
                   (import.meta.env.VITE_ADMIS_URL || window.location.origin) +
                   "/register"
                 }
-                className="rounded-full bg-[#032D60] px-4 py-2.5 text-center text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#021A40] hover:shadow-md active:scale-[0.98]"
+                className="rounded-full bg-[#2563EB] px-4 py-2.5 text-center text-sm font-bold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#1D4ED8] hover:shadow-md active:scale-[0.98]"
               >
                 Register
               </a>

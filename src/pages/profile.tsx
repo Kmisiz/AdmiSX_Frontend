@@ -164,7 +164,9 @@ const ProfilePage = () => {
       const apiErr = err as { response?: { data?: { message?: string } } };
       setMessage({
         type: "error",
-        text: apiErr?.response?.data?.message || "Upload thất bại. Vui lòng thử lại.",
+        text:
+          apiErr?.response?.data?.message ||
+          "Upload thất bại. Vui lòng thử lại.",
       });
     } finally {
       setAvatarBusy(false);
@@ -183,7 +185,8 @@ const ProfilePage = () => {
       const apiErr = err as { response?: { data?: { message?: string } } };
       setMessage({
         type: "error",
-        text: apiErr?.response?.data?.message || "Xoá thất bại. Vui lòng thử lại.",
+        text:
+          apiErr?.response?.data?.message || "Xoá thất bại. Vui lòng thử lại.",
       });
     } finally {
       setAvatarBusy(false);
@@ -451,7 +454,12 @@ const ProfilePage = () => {
     setUploadProgress(0);
     try {
       await admissionsApi.deleteDocument(certDocId);
-      await admissionsApi.uploadDocument(newCertFile, "EXAM_CERTIFICATE", undefined, setUploadProgress);
+      await admissionsApi.uploadDocument(
+        newCertFile,
+        "EXAM_CERTIFICATE",
+        undefined,
+        setUploadProgress,
+      );
       const docsRes = await admissionsApi.getDocuments();
       setDocuments(docsRes.data.data || []);
       setCertEditing(false);
@@ -805,7 +813,7 @@ const ProfilePage = () => {
                   <button
                     onClick={handleSaveProfile}
                     disabled={saving}
-                    className="bg-[#032D60] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95 disabled:opacity-50"
+                    className="bg-[#2563EB] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50"
                   >
                     {saving ? "Đang lưu..." : "Lưu thay đổi"}
                   </button>
@@ -824,17 +832,19 @@ const ProfilePage = () => {
                         type="button"
                         onClick={() => avatarInputRef.current?.click()}
                         disabled={avatarBusy}
-                        title={user?.avatar_url ? "Đổi avatar" : "Tải avatar lên"}
+                        title={
+                          user?.avatar_url ? "Đổi avatar" : "Tải avatar lên"
+                        }
                         className="relative w-24 h-24 rounded-full border-4 border-[#E4E7EC] overflow-hidden bg-[#032D60] flex items-center justify-center disabled:opacity-60 cursor-pointer"
                       >
                         {user?.avatar_url ? (
                           <img
                             src={user.avatar_url}
                             alt="avatar"
-                            className="w-full h-full object-cover"
+                            className="absolute inset-0 w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="text-white text-3xl font-bold">
+                          <span className="relative z-10 text-white text-3xl font-bold">
                             {profile?.candidate_profile?.full_name?.charAt(0) ||
                               "?"}
                           </span>
@@ -1059,7 +1069,8 @@ const ProfilePage = () => {
                       </div>
                       <div className="flex flex-col gap-1.5 md:col-span-2">
                         <label className="text-xs font-semibold text-[#344054]">
-                          Tỉnh/Thành phố <span className="text-[#EF4444]">*</span>
+                          Tỉnh/Thành phố{" "}
+                          <span className="text-[#EF4444]">*</span>
                         </label>
                         <input
                           type="text"
@@ -1124,7 +1135,7 @@ const ProfilePage = () => {
                   <button
                     onClick={handleSaveAcademic}
                     disabled={saving}
-                    className="bg-[#032D60] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95 disabled:opacity-50"
+                    className="bg-[#2563EB] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50"
                   >
                     {saving ? "Đang lưu..." : "Lưu thay đổi"}
                   </button>
@@ -1334,7 +1345,10 @@ const ProfilePage = () => {
                                   </label>
                                   {uploadingScores && (
                                     <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                                      <div className="h-full bg-[#032D60] rounded-full transition-all duration-200" style={{ width: `${uploadProgress}%` }} />
+                                      <div
+                                        className="h-full bg-[#032D60] rounded-full transition-all duration-200"
+                                        style={{ width: `${uploadProgress}%` }}
+                                      />
                                     </div>
                                   )}
                                   <button
@@ -1342,9 +1356,11 @@ const ProfilePage = () => {
                                       handleReplaceCertificate(certDoc.id)
                                     }
                                     disabled={!newCertFile || uploadingScores}
-                                    className="h-9 px-3 bg-[#032D60] text-white text-xs font-semibold rounded-lg hover:bg-[#021a40] disabled:opacity-50 transition-colors"
+                                    className="h-9 px-3 bg-[#2563EB] text-white text-xs font-semibold rounded-lg hover:bg-[#1D4ED8] disabled:opacity-50 transition-colors"
                                   >
-                                    {uploadingScores ? `${uploadProgress}%` : "Lưu"}
+                                    {uploadingScores
+                                      ? `${uploadProgress}%`
+                                      : "Lưu"}
                                   </button>
                                   <button
                                     onClick={() => {
@@ -1575,15 +1591,20 @@ const ProfilePage = () => {
                       </div>
                       {uploadingScores && (
                         <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                          <div className="h-full bg-[#032D60] rounded-full transition-all duration-200" style={{ width: `${uploadProgress}%` }} />
+                          <div
+                            className="h-full bg-[#032D60] rounded-full transition-all duration-200"
+                            style={{ width: `${uploadProgress}%` }}
+                          />
                         </div>
                       )}
                       <button
                         onClick={handleUploadExamScores}
                         disabled={uploadingScores}
-                        className="bg-[#032D60] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95 disabled:opacity-50"
+                        className="bg-[#2563EB] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50"
                       >
-                        {uploadingScores ? `${uploadProgress}%` : "Cập nhật điểm thi"}
+                        {uploadingScores
+                          ? `${uploadProgress}%`
+                          : "Cập nhật điểm thi"}
                       </button>
                     </div>
                   )}
@@ -1788,7 +1809,7 @@ const ProfilePage = () => {
                     <button
                       onClick={handleChangePassword}
                       disabled={changingPassword}
-                      className="bg-[#032D60] text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95 disabled:opacity-50"
+                      className="bg-[#2563EB] text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50"
                     >
                       {changingPassword
                         ? "Đang cập nhật..."

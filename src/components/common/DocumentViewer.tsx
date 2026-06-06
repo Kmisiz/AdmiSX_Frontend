@@ -76,7 +76,7 @@ export default function DocumentViewer({
                 href={fileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block mt-3 px-4 py-2 bg-[#032D60] text-white text-sm rounded-full hover:bg-[#021a40] transition-colors"
+                className="inline-block mt-3 px-4 py-2 bg-[#2563EB] text-white text-sm rounded-full hover:bg-[#1D4ED8] transition-colors"
               >
                 Tải xuống
               </a>

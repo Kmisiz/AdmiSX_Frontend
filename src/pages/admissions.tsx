@@ -757,7 +757,7 @@ const AdmissionsPage = () => {
           </p>
           <button
             onClick={() => navigate({ to: "/dashboard" })}
-            className="mt-6 px-6 py-2.5 bg-[#032D60] text-white rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95"
+            className="mt-6 px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95"
           >
             Quay lại bảng điều khiển
           </button>
@@ -921,7 +921,7 @@ const AdmissionsPage = () => {
               <button
                 onClick={handleStep1Next}
                 disabled={saving}
-                className="px-6 py-2.5 bg-[#032D60] text-white rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? "Đang lưu..." : "Tiếp theo"}
               </button>
@@ -992,7 +992,7 @@ const AdmissionsPage = () => {
                 </Field>
                 <button
                   onClick={addWish}
-                  className="px-6 py-2.5 bg-[#032D60] text-white rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95 w-full"
+                  className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 w-full"
                 >
                   Thêm vào danh sách
                 </button>
@@ -1084,7 +1084,7 @@ const AdmissionsPage = () => {
               </button>
               <button
                 onClick={() => setStep(3)}
-                className="px-6 py-2.5 bg-[#032D60] text-white rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95"
+                className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95"
               >
                 Tiếp tục bước 3
               </button>
@@ -1171,7 +1171,7 @@ const AdmissionsPage = () => {
                           disabled={isFull}
                           className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all ${
                             isSelected
-                              ? "bg-[#032D60] text-white border-[#032D60]"
+                              ? "bg-[#2563EB] text-white border-[#2563EB]"
                               : isFull
                                 ? "bg-[#F4F6F9] text-[#98A2B3] border-[#E4E7EC] cursor-not-allowed"
                                 : "bg-white text-[#475467] border-[#D0D5DD] hover:border-[#032D60] hover:text-[#032D60]"
@@ -1608,7 +1608,7 @@ const AdmissionsPage = () => {
                                 handleReplaceDoc(existingDoc!.id, dt.value)
                               }
                               disabled={!newDocFile || uploading}
-                              className="h-9 px-3 bg-[#032D60] text-white text-xs font-semibold rounded-lg hover:bg-[#021a40] disabled:opacity-50 transition-colors"
+                              className="h-9 px-3 bg-[#2563EB] text-white text-xs font-semibold rounded-lg hover:bg-[#1D4ED8] disabled:opacity-50 transition-colors"
                             >
                               {uploading ? `${uploadProgress}%` : "Lưu"}
                             </button>
@@ -1676,7 +1676,7 @@ const AdmissionsPage = () => {
           </button>
           <button
             onClick={() => setStep(4)}
-            className="px-6 py-2.5 bg-[#032D60] text-white rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95"
+            className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95"
           >
             Tiếp tục
           </button>
@@ -1855,7 +1855,7 @@ const AdmissionsPage = () => {
               <button
                 onClick={handleSubmit}
                 disabled={submitting || !agreed || wishes.length === 0}
-                className="px-6 py-2.5 bg-[#032D60] text-white rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? "Đang nộp..." : "Gửi hồ sơ"}
               </button>
