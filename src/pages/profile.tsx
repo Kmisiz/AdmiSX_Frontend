@@ -164,9 +164,7 @@ const ProfilePage = () => {
       const apiErr = err as { response?: { data?: { message?: string } } };
       setMessage({
         type: "error",
-        text:
-          apiErr?.response?.data?.message ||
-          "Upload thất bại. Vui lòng thử lại.",
+        text: apiErr?.response?.data?.message || "Upload thất bại. Vui lòng thử lại.",
       });
     } finally {
       setAvatarBusy(false);
@@ -185,8 +183,7 @@ const ProfilePage = () => {
       const apiErr = err as { response?: { data?: { message?: string } } };
       setMessage({
         type: "error",
-        text:
-          apiErr?.response?.data?.message || "Xoá thất bại. Vui lòng thử lại.",
+        text: apiErr?.response?.data?.message || "Xoá thất bại. Vui lòng thử lại.",
       });
     } finally {
       setAvatarBusy(false);
@@ -454,12 +451,7 @@ const ProfilePage = () => {
     setUploadProgress(0);
     try {
       await admissionsApi.deleteDocument(certDocId);
-      await admissionsApi.uploadDocument(
-        newCertFile,
-        "EXAM_CERTIFICATE",
-        undefined,
-        setUploadProgress,
-      );
+      await admissionsApi.uploadDocument(newCertFile, "EXAM_CERTIFICATE", undefined, setUploadProgress);
       const docsRes = await admissionsApi.getDocuments();
       setDocuments(docsRes.data.data || []);
       setCertEditing(false);
@@ -746,7 +738,7 @@ const ProfilePage = () => {
       <style>{PROFILE_STYLES}</style>
       <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8 bg-[#F5F7FB]">
         <div className="mb-6">
-          <h1 className="text-[32px] font-bold text-[#344054]">
+          <h1 className="text-[32px] font-bold text-[#101828]">
             Hồ sơ của tôi
           </h1>
           <p className="text-[#667085] text-sm mt-1">
@@ -773,7 +765,7 @@ const ProfilePage = () => {
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#344054] truncate">
+                    <p className="text-sm font-semibold text-[#101828] truncate">
                       {profile?.candidate_profile?.full_name || "Thí sinh"}
                     </p>
                     <p className="text-[11px] text-[#667085] truncate">
@@ -807,7 +799,7 @@ const ProfilePage = () => {
             {activeTab === "personal" && (
               <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
                 <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9] flex justify-between items-center">
-                  <h3 className="text-lg font-bold text-[#344054]">
+                  <h3 className="text-lg font-bold text-[#101828]">
                     Thông tin cá nhân
                   </h3>
                   <button
@@ -832,9 +824,7 @@ const ProfilePage = () => {
                         type="button"
                         onClick={() => avatarInputRef.current?.click()}
                         disabled={avatarBusy}
-                        title={
-                          user?.avatar_url ? "Đổi avatar" : "Tải avatar lên"
-                        }
+                        title={user?.avatar_url ? "Đổi avatar" : "Tải avatar lên"}
                         className="relative w-24 h-24 rounded-full border-4 border-[#E4E7EC] overflow-hidden bg-[#032D60] flex items-center justify-center disabled:opacity-60 cursor-pointer"
                       >
                         {user?.avatar_url ? (
@@ -1069,8 +1059,7 @@ const ProfilePage = () => {
                       </div>
                       <div className="flex flex-col gap-1.5 md:col-span-2">
                         <label className="text-xs font-semibold text-[#344054]">
-                          Tỉnh/Thành phố{" "}
-                          <span className="text-[#EF4444]">*</span>
+                          Tỉnh/Thành phố <span className="text-[#EF4444]">*</span>
                         </label>
                         <input
                           type="text"
@@ -1129,7 +1118,7 @@ const ProfilePage = () => {
             {activeTab === "academic" && (
               <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
                 <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9] flex justify-between items-center">
-                  <h3 className="text-lg font-bold text-[#344054]">
+                  <h3 className="text-lg font-bold text-[#101828]">
                     Hồ sơ học tập
                   </h3>
                   <button
@@ -1173,7 +1162,7 @@ const ProfilePage = () => {
                   </div>
 
                   <div className="border-t border-[#E4E7EC] pt-5">
-                    <h4 className="text-sm font-bold text-[#344054] mb-4">
+                    <h4 className="text-sm font-bold text-[#101828] mb-4">
                       Thông tin học tập THPT
                     </h4>
                     {([10, 11, 12] as const).map((grade) => {
@@ -1252,7 +1241,7 @@ const ProfilePage = () => {
                   academic.academic_record.exam_scores.length > 0 &&
                   examMode === "view" ? (
                     <div className="border-t border-[#E4E7EC] pt-5">
-                      <h4 className="text-sm font-bold text-[#344054] mb-4">
+                      <h4 className="text-sm font-bold text-[#101828] mb-4">
                         Điểm thi hiện tại
                       </h4>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -1264,7 +1253,7 @@ const ProfilePage = () => {
                             <span className="text-sm text-[#344054]">
                               {score.subject_name}
                             </span>
-                            <span className="text-sm font-bold text-[#344054]">
+                            <span className="text-sm font-bold text-[#101828]">
                               {score.score}
                             </span>
                           </div>
@@ -1345,10 +1334,7 @@ const ProfilePage = () => {
                                   </label>
                                   {uploadingScores && (
                                     <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                                      <div
-                                        className="h-full bg-[#032D60] rounded-full transition-all duration-200"
-                                        style={{ width: `${uploadProgress}%` }}
-                                      />
+                                      <div className="h-full bg-[#032D60] rounded-full transition-all duration-200" style={{ width: `${uploadProgress}%` }} />
                                     </div>
                                   )}
                                   <button
@@ -1358,9 +1344,7 @@ const ProfilePage = () => {
                                     disabled={!newCertFile || uploadingScores}
                                     className="h-9 px-3 bg-[#032D60] text-white text-xs font-semibold rounded-lg hover:bg-[#021a40] disabled:opacity-50 transition-colors"
                                   >
-                                    {uploadingScores
-                                      ? `${uploadProgress}%`
-                                      : "Lưu"}
+                                    {uploadingScores ? `${uploadProgress}%` : "Lưu"}
                                   </button>
                                   <button
                                     onClick={() => {
@@ -1387,7 +1371,7 @@ const ProfilePage = () => {
                                   </span>
                                 )}
                                 <div className="min-w-0 flex-1">
-                                  <p className="text-xs font-medium text-[#344054] truncate">
+                                  <p className="text-xs font-medium text-[#101828] truncate">
                                     {certDoc.file_name}
                                   </p>
                                   <p className="text-[10px] text-[#667085]">
@@ -1413,7 +1397,7 @@ const ProfilePage = () => {
                     </div>
                   ) : (
                     <div className="border-t border-[#E4E7EC] pt-5 mt-5">
-                      <h4 className="text-sm font-bold text-[#344054] mb-1">
+                      <h4 className="text-sm font-bold text-[#101828] mb-1">
                         {examMode === "edit"
                           ? "Sửa điểm thi"
                           : "Cập nhật điểm thi"}
@@ -1591,10 +1575,7 @@ const ProfilePage = () => {
                       </div>
                       {uploadingScores && (
                         <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-[#032D60] rounded-full transition-all duration-200"
-                            style={{ width: `${uploadProgress}%` }}
-                          />
+                          <div className="h-full bg-[#032D60] rounded-full transition-all duration-200" style={{ width: `${uploadProgress}%` }} />
                         </div>
                       )}
                       <button
@@ -1602,9 +1583,7 @@ const ProfilePage = () => {
                         disabled={uploadingScores}
                         className="bg-[#032D60] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95 disabled:opacity-50"
                       >
-                        {uploadingScores
-                          ? `${uploadProgress}%`
-                          : "Cập nhật điểm thi"}
+                        {uploadingScores ? `${uploadProgress}%` : "Cập nhật điểm thi"}
                       </button>
                     </div>
                   )}
@@ -1615,7 +1594,7 @@ const ProfilePage = () => {
             {activeTab === "security" && (
               <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
                 <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
-                  <h3 className="text-lg font-bold text-[#344054]">
+                  <h3 className="text-lg font-bold text-[#101828]">
                     Đổi mật khẩu
                   </h3>
                 </div>
@@ -1649,7 +1628,7 @@ const ProfilePage = () => {
                           onMouseLeave={() => setShowCurrentPassword(false)}
                           onTouchStart={() => setShowCurrentPassword(true)}
                           onTouchEnd={() => setShowCurrentPassword(false)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-[#667085] hover:text-[#344054] transition-colors select-none"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-[#667085] hover:text-[#101828] transition-colors select-none"
                         >
                           <span className="material-symbols-outlined text-[20px]">
                             {showCurrentPassword
@@ -1696,7 +1675,7 @@ const ProfilePage = () => {
                           onMouseLeave={() => setShowNewPassword(false)}
                           onTouchStart={() => setShowNewPassword(true)}
                           onTouchEnd={() => setShowNewPassword(false)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-[#667085] hover:text-[#344054] transition-colors select-none"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-[#667085] hover:text-[#101828] transition-colors select-none"
                         >
                           <span className="material-symbols-outlined text-[20px]">
                             {showNewPassword ? "visibility_off" : "visibility"}
@@ -1789,7 +1768,7 @@ const ProfilePage = () => {
                           onMouseLeave={() => setShowConfirmPassword(false)}
                           onTouchStart={() => setShowConfirmPassword(true)}
                           onTouchEnd={() => setShowConfirmPassword(false)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-[#667085] hover:text-[#344054] transition-colors select-none"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-[#667085] hover:text-[#101828] transition-colors select-none"
                         >
                           <span className="material-symbols-outlined text-[20px]">
                             {showConfirmPassword

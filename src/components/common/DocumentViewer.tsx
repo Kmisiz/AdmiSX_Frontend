@@ -40,12 +40,12 @@ export default function DocumentViewer({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-5 py-3 border-b border-[#E4E7EC]">
-          <h3 className="text-sm font-semibold text-[#344054] truncate max-w-[80%]">
+          <h3 className="text-sm font-semibold text-[#101828] truncate max-w-[80%]">
             {fileName}
           </h3>
           <button
             onClick={onClose}
-            className="text-[#667085] hover:text-[#344054] p-1 flex-shrink-0 rounded-full hover:bg-[#F4F6F9] transition-colors"
+            className="text-[#667085] hover:text-[#101828] p-1 flex-shrink-0 rounded-full hover:bg-[#F4F6F9] transition-colors"
           >
             <span className="material-symbols-outlined text-[22px]">close</span>
           </button>
