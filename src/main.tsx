@@ -9,9 +9,11 @@ import { Route as admissionsRoute } from "./routes/admissions";
 import { Route as documentsRoute } from "./routes/documents";
 import { Route as notificationsRoute } from "./routes/notifications";
 import { Route as notificationDetailRoute } from "./routes/notificationDetail";
+import { Route as contactRoute } from "./routes/contact";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useAuthStore, initAuthFromUrl } from "./store/auth";
 import { authApi } from "./apis/auth";
+import "antd/dist/reset.css";
 import "./index.css";
 
 const loginToken = initAuthFromUrl();
@@ -46,6 +48,7 @@ const routeTree = rootRoute.addChildren([
   documentsRoute,
   notificationsRoute,
   notificationDetailRoute,
+  contactRoute,
 ]);
 
 const router = createRouter({ routeTree });

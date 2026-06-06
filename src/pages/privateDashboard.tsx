@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { useAuthStore } from "../store/auth";
 import {
@@ -163,9 +163,14 @@ const PrivateDashboard = () => {
     setNotifications(notifs);
   }, []);
 
-  useSocket({
-    "status-changed": refreshNotifications,
-  });
+  const socketHandlers = useMemo(
+    () => ({
+      "status-changed": refreshNotifications,
+    }),
+    [refreshNotifications],
+  );
+
+  useSocket(socketHandlers);
 
   // Backend early-returns if profile or academic record is missing, so
   // missing_fields won't contain the granular fields below in that case.
