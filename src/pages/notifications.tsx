@@ -111,7 +111,7 @@ const NotificationsPage = () => {
   return (
     <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
       <div className="mb-8">
-        <h1 className="text-[32px] sm:text-[40px] font-bold text-[#344054] leading-tight">
+        <h1 className="text-[32px] sm:text-[40px] font-bold text-[#101828] leading-tight">
           Thông báo
         </h1>
         <p className="text-[16px] text-[#667085] mt-2">
@@ -155,7 +155,7 @@ const NotificationsPage = () => {
                       <h3
                         className={`text-[15px] ${
                           isUnread ? "font-bold" : "font-semibold"
-                        } text-[#344054] truncate`}
+                        } text-[#101828] truncate`}
                       >
                         {notif.subject}
                       </h3>

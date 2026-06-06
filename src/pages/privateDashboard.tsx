@@ -281,7 +281,7 @@ const PrivateDashboard = () => {
     <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
       {/* Welcome Section */}
       <div className="mb-8">
-        <h1 className="text-[32px] sm:text-[40px] font-bold text-[#344054] leading-tight">
+        <h1 className="text-[32px] sm:text-[40px] font-bold text-[#101828] leading-tight">
           Xin chào, {user?.full_name || user?.email || "Thí sinh"}
         </h1>
         <p className="text-[16px] text-[#667085] mt-2">
@@ -294,7 +294,7 @@ const PrivateDashboard = () => {
         {/* Progress Card */}
         <section className="bg-white border border-[#E4E7EC] rounded-2xl p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-[#344054]">
+            <h2 className="text-xl font-bold text-[#101828]">
               Tiến độ hoàn thiện hồ sơ
             </h2>
             <span className="text-2xl font-bold text-[#032D60]">
@@ -325,7 +325,7 @@ const PrivateDashboard = () => {
           <div className="flex justify-end mt-6">
             <button
               onClick={() => navigate({ to: "/dashboard/admissions" })}
-              className="bg-[#032D60] text-white h-[52px] px-7 rounded-full font-semibold text-[15px] hover:bg-[#021a40] transition-all active:scale-95 flex items-center gap-2"
+              className="bg-[#2563EB] text-white h-[52px] px-7 rounded-full font-semibold text-[15px] hover:bg-[#1D4ED8] transition-all active:scale-95 flex items-center gap-2"
             >
               Tiếp tục hoàn thiện
               <span className="material-symbols-outlined text-xl">
@@ -337,7 +337,7 @@ const PrivateDashboard = () => {
 
         {/* Deadline Card */}
         <section className="bg-white border border-[#E4E7EC] rounded-2xl p-6 flex flex-col">
-          <h2 className="text-xl font-bold text-[#344054] mb-6">
+          <h2 className="text-xl font-bold text-[#101828] mb-6">
             Hạn chót quan trọng
           </h2>
 
@@ -361,7 +361,7 @@ const PrivateDashboard = () => {
                   </span>
                 </div>
                 <div className="flex flex-col justify-center">
-                  <span className="text-[15px] font-semibold text-[#344054]">
+                  <span className="text-[15px] font-semibold text-[#101828]">
                     Nộp hồ sơ đợt 1
                   </span>
                   <span className="text-[13px] text-[#667085] mt-0.5">
@@ -385,7 +385,7 @@ const PrivateDashboard = () => {
                   </span>
                 </div>
                 <div className="flex flex-col justify-center">
-                  <span className="text-[15px] font-semibold text-[#344054]">
+                  <span className="text-[15px] font-semibold text-[#101828]">
                     Bổ sung minh chứng
                   </span>
                   <span className="text-[13px] text-[#667085] mt-0.5">
@@ -422,7 +422,7 @@ const PrivateDashboard = () => {
         {/* Notifications Card */}
         <section className="bg-white border border-[#E4E7EC] rounded-2xl p-6">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl font-bold text-[#344054]">
+            <h2 className="text-xl font-bold text-[#101828]">
               Thông báo từ văn phòng tuyển sinh
             </h2>
             {notifications.length > 0 && (
@@ -455,7 +455,7 @@ const PrivateDashboard = () => {
                       {meta.icon}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-[15px] font-semibold text-[#344054] group-hover:text-[#032D60] transition-colors truncate">
+                      <h3 className="text-[15px] font-semibold text-[#101828] group-hover:text-[#032D60] transition-colors truncate">
                         {notif.subject}
                       </h3>
                       <p className="text-[13px] text-[#667085] mt-1 line-clamp-2">
@@ -496,7 +496,7 @@ const PrivateDashboard = () => {
 
         {/* Quick Access Card */}
         <section className="bg-white border border-[#E4E7EC] rounded-2xl p-6">
-          <h2 className="text-xl font-bold text-[#344054] mb-6">
+          <h2 className="text-xl font-bold text-[#101828] mb-6">
             Truy cập nhanh
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -507,7 +507,7 @@ const PrivateDashboard = () => {
               <span className="material-symbols-outlined text-[#032D60] text-[32px] group-hover:scale-110 transition-transform">
                 description
               </span>
-              <span className="text-[13px] font-medium text-[#344054] text-center">
+              <span className="text-[13px] font-medium text-[#101828] text-center">
                 Tải lên tài liệu
               </span>
             </Link>
@@ -518,7 +518,7 @@ const PrivateDashboard = () => {
               <span className="material-symbols-outlined text-[#032D60] text-[32px] group-hover:scale-110 transition-transform">
                 contact_support
               </span>
-              <span className="text-[13px] font-medium text-[#344054] text-center">
+              <span className="text-[13px] font-medium text-[#101828] text-center">
                 Hỗ trợ trực tuyến
               </span>
             </a>
@@ -529,7 +529,7 @@ const PrivateDashboard = () => {
               <span className="material-symbols-outlined text-[#032D60] text-[32px] group-hover:scale-110 transition-transform">
                 history_edu
               </span>
-              <span className="text-[13px] font-medium text-[#344054] text-center">
+              <span className="text-[13px] font-medium text-[#101828] text-center">
                 Lịch sử nộp hồ sơ
               </span>
             </Link>

@@ -81,7 +81,7 @@ const NotificationDetailPage = () => {
           </p>
           <button
             onClick={() => navigate({ to: "/dashboard/notifications" })}
-            className="mt-4 px-6 py-2.5 bg-[#032D60] text-white rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95"
+            className="mt-4 px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95"
           >
             Quay lại danh sách
           </button>
@@ -99,7 +99,7 @@ const NotificationDetailPage = () => {
     <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
       <button
         onClick={() => navigate({ to: "/dashboard/notifications" })}
-        className="flex items-center gap-2 text-[#667085] hover:text-[#344054] transition-colors mb-6 text-sm font-medium"
+        className="flex items-center gap-2 text-[#667085] hover:text-[#101828] transition-colors mb-6 text-sm font-medium"
       >
         <span className="material-symbols-outlined text-[18px]">
           arrow_back
@@ -119,7 +119,7 @@ const NotificationDetailPage = () => {
               {formatDateTime(notification.created_at)}
             </span>
           </div>
-          <h1 className="text-[22px] sm:text-[28px] font-bold text-[#344054] leading-tight">
+          <h1 className="text-[22px] sm:text-[28px] font-bold text-[#101828] leading-tight">
             {notification.subject}
           </h1>
         </div>
