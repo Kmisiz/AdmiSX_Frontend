@@ -221,7 +221,7 @@ const Header = () => {
                 className={`relative flex h-[72px] items-center px-1 text-[14px] transition-all duration-200 after:absolute after:bottom-0 after:left-0 after:h-[3px] after:rounded-full after:bg-[#032D60] after:transition-all after:duration-200 ${
                   isActive(link.to)
                     ? "font-bold text-[#032D60] after:w-full after:shadow-[0_0_14px_rgba(3,45,96,0.45)]"
-                    : "font-semibold text-[#667085] after:w-0 hover:font-bold hover:text-[#344054] hover:after:w-full hover:after:bg-[#84CFFF]"
+                    : "font-semibold text-[#667085] after:w-0 hover:font-bold hover:text-[#101828] hover:after:w-full hover:after:bg-[#84CFFF]"
                 }`}
               >
                 {link.label}
@@ -237,7 +237,7 @@ const Header = () => {
                 className={`relative flex h-[72px] items-center px-1 text-[14px] transition-all duration-200 after:absolute after:bottom-0 after:left-0 after:h-[3px] after:rounded-full after:bg-[#032D60] after:transition-all after:duration-200 ${
                   isPublicActive(link.href)
                     ? "font-bold text-[#032D60] after:w-full after:shadow-[0_0_14px_rgba(3,45,96,0.45)]"
-                    : "font-semibold text-[#667085] after:w-0 hover:font-bold hover:text-[#344054] hover:after:w-full hover:after:bg-[#84CFFF]"
+                    : "font-semibold text-[#667085] after:w-0 hover:font-bold hover:text-[#101828] hover:after:w-full hover:after:bg-[#84CFFF]"
                 }`}
               >
                 {link.label}
@@ -257,7 +257,7 @@ const Header = () => {
               src={logoSrc}
             />
             <div className="leading-tight">
-              <span className="block text-xl font-bold text-[#344054]">
+              <span className="block text-xl font-bold text-[#101828]">
                 AdmiSX
               </span>
               <span className="hidden text-[11px] font-semibold uppercase tracking-wide text-[#667085] sm:block">
@@ -273,7 +273,7 @@ const Header = () => {
               {/* Mobile hamburger */}
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="md:hidden text-[#667085] hover:text-[#344054] p-2.5 rounded-full hover:bg-[#F4F6F9] transition-all"
+                className="md:hidden text-[#667085] hover:text-[#101828] p-2.5 rounded-full hover:bg-[#F4F6F9] transition-all"
                 aria-label="Mở menu"
               >
                 <span className="material-symbols-outlined text-[24px]">
@@ -285,7 +285,7 @@ const Header = () => {
                   onClick={() => {
                     setNotifOpen(!notifOpen);
                   }}
-                  className="relative text-[#667085] hover:text-[#344054] hover:bg-[#F4F6F9] p-2.5 rounded-full transition-all active:opacity-80 active:scale-95"
+                  className="relative text-[#667085] hover:text-[#101828] hover:bg-[#F4F6F9] p-2.5 rounded-full transition-all active:opacity-80 active:scale-95"
                   aria-label="Thông báo"
                 >
                   <span className="material-symbols-outlined">
@@ -300,7 +300,7 @@ const Header = () => {
                 {notifOpen && (
                   <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-xl border border-[#E4E7EC] shadow-lg overflow-hidden z-50">
                     <div className="px-4 py-3 border-b border-[#E4E7EC] flex items-center justify-between">
-                      <h3 className="font-bold text-sm text-[#344054]">
+                      <h3 className="font-bold text-sm text-[#101828]">
                         Thông báo
                       </h3>
                       <span className="text-xs text-[#667085]">
@@ -337,7 +337,7 @@ const Header = () => {
                                   {meta.icon}
                                 </span>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-[13px] font-semibold text-[#344054] truncate">
+                                  <p className="text-[13px] font-semibold text-[#101828] truncate">
                                     {n.subject}
                                   </p>
                                   <p className="text-[11px] text-[#667085] mt-0.5 line-clamp-2">
@@ -387,7 +387,7 @@ const Header = () => {
                       </span>
                     </div>
                   )}
-                  <span className="text-[#475467] text-sm font-medium hidden sm:block group-hover:text-[#344054] transition-colors">
+                  <span className="text-[#475467] text-sm font-medium hidden sm:block group-hover:text-[#101828] transition-colors">
                     {user?.full_name || user?.email || ""}
                   </span>
                   <span className="material-symbols-outlined text-[#98A2B3] text-[18px]">
@@ -397,7 +397,7 @@ const Header = () => {
                 {showDropdown && (
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl border border-[#E4E7EC] shadow-lg overflow-hidden z-50">
                     <div className="px-4 py-3 border-b border-[#E4E7EC]">
-                      <p className="text-[13px] font-semibold text-[#344054] truncate">
+                      <p className="text-[13px] font-semibold text-[#101828] truncate">
                         {user?.full_name || "Người dùng"}
                       </p>
                       <p className="text-[11px] text-[#667085] truncate">
@@ -417,7 +417,7 @@ const Header = () => {
                         avatarInputRef.current?.click();
                       }}
                       disabled={avatarBusy}
-                      className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm text-[#344054] hover:bg-[#F4F6F9] transition-colors disabled:opacity-50"
+                      className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm text-[#101828] hover:bg-[#F4F6F9] transition-colors disabled:opacity-50"
                     >
                       <span className="material-symbols-outlined text-[#667085] text-[20px]">
                         upload
@@ -435,7 +435,7 @@ const Header = () => {
                           handleDeleteAvatar();
                         }}
                         disabled={avatarBusy}
-                        className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm text-[#344054] hover:bg-[#F4F6F9] transition-colors disabled:opacity-50"
+                        className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm text-[#101828] hover:bg-[#F4F6F9] transition-colors disabled:opacity-50"
                       >
                         <span className="material-symbols-outlined text-[#667085] text-[20px]">
                           delete
@@ -446,7 +446,7 @@ const Header = () => {
                     <Link
                       to="/dashboard/profile"
                       onClick={() => setShowDropdown(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-sm text-[#344054] hover:bg-[#F4F6F9] transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-[#101828] hover:bg-[#F4F6F9] transition-colors"
                     >
                       <span className="material-symbols-outlined text-[#667085] text-[20px]">
                         person
@@ -475,7 +475,7 @@ const Header = () => {
                     (import.meta.env.VITE_ADMIS_URL || window.location.origin) +
                     "/login")
                 }
-                className="relative hidden h-[72px] items-center px-1 text-sm font-semibold text-[#667085] transition-all duration-200 after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:rounded-full after:bg-[#84CFFF] after:transition-all after:duration-200 hover:font-bold hover:text-[#344054] hover:after:w-full active:text-[#032D60] active:after:w-full active:after:bg-[#032D60] md:inline-flex"
+                className="relative hidden h-[72px] items-center px-1 text-sm font-semibold text-[#667085] transition-all duration-200 after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:rounded-full after:bg-[#84CFFF] after:transition-all after:duration-200 hover:font-bold hover:text-[#101828] hover:after:w-full active:text-[#032D60] active:after:w-full active:after:bg-[#032D60] md:inline-flex"
               >
                 Login
               </button>
@@ -490,7 +490,7 @@ const Header = () => {
               </a>
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="md:hidden text-[#667085] hover:text-[#344054] p-2.5 rounded-full hover:bg-[#F4F6F9] transition-all"
+                className="md:hidden text-[#667085] hover:text-[#101828] p-2.5 rounded-full hover:bg-[#F4F6F9] transition-all"
                 aria-label="Mở menu"
               >
                 <span className="material-symbols-outlined text-[24px]">
@@ -521,7 +521,7 @@ const Header = () => {
                     className={`flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold transition-all duration-200 active:scale-[0.98] ${
                       isActive(link.to)
                         ? "text-[#032D60] bg-[#F0F4FF]"
-                        : "text-[#667085] hover:translate-x-1 hover:text-[#344054] hover:bg-[#F4F6F9]"
+                        : "text-[#667085] hover:translate-x-1 hover:text-[#101828] hover:bg-[#F4F6F9]"
                     }`}
                   >
                     {link.label}
@@ -535,7 +535,7 @@ const Header = () => {
                     className={`flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold transition-all duration-200 active:scale-[0.98] ${
                       isPublicActive(link.href)
                         ? "text-[#032D60] bg-[#F0F4FF]"
-                        : "text-[#667085] hover:translate-x-1 hover:text-[#344054] hover:bg-[#F4F6F9]"
+                        : "text-[#667085] hover:translate-x-1 hover:text-[#101828] hover:bg-[#F4F6F9]"
                     }`}
                   >
                     <span className="material-symbols-outlined text-[20px]">

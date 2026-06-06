@@ -92,12 +92,7 @@ const DocumentsPage = () => {
     setUploading(true);
     setUploadProgress(0);
     try {
-      await admissionsApi.uploadDocument(
-        file,
-        docType,
-        displayName,
-        setUploadProgress,
-      );
+      await admissionsApi.uploadDocument(file, docType, displayName, setUploadProgress);
       await fetchDocuments();
       setShowUploadModal(false);
       setMessage({ type: "success", text: "Tải lên tài liệu thành công!" });
@@ -167,7 +162,7 @@ const DocumentsPage = () => {
         {/* Header */}
         <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E4E7EC] pb-4">
           <div>
-            <h1 className="text-[28px] font-bold text-[#344054] leading-tight">
+            <h1 className="text-[28px] font-bold text-[#101828] leading-tight">
               Hồ sơ tài liệu
             </h1>
             <p className="text-sm text-[#667085] mt-1 max-w-2xl">
@@ -291,7 +286,7 @@ const DocumentsPage = () => {
                         </span>
                       </div>
                       <div>
-                        <h3 className="text-[15px] font-semibold text-[#344054]">
+                        <h3 className="text-[15px] font-semibold text-[#101828]">
                           {doc.document_type === "CERTIFICATE" &&
                           doc.display_name
                             ? doc.display_name
@@ -536,10 +531,10 @@ function UploadModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold text-[#344054]">Tải lên tài liệu</h2>
+          <h2 className="text-lg font-bold text-[#101828]">Tải lên tài liệu</h2>
           <button
             onClick={onClose}
-            className="text-[#667085] hover:text-[#344054] transition-colors"
+            className="text-[#667085] hover:text-[#101828] transition-colors"
           >
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -612,10 +607,7 @@ function UploadModal({
           {uploading && (
             <div className="flex-1 flex items-center">
               <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#032D60] rounded-full transition-all duration-200"
-                  style={{ width: `${uploadProgress}%` }}
-                />
+                <div className="h-full bg-[#032D60] rounded-full transition-all duration-200" style={{ width: `${uploadProgress}%` }} />
               </div>
             </div>
           )}
