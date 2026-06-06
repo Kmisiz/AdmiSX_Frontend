@@ -226,7 +226,7 @@ const PublicDashboard = () => {
                       href={program.href}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-5 inline-flex w-fit items-center rounded-full bg-[#032D60] font-semibold"
+                      className="mt-5 inline-flex w-fit items-center rounded-full bg-[#2563EB] font-semibold"
                       icon={<ArrowRightOutlined />}
                       iconPlacement="end"
                     >

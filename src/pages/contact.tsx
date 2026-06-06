@@ -202,7 +202,7 @@ const ContactPage = () => {
 
             <button
               type="submit"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#032D60] px-6 text-sm font-bold text-white transition-all hover:bg-[#021A40] active:scale-95"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#2563EB] px-6 text-sm font-bold text-white transition-all hover:bg-[#1D4ED8] active:scale-95"
             >
               <span className="material-symbols-outlined text-[20px]">
                 send

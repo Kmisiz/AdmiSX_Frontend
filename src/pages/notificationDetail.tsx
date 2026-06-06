@@ -2,14 +2,23 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { dashboardApi, type NotificationData } from "../apis/dashboard";
 
-const NOTIFICATION_TYPE_LABELS: Record<string, { label: string; color: string }> = {
-  APPLICATION_SUBMITTED: { label: "Đã nộp hồ sơ", color: "bg-[#04844B]/10 text-[#04844B]" },
+const NOTIFICATION_TYPE_LABELS: Record<
+  string,
+  { label: string; color: string }
+> = {
+  APPLICATION_SUBMITTED: {
+    label: "Đã nộp hồ sơ",
+    color: "bg-[#04844B]/10 text-[#04844B]",
+  },
   APPROVAL: { label: "Đã duyệt", color: "bg-[#04844B]/10 text-[#04844B]" },
   REJECTION: { label: "Bị từ chối", color: "bg-[#EF4444]/10 text-[#EF4444]" },
   RESULT: { label: "Kết quả", color: "bg-[#032D60]/10 text-[#032D60]" },
   PASSED: { label: "Đỗ", color: "bg-[#04844B]/10 text-[#04844B]" },
   FAILED: { label: "Trượt", color: "bg-[#EF4444]/10 text-[#EF4444]" },
-  PASSWORD_RESET: { label: "Mật khẩu", color: "bg-[#F97316]/10 text-[#F97316]" },
+  PASSWORD_RESET: {
+    label: "Mật khẩu",
+    color: "bg-[#F97316]/10 text-[#F97316]",
+  },
 };
 
 const formatDateTime = (dateStr: string) => {
@@ -26,7 +35,9 @@ const formatDateTime = (dateStr: string) => {
 const NotificationDetailPage = () => {
   const navigate = useNavigate();
   const { id } = useParams({ from: "/dashboard/notifications/$id" });
-  const [notification, setNotification] = useState<NotificationData | null>(null);
+  const [notification, setNotification] = useState<NotificationData | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -70,7 +81,7 @@ const NotificationDetailPage = () => {
           </p>
           <button
             onClick={() => navigate({ to: "/dashboard/notifications" })}
-            className="mt-4 px-6 py-2.5 bg-[#032D60] text-white rounded-full text-sm font-semibold hover:bg-[#021a40] transition-all active:scale-95"
+            className="mt-4 px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95"
           >
             Quay lại danh sách
           </button>

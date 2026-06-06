@@ -92,7 +92,12 @@ const DocumentsPage = () => {
     setUploading(true);
     setUploadProgress(0);
     try {
-      await admissionsApi.uploadDocument(file, docType, displayName, setUploadProgress);
+      await admissionsApi.uploadDocument(
+        file,
+        docType,
+        displayName,
+        setUploadProgress,
+      );
       await fetchDocuments();
       setShowUploadModal(false);
       setMessage({ type: "success", text: "Tải lên tài liệu thành công!" });
@@ -171,7 +176,7 @@ const DocumentsPage = () => {
           </div>
           <button
             onClick={() => setShowUploadModal(true)}
-            className="bg-[#032D60] hover:bg-[#021a40] text-white px-6 h-10 rounded-full font-bold text-sm flex items-center gap-2 shadow-sm transition-all active:scale-95"
+            className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-6 h-10 rounded-full font-bold text-sm flex items-center gap-2 shadow-sm transition-all active:scale-95"
           >
             <span className="material-symbols-outlined text-[20px]">add</span>
             Tải lên tài liệu
@@ -195,7 +200,7 @@ const DocumentsPage = () => {
                 onClick={() => setActiveFilter(f.key)}
                 className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors ${
                   activeFilter === f.key
-                    ? "bg-[#032D60] text-white shadow-sm"
+                    ? "bg-[#2563EB] text-white shadow-sm"
                     : "bg-[#F4F6F9] text-[#667085] border border-[#D0D5DD] hover:border-[#032D60]"
                 }`}
               >
@@ -607,7 +612,10 @@ function UploadModal({
           {uploading && (
             <div className="flex-1 flex items-center">
               <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                <div className="h-full bg-[#032D60] rounded-full transition-all duration-200" style={{ width: `${uploadProgress}%` }} />
+                <div
+                  className="h-full bg-[#032D60] rounded-full transition-all duration-200"
+                  style={{ width: `${uploadProgress}%` }}
+                />
               </div>
             </div>
           )}
@@ -625,7 +633,7 @@ function UploadModal({
               uploading ||
               (selectedType === "CERTIFICATE" && !displayName)
             }
-            className="px-5 py-2.5 text-sm font-semibold text-white bg-[#032D60] rounded-full hover:bg-[#021a40] transition-colors disabled:opacity-50"
+            className="px-5 py-2.5 text-sm font-semibold text-white bg-[#2563EB] rounded-full hover:bg-[#1D4ED8] transition-colors disabled:opacity-50"
           >
             {uploading ? `${uploadProgress}%` : "Tải lên"}
           </button>
