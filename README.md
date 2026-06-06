@@ -23,25 +23,25 @@ Hệ thống quản lý tuyển sinh hiện đại được xây dựng với **
 
 ## Công nghệ sử dụng
 
-| Công nghệ           | Mục đích                                           |
-| ------------------- | -------------------------------------------------- |
-| **React 19**        | Thư viện UI                                        |
-| **TypeScript**      | Ngôn ngữ lập trình với kiểu tĩnh                   |
-| **Vite 8**          | Build tool & dev server                            |
-| **pnpm**            | Package manager                                    |
-| **TanStack Router** | Quản lý routing & điều hướng                       |
-| **TanStack Query**  | Quản lý server state, caching & đồng bộ dữ liệu    |
-| **Axios**           | HTTP client (gọi API)                              |
-| **Ant Design**      | UI component library                               |
-| **Zustand**         | Quản lý state (ứng dụng nhẹ, đơn giản)             |
-| **React Hook Form** | Quản lý form & validation                          |
-| **Zod**             | Schema validation (dữ liệu form & API)             |
+| Công nghệ           | Mục đích                                            |
+| ------------------- | --------------------------------------------------- |
+| **React 19**        | Thư viện UI                                         |
+| **TypeScript**      | Ngôn ngữ lập trình với kiểu tĩnh                    |
+| **Vite 8**          | Build tool & dev server                             |
+| **pnpm**            | Package manager                                     |
+| **TanStack Router** | Quản lý routing & điều hướng                        |
+| **TanStack Query**  | Quản lý server state, caching & đồng bộ dữ liệu     |
+| **Axios**           | HTTP client (gọi API)                               |
+| **Ant Design**      | UI component library                                |
+| **Zustand**         | Quản lý state (ứng dụng nhẹ, đơn giản)              |
+| **React Hook Form** | Quản lý form & validation                           |
+| **Zod**             | Schema validation (dữ liệu form & API)              |
 | **Socket.IO**       | Real-time notifications & cập nhật trạng thái hồ sơ |
-| **ESLint**          | Linting & kiểm tra chất lượng code                 |
-| **Prettier**        | Format code tự động                                |
-| **Husky**           | Git hooks (tự động chạy lint/format trước commit)  |
-| **lint-staged**     | Chạy lint-staged trên file thay đổi khi commit     |
-| **React Compiler**  | Tối ưu hiệu năng qua `babel-plugin-react-compiler` |
+| **ESLint**          | Linting & kiểm tra chất lượng code                  |
+| **Prettier**        | Format code tự động                                 |
+| **Husky**           | Git hooks (tự động chạy lint/format trước commit)   |
+| **lint-staged**     | Chạy lint-staged trên file thay đổi khi commit      |
+| **React Compiler**  | Tối ưu hiệu năng qua `babel-plugin-react-compiler`  |
 
 ## Cấu trúc thư mục
 
@@ -135,3 +135,5 @@ Cơ chế này giúp đảm bảo code luôn sạch, đúng chuẩn trước khi
 ## Giấy phép
 
 [MIT](LICENSE)
+.
+...

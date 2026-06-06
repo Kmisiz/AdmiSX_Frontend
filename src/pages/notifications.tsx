@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { dashboardApi, type NotificationData } from "../apis/dashboard";
 import { useSocket } from "../hooks/useSocket";
@@ -43,45 +43,56 @@ const NotificationsPage = () => {
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const fetchNotifications = async (pageNum: number, append = false) => {
-    try {
-      const res = await dashboardApi.getNotifications({
-        page: pageNum,
-        limit: 20,
-      });
-      const data = res.data.data || [];
-      const pagination = res.data.pagination;
-      if (append) {
-        setNotifications((prev) => [...prev, ...data]);
-      } else {
-        setNotifications(data);
+  const fetchNotifications = useCallback(
+    async (pageNum: number, append = false) => {
+      try {
+        const res = await dashboardApi.getNotifications({
+          page: pageNum,
+          limit: 20,
+        });
+        const data = res.data.data || [];
+        const pagination = res.data.pagination;
+        if (append) {
+          setNotifications((prev) => [...prev, ...data]);
+        } else {
+          setNotifications(data);
+        }
+        setHasMore(pagination ? pageNum < pagination.pages : false);
+      } catch {
+        // ignore
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
       }
-      setHasMore(pagination ? pageNum < pagination.pages : false);
-    } catch {
-      // ignore
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  };
+    },
+    [],
+  );
 
   useEffect(() => {
-    fetchNotifications(1);
-  }, []);
+    const timeout = window.setTimeout(() => {
+      void fetchNotifications(1);
+    }, 0);
+    return () => window.clearTimeout(timeout);
+  }, [fetchNotifications]);
 
   const refreshFirstPage = useCallback(() => {
-    fetchNotifications(1);
-  }, []);
+    void fetchNotifications(1);
+  }, [fetchNotifications]);
 
-  useSocket({
-    'status-changed': refreshFirstPage,
-  });
+  const socketHandlers = useMemo(
+    () => ({
+      "status-changed": refreshFirstPage,
+    }),
+    [refreshFirstPage],
+  );
+
+  useSocket(socketHandlers);
 
   const handleLoadMore = () => {
     const nextPage = page + 1;
     setPage(nextPage);
     setLoadingMore(true);
-    fetchNotifications(nextPage, true);
+    void fetchNotifications(nextPage, true);
   };
 
   if (loading) {
@@ -179,9 +190,7 @@ const NotificationsPage = () => {
             <span className="material-symbols-outlined text-[#667085] text-[48px]">
               notifications_off
             </span>
-            <p className="text-[#667085] text-sm mt-3">
-              Chưa có thông báo nào
-            </p>
+            <p className="text-[#667085] text-sm mt-3">Chưa có thông báo nào</p>
           </div>
         )}
       </section>

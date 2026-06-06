@@ -1,6 +1,71 @@
+import { Link } from "@tanstack/react-router";
+import {
+  ArrowRightOutlined,
+  BankOutlined,
+  GlobalOutlined,
+  LaptopOutlined,
+} from "@ant-design/icons";
+import { Button, Card, Tag } from "antd";
 import { useAuthStore } from "../store/auth";
 
 const ADMIS_URL = import.meta.env.VITE_ADMIS_URL || "http://localhost:7173";
+
+const featuredPrograms = [
+  {
+    icon: <LaptopOutlined />,
+    title: "Công nghệ thông tin",
+    school: "Trường Đại học Công nghệ - ĐHQGHN",
+    description:
+      "Chương trình cử nhân CNTT định hướng phát triển phần mềm, dữ liệu, AI, an toàn thông tin và điện toán đám mây.",
+    tags: ["CNTT", "AI", "Khoa học dữ liệu"],
+    href: "https://www.uet.vnu.edu.vn/chuong-trinh-dao-tao-nganh-cong-nghe-thong-tin-11/",
+  },
+  {
+    icon: <LaptopOutlined />,
+    title: "Công nghệ thông tin",
+    school: "Học viện Công nghệ Bưu chính Viễn thông",
+    description:
+      "Định hướng nền tảng lập trình, phát triển phần mềm, hệ thống thông tin và các công nghệ mới trong lĩnh vực ICT.",
+    tags: ["PTIT", "CNTT", "ICT"],
+    href: "https://tuyensinh.ptit.edu.vn/tuyen-sinh-ptit-tong-quan-ve-nganh-hoc-cong-nghe-thong-tin/",
+  },
+  {
+    icon: <GlobalOutlined />,
+    title: "Kinh doanh quốc tế",
+    school: "Trường Đại học Kinh tế - Luật",
+    description:
+      "Đào tạo nền tảng kinh tế, quản lý, logistics, thương mại quốc tế và khả năng thích ứng trong môi trường toàn cầu.",
+    tags: ["Kinh doanh", "Logistics", "Thương mại"],
+    href: "https://tuyensinh.uel.edu.vn/gioi-thieu-nganh-kinh-doanh-quoc-te/",
+  },
+  {
+    icon: <BankOutlined />,
+    title: "Kinh tế quốc tế",
+    school: "Trường Đại học Kinh tế - Luật",
+    description:
+      "Phù hợp với thí sinh quan tâm chính sách kinh tế, hội nhập, doanh nghiệp có quan hệ kinh tế quốc tế.",
+    tags: ["Kinh tế", "Hội nhập", "Chính sách"],
+    href: "https://tuyensinh.uel.edu.vn/gioi-thieu-nganh-kinh-te-quoc-te/",
+  },
+  {
+    icon: <BankOutlined />,
+    title: "Quản trị Kinh doanh Quốc tế",
+    school: "Đại học Kinh tế Quốc dân",
+    description:
+      "Chương trình quốc tế IBD@NEU tập trung vào quản trị, kinh doanh quốc tế, marketing và môi trường học tập hội nhập.",
+    tags: ["NEU", "Quản trị", "Quốc tế"],
+    href: "https://ibd-isme.neu.edu.vn/",
+  },
+  {
+    icon: <GlobalOutlined />,
+    title: "Ngôn ngữ Anh",
+    school: "Trường Đại học Hà Nội",
+    description:
+      "Đào tạo năng lực ngôn ngữ, biên phiên dịch, giao tiếp học thuật và kỹ năng làm việc trong môi trường đa văn hóa.",
+    tags: ["HANU", "Ngôn ngữ", "Tiếng Anh"],
+    href: "https://hanu.edu.vn/a/254574/Thong-tin-tuyen-sinh-dai-hoc-nam-2026-Hinh-thuc-dao-tao-Chinh-quy",
+  },
+];
 
 const PublicDashboard = () => {
   const { isAuthenticated } = useAuthStore();
@@ -8,59 +73,48 @@ const PublicDashboard = () => {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative py-24 overflow-hidden hero-gradient">
-        <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row items-center gap-8 px-6">
-          <div className="md:w-3/5 text-left">
-            <h1 className="text-white font-bold leading-tight mb-4 text-[40px] md:text-[48px]">
+      <section
+        className="relative overflow-hidden bg-cover bg-center py-24"
+        style={{
+          backgroundImage:
+            "linear-gradient(90deg, rgba(2, 26, 64, 0.92) 0%, rgba(3, 45, 96, 0.78) 45%, rgba(3, 45, 96, 0.5) 100%), url('/hero-campus.jpg')",
+        }}
+      >
+        <div className="absolute inset-0 bg-[#021A40]/20" />
+        <div className="max-w-7xl mx-auto relative z-10 flex min-h-[520px] items-center px-6">
+          <div className="max-w-3xl text-left">
+            <h1 className="hero-title-animate text-white font-bold leading-tight mb-4 text-[40px] md:text-[48px]">
               Bắt đầu hành trình đại học của bạn tại AdmiSX
             </h1>
-            <p className="text-[#84cfff] mb-6 max-w-xl text-[15px] leading-relaxed">
+            <p className="hero-subtitle-animate text-[#84cfff] mb-6 max-w-xl text-[15px] leading-relaxed">
               Nền tảng tuyển sinh hiện đại giúp bạn kết nối với những cơ hội học
               tập hàng đầu. Đơn giản, minh bạch và định hướng tương lai.
             </p>
-            {!isAuthenticated && (
-              <div className="flex gap-4">
-                <a
-                  href={`${ADMIS_URL}/register`}
-                  className="bg-white text-[#032D60] font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 text-[16px]"
-                >
-                  Đăng ký ngay
-                </a>
-                <button className="border-2 border-white text-white font-semibold px-8 py-4 rounded-full hover:bg-white/10 transition-all cursor-pointer text-[16px]">
-                  Tìm hiểu thêm
-                </button>
-              </div>
-            )}
-            {isAuthenticated && (
-              <div className="flex gap-4">
-                <a
-                  href="/dashboard"
-                  className="bg-white text-[#032D60] font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 text-[16px]"
-                >
-                  Vào Dashboard
-                </a>
-              </div>
-            )}
-          </div>
-          <div className="md:w-2/5 hidden md:block">
-            <div className="relative bg-white/10 backdrop-blur-md p-6 rounded-full border border-white/20 aspect-square flex items-center justify-center animate-pulse">
-              <span
-                className="material-symbols-outlined text-white"
-                style={{ fontSize: "120px" }}
+            <div className="hero-actions-animate flex gap-4">
+              <a
+                href={
+                  isAuthenticated ? "/register/step-1" : `${ADMIS_URL}/register`
+                }
+                className="bg-white text-[#032D60] font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 text-[16px]"
               >
-                school
-              </span>
+                Đăng ký ngay
+              </a>
+              <a
+                href="#admissions-process"
+                className="inline-flex items-center justify-center rounded-full border-2 border-white/80 bg-white/15 px-8 py-4 text-[16px] font-bold text-white shadow-lg backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-[#032D60] hover:shadow-xl active:scale-95"
+              >
+                Tìm hiểu thêm
+              </a>
             </div>
           </div>
         </div>
-        <div
-          className="absolute top-0 right-0 w-96 h-96 bg-[#00a1e0] opacity-20 blur-[100px] rounded-full"
-          style={{ transform: "translate(50%, -50%)" }}
-        />
       </section>
 
       {/* Admissions Process */}
-      <section className="py-12 px-6 max-w-7xl mx-auto">
+      <section
+        id="admissions-process"
+        className="scroll-mt-24 py-12 px-6 max-w-7xl mx-auto"
+      >
         <div className="text-center mb-12">
           <h2 className="text-[#101828] font-bold mb-2 text-[32px] leading-tight">
             Quy trình tuyển sinh
@@ -115,17 +169,62 @@ const PublicDashboard = () => {
       </section>
 
       {/* Featured Programs + Benefits Grid */}
-      <section className="py-12 bg-[#F4F6F9]">
+      <section
+        id="featured-programs"
+        className="scroll-mt-24 py-12 bg-[#F4F6F9]"
+      >
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 px-6">
           {/* Featured Programs (2/3) */}
           <div className="lg:col-span-2">
             <h2 className="text-[#101828] font-bold mb-6 text-[32px] leading-tight">
               Chương trình nổi bật
             </h2>
-            <div className="bg-white rounded-3xl border border-[#E4E7EC] p-8 text-center">
-              <p className="text-[#667085] text-[16px] leading-relaxed">
-                Các chương trình nổi bật sẽ sớm được cập nhật
-              </p>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {featuredPrograms.map((program) => (
+                <Card
+                  key={`${program.school}-${program.title}`}
+                  className="h-full border-[#E4E7EC] shadow-sm transition-all hover:-translate-y-1 hover:border-[#032D60]/30 hover:shadow-lg"
+                  styles={{ body: { height: "100%", padding: 24 } }}
+                >
+                  <div className="flex h-full flex-col">
+                    <div className="mb-4 flex items-start gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#032D60]/10 text-[22px] text-[#032D60]">
+                        {program.icon}
+                      </div>
+                    </div>
+
+                    <h3 className="text-[20px] font-bold leading-tight text-[#101828]">
+                      {program.title}
+                    </h3>
+                    <p className="mt-2 text-sm font-semibold text-[#032D60]">
+                      {program.school}
+                    </p>
+                    <p className="mt-3 flex-1 text-[14px] leading-relaxed text-[#667085]">
+                      {program.description}
+                    </p>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {program.tags.map((tag) => (
+                        <Tag key={tag} className="m-0 rounded-full">
+                          {tag}
+                        </Tag>
+                      ))}
+                    </div>
+
+                    <Button
+                      type="primary"
+                      href={program.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-5 inline-flex w-fit items-center rounded-full bg-[#032D60] font-semibold"
+                      icon={<ArrowRightOutlined />}
+                      iconPlacement="end"
+                    >
+                      Xem chi tiết
+                    </Button>
+                  </div>
+                </Card>
+              ))}
             </div>
           </div>
 
@@ -182,9 +281,12 @@ const PublicDashboard = () => {
                 <p className="mb-4 opacity-90 text-[14px] leading-relaxed">
                   Đội ngũ tư vấn luôn sẵn sàng giải đáp thắc mắc của bạn.
                 </p>
-                <button className="bg-white text-[#032D60] px-6 py-3 rounded-full font-semibold hover:bg-[#f4f6f9] transition-colors text-[14px]">
+                <Link
+                  to="/contact"
+                  className="inline-flex bg-white text-[#032D60] px-6 py-3 rounded-full font-semibold hover:bg-[#f4f6f9] transition-colors text-[14px]"
+                >
                   Liên hệ ngay
-                </button>
+                </Link>
               </div>
               <span
                 className="material-symbols-outlined absolute -bottom-4 -right-4 text-white/10"
