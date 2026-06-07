@@ -9,6 +9,8 @@ import ConfirmDialog from "../components/common/ConfirmDialog";
 import DocumentViewer from "../components/common/DocumentViewer";
 import { admissionsApi, type DocumentData } from "../apis/admissions";
 import { authApi } from "../apis/auth";
+import { nationalityApi, type NationalityOption } from "../apis/nationalities";
+import NationalitySelect from "../components/common/NationalitySelect";
 import { useAuthStore } from "../store/auth";
 
 type ActiveTab = "personal" | "academic" | "security";
@@ -55,6 +57,7 @@ const ProfilePage = () => {
     gender: "",
     citizen_id: "",
     province: "",
+    ward: "",
     address: "",
     ethnic: "",
     religion: "",
@@ -62,6 +65,9 @@ const ProfilePage = () => {
   });
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [nationalities, setNationalities] = useState<NationalityOption[]>([]);
+  const [nationalitiesLoading, setNationalitiesLoading] = useState(true);
+  const [nationalitiesError, setNationalitiesError] = useState(false);
 
   const [academicForm, setAcademicForm] = useState({
     graduation_year: "",
@@ -195,6 +201,23 @@ const ProfilePage = () => {
   };
 
   const dismissMessage = useCallback(() => setMessage(null), []);
+
+  useEffect(() => {
+    const fetchNationalities = async () => {
+      try {
+        const res = await nationalityApi.list();
+        setNationalities(res.data);
+        setNationalitiesError(false);
+      } catch {
+        setNationalities([]);
+        setNationalitiesError(true);
+      } finally {
+        setNationalitiesLoading(false);
+      }
+    };
+
+    fetchNationalities();
+  }, []);
 
   const passwordChecks = [
     {
@@ -503,6 +526,7 @@ const ProfilePage = () => {
           gender: cp.gender || "",
           citizen_id: cp.citizen_id?.toString() || "",
           province: cp.province || "",
+          ward: cp.ward || "",
           address: cp.address || "",
           ethnic: cp.ethnic || "",
           religion: cp.religion || "",
@@ -630,6 +654,7 @@ const ProfilePage = () => {
           ? Number(formData.citizen_id.replace(/\D/g, ""))
           : undefined,
         province: formData.province,
+        ward: formData.ward,
         address: formData.address,
         ethnic: formData.ethnic,
         religion: formData.religion,
@@ -1092,16 +1117,18 @@ const ProfilePage = () => {
                         <label className="text-xs font-semibold text-[var(--color-ink)]">
                           Quốc tịch
                         </label>
-                        <input
-                          type="text"
+                        <NationalitySelect
                           value={formData.nation}
-                          onChange={(e) => {
+                          options={nationalities}
+                          loading={nationalitiesLoading}
+                          error={nationalitiesError}
+                          onChange={(value) => {
                             setFormData((prev) => ({
                               ...prev,
-                              nation: e.target.value,
+                              nation: value,
                             }));
                           }}
-                          className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${fieldErrors.nation ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
+                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm bg-white disabled:bg-[#F4F6F9] disabled:text-[#667085] ${fieldErrors.nation ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
                         />
                       </div>
                       <div className="flex flex-col gap-1.5 md:col-span-2">
@@ -1132,9 +1159,34 @@ const ProfilePage = () => {
                         )}
                       </div>
                       <div className="flex flex-col gap-1.5 md:col-span-2">
-                        <label className="text-xs font-semibold text-[var(--color-ink)]">
-                          Địa chỉ{" "}
-                          <span className="text-[var(--color-danger)]">*</span>
+                        <label className="text-xs font-semibold text-[#344054]">
+                          Phường/Xã
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.ward}
+                          onChange={(e) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              ward: e.target.value,
+                            }));
+                            if (fieldErrors.ward)
+                              setFieldErrors((prev) => ({
+                                ...prev,
+                                ward: "",
+                              }));
+                          }}
+                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${fieldErrors.ward ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                        />
+                        {fieldErrors.ward && (
+                          <p className="text-[11px] text-[#EF4444]">
+                            {fieldErrors.ward}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-1.5 md:col-span-2">
+                        <label className="text-xs font-semibold text-[#344054]">
+                          Địa chỉ <span className="text-[#EF4444]">*</span>
                         </label>
                         <input
                           type="text"

@@ -13,9 +13,11 @@ import {
   type EkycStatusData,
   type EkycStepStatus,
 } from "../apis/ekyc";
+import { nationalityApi, type NationalityOption } from "../apis/nationalities";
 import { profileApi } from "../apis/profile";
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import DocumentViewer from "../components/common/DocumentViewer";
+import NationalitySelect from "../components/common/NationalitySelect";
 import Toast from "../components/common/Toast";
 
 type Step = 1 | 2 | 3 | 4 | 5;
@@ -166,6 +168,45 @@ const normalizeSubjectName = (code: string): string => {
   };
   return map[code] || code;
 };
+
+const normalizeSubjectKey = (subject: string): string =>
+  subject
+    .normalize("NFD")
+    .replace(/[đĐ]/g, "d")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+
+const SUBJECT_CODE_BY_NORMALIZED_NAME: Record<string, string> = {
+  toan: "TOAN",
+  van: "VAN",
+  nguvan: "VAN",
+  ly: "LY",
+  la: "LY",
+  vatly: "LY",
+  hoa: "HOA",
+  haa: "HOA",
+  hoahoc: "HOA",
+  sinh: "SINH",
+  su: "SU",
+  sa: "SU",
+  lichsu: "SU",
+  dia: "DIA",
+  aaa: "DIA",
+  dialy: "DIA",
+  gdktpl: "GDKTPL",
+  tinhoc: "TINHOC",
+  tinhac: "TINHOC",
+  congnghe: "CONGNGHE",
+  cangngha: "CONGNGHE",
+  anh: "NGOAINGU",
+  ngoaingu: "NGOAINGU",
+  ngoainga: "NGOAINGU",
+};
+
+const toSubjectCode = (subject: string): string =>
+  SUBJECT_CODE_BY_NORMALIZED_NAME[normalizeSubjectKey(subject)] ||
+  subject.trim().toUpperCase();
 
 const firstTextValue = (...values: unknown[]): string => {
   for (const value of values) {
@@ -322,7 +363,10 @@ const AdmissionsPage = () => {
     date_of_birth: string;
     gender: string;
     citizen_id: string;
+    ethnic: string;
+    religion: string;
     province: string;
+    ward: string;
     address: string;
     nation: string;
   }>({
@@ -332,7 +376,10 @@ const AdmissionsPage = () => {
     date_of_birth: "",
     gender: "",
     citizen_id: "",
+    ethnic: "",
+    religion: "",
     province: "",
+    ward: "",
     address: "",
     nation: "",
   });
@@ -345,6 +392,9 @@ const AdmissionsPage = () => {
   const [selectedMajor, setSelectedMajor] = useState("");
   const [selectedComb, setSelectedComb] = useState("");
   const [wishes, setWishes] = useState<Wish[]>([]);
+  const [nationalities, setNationalities] = useState<NationalityOption[]>([]);
+  const [nationalitiesLoading, setNationalitiesLoading] = useState(true);
+  const [nationalitiesError, setNationalitiesError] = useState(false);
 
   // Step 4 — Scores & documents
   const [scores, setScores] = useState<ScoreEntry[]>([
@@ -365,7 +415,14 @@ const AdmissionsPage = () => {
 
   // Step 4 — Academic info
   const [graduationYear, setGraduationYear] = useState("");
-  const [grade12School, setGrade12School] = useState("");
+  const [academicProgress, setAcademicProgress] = useState({
+    grade_10_school: "",
+    grade_10_score: "",
+    grade_11_school: "",
+    grade_11_score: "",
+    grade_12_school: "",
+    grade_12_score: "",
+  });
   const [viewDoc, setViewDoc] = useState<DocumentData | null>(null);
   const [editingDocType, setEditingDocType] = useState<string | null>(null);
   const [newDocFile, setNewDocFile] = useState<File | null>(null);
@@ -376,6 +433,23 @@ const AdmissionsPage = () => {
   const [certEntries, setCertEntries] = useState<string[]>([""]);
 
   const dismissMessage = useCallback(() => setMessage(null), []);
+
+  useEffect(() => {
+    const fetchNationalities = async () => {
+      try {
+        const res = await nationalityApi.list();
+        setNationalities(res.data);
+        setNationalitiesError(false);
+      } catch {
+        setNationalities([]);
+        setNationalitiesError(true);
+      } finally {
+        setNationalitiesLoading(false);
+      }
+    };
+
+    fetchNationalities();
+  }, []);
 
   useEffect(() => {
     const fetchInitial = async () => {
@@ -400,7 +474,10 @@ const AdmissionsPage = () => {
             p.user.cccd,
             p.user.identity_number,
           ),
+          ethnic: cp.ethnic || "",
+          religion: cp.religion || "",
           province: cp.province || "",
+          ward: cp.ward || "",
           address: cp.address || "",
           nation: cp.nation || "",
         });
@@ -449,6 +526,30 @@ const AdmissionsPage = () => {
 
   // Step 1 — save phone, province & address
   const handleStep1Next = async () => {
+    const requiredProfileFields: Array<[keyof typeof profileData, string]> = [
+      ["full_name", "họ và tên"],
+      ["date_of_birth", "ngày sinh"],
+      ["gender", "giới tính"],
+      ["phone", "số điện thoại"],
+      ["ethnic", "dân tộc"],
+      ["religion", "tôn giáo"],
+      ["nation", "quốc tịch"],
+      ["province", "tỉnh/thành phố"],
+      ["ward", "phường/xã"],
+      ["address", "địa chỉ thường trú"],
+    ];
+    const missingField = requiredProfileFields.find(
+      ([key]) => !profileData[key].trim(),
+    );
+
+    if (missingField) {
+      setMessage({
+        type: "error",
+        text: `Vui lòng nhập ${missingField[1]} trước khi tiếp tục.`,
+      });
+      return;
+    }
+
     setSaving(true);
     setMessage(null);
     try {
@@ -457,7 +558,10 @@ const AdmissionsPage = () => {
         date_of_birth: profileData.date_of_birth || null,
         gender: profileData.gender || null,
         phone: profileData.phone || null,
+        ethnic: profileData.ethnic || null,
+        religion: profileData.religion || null,
         province: profileData.province || null,
+        ward: profileData.ward || null,
         address: profileData.address || null,
         nation: profileData.nation || null,
       } as never);
@@ -551,9 +655,14 @@ const AdmissionsPage = () => {
         if (ar?.graduation_year) {
           setGraduationYear(ar.graduation_year.toString());
         }
-        if (ap?.grade_12?.school_name) {
-          setGrade12School(ap.grade_12.school_name);
-        }
+        setAcademicProgress({
+          grade_10_school: ap?.grade_10?.school_name || "",
+          grade_10_score: ap?.grade_10?.avg_score?.toString() || "",
+          grade_11_school: ap?.grade_11?.school_name || "",
+          grade_11_score: ap?.grade_11?.avg_score?.toString() || "",
+          grade_12_school: ap?.grade_12?.school_name || "",
+          grade_12_score: ap?.grade_12?.avg_score?.toString() || "",
+        });
         if (ar?.exam_scores && ar.exam_scores.length > 0) {
           // Load existing scores
           const toanScore = ar.exam_scores.find(
@@ -905,18 +1014,68 @@ const AdmissionsPage = () => {
       return;
     }
 
+    const mismatchedWish = wishes.find((wish) => {
+      const requiredSubjects = [
+        wish.combination.subject_1,
+        wish.combination.subject_2,
+        wish.combination.subject_3,
+      ].map(toSubjectCode);
+      return requiredSubjects.some(
+        (subject) => scoreMap[subject] === undefined,
+      );
+    });
+    if (mismatchedWish) {
+      setMessage({
+        type: "error",
+        text: `MÃ´n thi Ä‘Ã£ khai bÃ¡o khÃ´ng khá»›p vá»›i tá»• há»£p ${mismatchedWish.combination.code}.`,
+      });
+      return;
+    }
+
     // Validate academic info
-    if (!graduationYear) {
+    if (!graduationYear.trim()) {
       setMessage({
         type: "error",
         text: "Vui lòng nhập năm tốt nghiệp THPT.",
       });
       return;
     }
-    if (!grade12School) {
+    const requiredAcademicProgress: Array<
+      [keyof typeof academicProgress, string]
+    > = [
+      ["grade_10_school", "tên trường THPT lớp 10"],
+      ["grade_10_score", "điểm trung bình lớp 10"],
+      ["grade_11_school", "tên trường THPT lớp 11"],
+      ["grade_11_score", "điểm trung bình lớp 11"],
+      ["grade_12_school", "tên trường THPT lớp 12"],
+      ["grade_12_score", "điểm trung bình lớp 12"],
+    ];
+    const missingAcademicProgress = requiredAcademicProgress.find(
+      ([key]) => !academicProgress[key].trim(),
+    );
+    if (missingAcademicProgress) {
       setMessage({
         type: "error",
-        text: "Vui lòng nhập tên trường THPT (lớp 12).",
+        text: `Vui lòng nhập ${missingAcademicProgress[1]}.`,
+      });
+      return;
+    }
+
+    const academicScoreFields: Array<[keyof typeof academicProgress, string]> =
+      [
+        ["grade_10_score", "lớp 10"],
+        ["grade_11_score", "lớp 11"],
+        ["grade_12_score", "lớp 12"],
+      ];
+    const invalidAcademicScore = academicScoreFields.find(([key]) => {
+      const score = Number(academicProgress[key]);
+      return Number.isNaN(score) || score < 0 || score > 10;
+    });
+
+    if (invalidAcademicScore) {
+      setMessage({
+        type: "error",
+        text: `Điểm trung bình ${invalidAcademicScore[1]} phải nằm trong khoảng 0 - 10.`,
       });
       return;
     }
@@ -967,9 +1126,20 @@ const AdmissionsPage = () => {
         graduation_year: parseInt(graduationYear),
       } as never);
 
-      // 2. Save academic progress (grade 12 school name)
+      // 2. Save academic progress
       await profileApi.upsertAcademicProgress({
-        grade_12: { school_name: grade12School },
+        grade_10: {
+          school_name: academicProgress.grade_10_school,
+          avg_score: Number(academicProgress.grade_10_score),
+        },
+        grade_11: {
+          school_name: academicProgress.grade_11_school,
+          avg_score: Number(academicProgress.grade_11_score),
+        },
+        grade_12: {
+          school_name: academicProgress.grade_12_school,
+          avg_score: Number(academicProgress.grade_12_score),
+        },
       } as never);
 
       // 3. Upload exam scores (certificate already uploaded via document upload)
@@ -997,9 +1167,9 @@ const AdmissionsPage = () => {
           combination_id: wish.combination.id,
         };
 
-        const s1 = scoreMap[comb.subject_1];
-        const s2 = scoreMap[comb.subject_2];
-        const s3 = scoreMap[comb.subject_3];
+        const s1 = scoreMap[toSubjectCode(comb.subject_1)];
+        const s2 = scoreMap[toSubjectCode(comb.subject_2)];
+        const s3 = scoreMap[toSubjectCode(comb.subject_3)];
         if (s1 !== undefined) payload.subject_1_score = s1;
         if (s2 !== undefined) payload.subject_2_score = s2;
         if (s3 !== undefined) payload.subject_3_score = s3;
@@ -1160,18 +1330,47 @@ const AdmissionsPage = () => {
                   placeholder="Nhập số điện thoại"
                 />
               </Field>
-              <Field label="Quốc tịch">
+              <Field label="Dân tộc">
                 <input
                   type="text"
-                  value={profileData.nation}
+                  value={profileData.ethnic}
                   onChange={(e) =>
                     setProfileData((prev) => ({
                       ...prev,
-                      nation: e.target.value,
+                      ethnic: e.target.value,
                     }))
                   }
-                  className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
-                  placeholder="Nhập quốc tịch"
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                  placeholder="Nhập dân tộc"
+                />
+              </Field>
+              <Field label="Tôn giáo">
+                <input
+                  type="text"
+                  value={profileData.religion}
+                  onChange={(e) =>
+                    setProfileData((prev) => ({
+                      ...prev,
+                      religion: e.target.value,
+                    }))
+                  }
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                  placeholder="Nhập tôn giáo"
+                />
+              </Field>
+              <Field label="Quốc tịch">
+                <NationalitySelect
+                  value={profileData.nation}
+                  options={nationalities}
+                  loading={nationalitiesLoading}
+                  error={nationalitiesError}
+                  onChange={(value) =>
+                    setProfileData((prev) => ({
+                      ...prev,
+                      nation: value,
+                    }))
+                  }
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full bg-white disabled:bg-[#F4F6F9] disabled:text-[#667085]"
                 />
               </Field>
               <Field label="Tỉnh/Thành phố">
@@ -1186,6 +1385,20 @@ const AdmissionsPage = () => {
                   }
                   className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
                   placeholder="Nhập tỉnh/thành phố"
+                />
+              </Field>
+              <Field label="Phường/Xã">
+                <input
+                  type="text"
+                  value={profileData.ward}
+                  onChange={(e) =>
+                    setProfileData((prev) => ({
+                      ...prev,
+                      ward: e.target.value,
+                    }))
+                  }
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                  placeholder="Nhập phường/xã"
                 />
               </Field>
               <div className="flex flex-col gap-1.5 md:col-span-2">
@@ -1830,15 +2043,114 @@ const AdmissionsPage = () => {
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-[var(--color-ink)]">
+                      <label className="text-xs font-semibold text-[#344054]">
+                        Trường THPT (lớp 10) *
+                      </label>
+                      <input
+                        type="text"
+                        value={academicProgress.grade_10_school}
+                        onChange={(e) =>
+                          setAcademicProgress((prev) => ({
+                            ...prev,
+                            grade_10_school: e.target.value,
+                          }))
+                        }
+                        className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                        placeholder="Tên trường lớp 10"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-semibold text-[#344054]">
+                        Điểm TB lớp 10 *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="10"
+                        value={academicProgress.grade_10_score}
+                        onChange={(e) =>
+                          setAcademicProgress((prev) => ({
+                            ...prev,
+                            grade_10_score: e.target.value,
+                          }))
+                        }
+                        className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                        placeholder="0.0 - 10.0"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-semibold text-[#344054]">
+                        Trường THPT (lớp 11) *
+                      </label>
+                      <input
+                        type="text"
+                        value={academicProgress.grade_11_school}
+                        onChange={(e) =>
+                          setAcademicProgress((prev) => ({
+                            ...prev,
+                            grade_11_school: e.target.value,
+                          }))
+                        }
+                        className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                        placeholder="Tên trường lớp 11"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-semibold text-[#344054]">
+                        Điểm TB lớp 11 *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="10"
+                        value={academicProgress.grade_11_score}
+                        onChange={(e) =>
+                          setAcademicProgress((prev) => ({
+                            ...prev,
+                            grade_11_score: e.target.value,
+                          }))
+                        }
+                        className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                        placeholder="0.0 - 10.0"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-semibold text-[#344054]">
                         Trường THPT (lớp 12) *
                       </label>
                       <input
                         type="text"
-                        value={grade12School}
-                        onChange={(e) => setGrade12School(e.target.value)}
-                        className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
+                        value={academicProgress.grade_12_school}
+                        onChange={(e) =>
+                          setAcademicProgress((prev) => ({
+                            ...prev,
+                            grade_12_school: e.target.value,
+                          }))
+                        }
+                        className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
                         placeholder="Tên trường lớp 12"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-semibold text-[#344054]">
+                        Điểm TB lớp 12 *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="10"
+                        value={academicProgress.grade_12_score}
+                        onChange={(e) =>
+                          setAcademicProgress((prev) => ({
+                            ...prev,
+                            grade_12_score: e.target.value,
+                          }))
+                        }
+                        className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                        placeholder="0.0 - 10.0"
                       />
                     </div>
                   </div>
@@ -2224,7 +2536,11 @@ const AdmissionsPage = () => {
                 <InfoRow label="Họ và tên" value={profileData.full_name} />
                 <InfoRow label="Email" value={profileData.email} />
                 <InfoRow label="Số điện thoại" value={profileData.phone} />
+                <InfoRow label="Dân tộc" value={profileData.ethnic} />
+                <InfoRow label="Tôn giáo" value={profileData.religion} />
+                <InfoRow label="Quốc tịch" value={profileData.nation} />
                 <InfoRow label="Tỉnh/Thành phố" value={profileData.province} />
+                <InfoRow label="Phường/Xã" value={profileData.ward} />
                 <InfoRow label="Ngày sinh" value={profileData.date_of_birth} />
                 <InfoRow
                   label="Giới tính"
@@ -2314,7 +2630,24 @@ const AdmissionsPage = () => {
                 )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 text-xs text-[var(--color-charcoal)]">
                   <span>Năm tốt nghiệp: {graduationYear || "—"}</span>
-                  <span>Trường lớp 12: {grade12School || "—"}</span>
+                  <span>
+                    Trường lớp 10: {academicProgress.grade_10_school || "—"}
+                  </span>
+                  <span>
+                    Điểm TB lớp 10: {academicProgress.grade_10_score || "—"}
+                  </span>
+                  <span>
+                    Trường lớp 11: {academicProgress.grade_11_school || "—"}
+                  </span>
+                  <span>
+                    Điểm TB lớp 11: {academicProgress.grade_11_score || "—"}
+                  </span>
+                  <span>
+                    Trường lớp 12: {academicProgress.grade_12_school || "—"}
+                  </span>
+                  <span>
+                    Điểm TB lớp 12: {academicProgress.grade_12_score || "—"}
+                  </span>
                 </div>
               </div>
             )}
