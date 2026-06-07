@@ -104,6 +104,15 @@ const normalizeSubjectName = (code: string): string => {
   return map[code] || code;
 };
 
+const firstTextValue = (...values: unknown[]): string => {
+  for (const value of values) {
+    if (value === null || value === undefined) continue;
+    const text = String(value).trim();
+    if (text) return text;
+  }
+  return "";
+};
+
 const Stepper = ({ current }: { current: Step }) => (
   <div className="flex items-center justify-center gap-0 mb-8">
     {([1, 2, 3, 4] as Step[]).map((s, i) => (
@@ -229,14 +238,19 @@ const AdmissionsPage = () => {
         const p = profileRes.data.data;
         const cp = p.candidate_profile;
         setProfileData({
-          full_name: cp.full_name || "",
-          email: p.user?.email || "",
+          full_name: firstTextValue(cp.full_name, p.user.full_name),
+          email: firstTextValue(p.user.email, cp.email),
           phone: cp.phone || "",
           date_of_birth: cp.date_of_birth
             ? new Date(cp.date_of_birth).toLocaleDateString("en-CA")
             : "",
           gender: cp.gender || "",
-          citizen_id: cp.citizen_id?.toString() || "",
+          citizen_id: firstTextValue(
+            cp.citizen_id,
+            p.user.citizen_id,
+            p.user.cccd,
+            p.user.identity_number,
+          ),
           province: cp.province || "",
           address: cp.address || "",
           nation: cp.nation || "",
@@ -905,9 +919,9 @@ const AdmissionsPage = () => {
                       address: e.target.value,
                     }))
                   }
-                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full min-h-[80px] resize-y"
+                  className="min-h-[72px] w-full resize-none rounded-lg border border-[#D0D5DD] px-3 py-2.5 text-sm leading-5 outline-none transition-all focus:border-[#032D60] focus:ring-2 focus:ring-[#032D60]/20"
                   placeholder="Nhập địa chỉ"
-                  rows={3}
+                  rows={2}
                 />
               </div>
             </div>

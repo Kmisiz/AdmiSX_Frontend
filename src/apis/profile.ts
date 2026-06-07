@@ -4,13 +4,18 @@ export interface CandidateProfileData {
   user: {
     id: number;
     email: string;
+    full_name?: string | null;
+    citizen_id?: string | number | null;
+    cccd?: string | number | null;
+    identity_number?: string | number | null;
     role: "CANDIDATE" | "ADMIN";
     status: "ACTIVE" | "LOCKED" | "PENDING";
     last_login_at: string | null;
   };
   candidate_profile: {
-    citizen_id: number;
-    full_name: string;
+    email?: string | null;
+    citizen_id: string | number | null;
+    full_name: string | null;
     phone: string | null;
     date_of_birth: string | null;
     gender: "MALE" | "FEMALE" | "OTHER" | null;
