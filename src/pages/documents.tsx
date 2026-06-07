@@ -3,6 +3,12 @@ import Toast from "../components/common/Toast";
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import DocumentViewer from "../components/common/DocumentViewer";
 import { admissionsApi, type DocumentData } from "../apis/admissions";
+import {
+  defaultEkycStatus,
+  ekycApi,
+  type EkycStatusData,
+  type EkycStepStatus,
+} from "../apis/ekyc";
 
 const DOCUMENT_TYPE_LABELS: Record<string, string> = {
   TRANSCRIPT: "Bảng điểm",
@@ -41,8 +47,113 @@ const UPLOAD_OPTIONS = [
   { value: "CERTIFICATE", label: "Chứng chỉ khác", icon: "verified_user" },
 ];
 
+const EKYC_STATUS_LABELS: Record<EkycStatusData["overall_status"], string> = {
+  UNVERIFIED: "Chưa xác thực",
+  PARTIAL: "Đang xác thực",
+  VERIFIED: "Đã xác thực",
+  FAILED: "Cần kiểm tra lại",
+};
+
+const EKYC_STEP_LABELS: Record<EkycStepStatus, string> = {
+  PENDING: "Chưa xác thực",
+  VERIFIED: "Đã xác thực",
+  FAILED: "Không đạt",
+};
+
+const EKYC_STATUS_STYLES: Record<
+  EkycStepStatus | EkycStatusData["overall_status"],
+  string
+> = {
+  UNVERIFIED: "bg-[#F4F6F9] text-[#667085] border-[#D0D5DD]",
+  PARTIAL: "bg-[#FFFAEB] text-[#B54708] border-[#FEDF89]",
+  VERIFIED: "bg-[#ECFDF3] text-[#04844B] border-[#ABEFC6]",
+  FAILED: "bg-[#FEF3F2] text-[#B42318] border-[#FECDCA]",
+  PENDING: "bg-[#F4F6F9] text-[#667085] border-[#D0D5DD]",
+};
+
+const getDocumentEkycStepStatus = (
+  documentType: string,
+  status: EkycStatusData,
+): EkycStepStatus | null => {
+  if (documentType === "CITIZEN_ID_Front") return status.front_status;
+  if (documentType === "CITIZEN_ID_Back") return status.back_status;
+  if (documentType === "PORTRAIT") return status.face_status;
+  return null;
+};
+
+const getApiErrorMessage = (error: unknown, fallback: string): string => {
+  const response = (error as { response?: { data?: { message?: string } } })
+    .response;
+  return response?.data?.message || fallback;
+};
+
+const EkycStatusPanel = ({
+  status,
+  verifying,
+}: {
+  status: EkycStatusData;
+  verifying: boolean;
+}) => {
+  const steps: Array<[string, EkycStepStatus]> = [
+    ["CCCD mặt trước", status.front_status],
+    ["CCCD mặt sau", status.back_status],
+    ["Đối chiếu chân dung", status.face_status],
+  ];
+
+  return (
+    <section className="mb-8 bg-white border border-[#E4E7EC] rounded-2xl p-5">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-bold text-[#101828]">
+            Xác thực CCCD/eKYC
+          </h2>
+          <p className="text-sm text-[#667085] mt-1">
+            Upload tài liệu chỉ lưu file. Hệ thống sẽ gọi API eKYC riêng để xác
+            thực CCCD và ảnh chân dung.
+          </p>
+        </div>
+        <span
+          className={`inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-bold ${EKYC_STATUS_STYLES[status.overall_status]}`}
+        >
+          {verifying
+            ? "Đang kiểm tra..."
+            : EKYC_STATUS_LABELS[status.overall_status]}
+        </span>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+        {steps.map(([label, stepStatus]) => (
+          <div
+            key={label}
+            className="flex items-center justify-between rounded-xl bg-[#F9FAFB] border border-[#E4E7EC] px-4 py-3"
+          >
+            <span className="text-xs font-semibold text-[#344054]">
+              {label}
+            </span>
+            <span
+              className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${EKYC_STATUS_STYLES[stepStatus]}`}
+            >
+              {EKYC_STEP_LABELS[stepStatus]}
+            </span>
+          </div>
+        ))}
+      </div>
+      {status.failure_reason && (
+        <p className="mt-3 text-xs text-[#B42318]">{status.failure_reason}</p>
+      )}
+      {status.verified_at && (
+        <p className="mt-3 text-xs text-[#04844B]">
+          Xác thực lúc {new Date(status.verified_at).toLocaleString("vi-VN")}
+        </p>
+      )}
+    </section>
+  );
+};
+
 const DocumentsPage = () => {
   const [documents, setDocuments] = useState<DocumentData[]>([]);
+  const [ekycStatus, setEkycStatus] =
+    useState<EkycStatusData>(defaultEkycStatus);
+  const [verifyingEkyc, setVerifyingEkyc] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -66,12 +177,99 @@ const DocumentsPage = () => {
     }
   }, []);
 
+  const refreshEkycStatus = useCallback(async () => {
+    const res = await ekycApi.getStatus();
+    const status = res.data.data || defaultEkycStatus;
+    setEkycStatus(status);
+    return status;
+  }, []);
+
+  const verifyEkycFromDocuments = useCallback(
+    async (changedDoc: DocumentData, knownDocs: DocumentData[]) => {
+      if (
+        !["CITIZEN_ID_Front", "CITIZEN_ID_Back", "PORTRAIT"].includes(
+          changedDoc.document_type,
+        )
+      ) {
+        return;
+      }
+
+      setVerifyingEkyc(true);
+      try {
+        let status = await refreshEkycStatus();
+        const allDocs = [
+          changedDoc,
+          ...knownDocs.filter((doc) => doc.id !== changedDoc.id),
+        ];
+
+        if (changedDoc.document_type === "CITIZEN_ID_Front") {
+          status = (await ekycApi.verifyFront(changedDoc.id)).data.data;
+          setEkycStatus(status);
+        }
+
+        if (changedDoc.document_type === "CITIZEN_ID_Back") {
+          status = (await ekycApi.verifyBack(changedDoc.id)).data.data;
+          setEkycStatus(status);
+        }
+
+        const frontDoc = allDocs.find(
+          (doc) => doc.document_type === "CITIZEN_ID_Front",
+        );
+        const portraitDoc = allDocs.find(
+          (doc) => doc.document_type === "PORTRAIT",
+        );
+        const canVerifyFace =
+          portraitDoc &&
+          frontDoc &&
+          (status.front_status === "VERIFIED" ||
+            status.front_document_id === frontDoc.id);
+
+        if (canVerifyFace && changedDoc.document_type !== "CITIZEN_ID_Back") {
+          status = (await ekycApi.verifyPortrait(frontDoc.id, portraitDoc.id))
+            .data.data;
+          setEkycStatus(status);
+        }
+
+        setMessage({
+          type: "success",
+          text:
+            status.overall_status === "VERIFIED"
+              ? "eKYC đã xác thực thành công."
+              : "Đã cập nhật trạng thái eKYC.",
+        });
+      } catch (err: unknown) {
+        const apiErr = err as {
+          response?: { data?: { code?: string; message?: string } };
+        };
+        await refreshEkycStatus().catch(() => undefined);
+        const providerMissing =
+          apiErr?.response?.data?.code === "EKYC_PROVIDER_CONFIG_MISSING";
+        setMessage({
+          type: "error",
+          text: providerMissing
+            ? "Tài liệu đã tải lên, nhưng backend chưa cấu hình FPT_API_KEY để xác thực eKYC."
+            : apiErr?.response?.data?.message ||
+              "Tài liệu đã tải lên, nhưng chưa thể xác thực eKYC.",
+        });
+      } finally {
+        setVerifyingEkyc(false);
+      }
+    },
+    [refreshEkycStatus],
+  );
+
   useEffect(() => {
     let ignore = false;
     const load = async () => {
       try {
-        const res = await admissionsApi.getDocuments();
-        if (!ignore) setDocuments(res.data.data || []);
+        const [docsRes, ekycRes] = await Promise.all([
+          admissionsApi.getDocuments(),
+          ekycApi.getStatus(),
+        ]);
+        if (!ignore) {
+          setDocuments(docsRes.data.data || []);
+          setEkycStatus(ekycRes.data.data || defaultEkycStatus);
+        }
       } catch {
         // ignore
       } finally {
@@ -92,19 +290,25 @@ const DocumentsPage = () => {
     setUploading(true);
     setUploadProgress(0);
     try {
-      await admissionsApi.uploadDocument(
+      const uploadRes = await admissionsApi.uploadDocument(
         file,
         docType,
         displayName,
         setUploadProgress,
       );
+      const createdDoc = uploadRes.data.data;
       await fetchDocuments();
+      await verifyEkycFromDocuments(createdDoc, documents);
       setShowUploadModal(false);
-      setMessage({ type: "success", text: "Tải lên tài liệu thành công!" });
-    } catch {
+      if (
+        !["CITIZEN_ID_Front", "CITIZEN_ID_Back", "PORTRAIT"].includes(docType)
+      ) {
+        setMessage({ type: "success", text: "Tải lên tài liệu thành công!" });
+      }
+    } catch (err: unknown) {
       setMessage({
         type: "error",
-        text: "Tải lên thất bại. Vui lòng thử lại.",
+        text: getApiErrorMessage(err, "Tải lên thất bại. Vui lòng thử lại."),
       });
     } finally {
       setUploading(false);
@@ -115,9 +319,22 @@ const DocumentsPage = () => {
     try {
       await admissionsApi.deleteDocument(id);
       setDocuments((prev) => prev.filter((d) => d.id !== id));
+      await refreshEkycStatus().catch(() => undefined);
       setMessage({ type: "success", text: "Đã xóa tài liệu." });
-    } catch {
-      setMessage({ type: "error", text: "Xóa thất bại. Vui lòng thử lại." });
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } }).response
+        ?.status;
+      if (status === 404) {
+        setDocuments((prev) => prev.filter((d) => d.id !== id));
+        await fetchDocuments();
+        await refreshEkycStatus().catch(() => undefined);
+        setMessage({
+          type: "error",
+          text: "Tài liệu này không còn tồn tại hoặc đã được xóa trước đó.",
+        });
+      } else {
+        setMessage({ type: "error", text: "Xóa thất bại. Vui lòng thử lại." });
+      }
     }
     setDeleteTarget(null);
   };
@@ -182,6 +399,8 @@ const DocumentsPage = () => {
             Tải lên tài liệu
           </button>
         </div>
+
+        <EkycStatusPanel status={ekycStatus} verifying={verifyingEkyc} />
 
         {/* Filters & Stats */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5 mb-8 items-stretch">
@@ -275,6 +494,10 @@ const DocumentsPage = () => {
               const isPdf =
                 doc.file_type === "application/pdf" ||
                 /\.pdf$/i.test(doc.file_url);
+              const ekycStepStatus = getDocumentEkycStepStatus(
+                doc.document_type,
+                ekycStatus,
+              );
 
               return (
                 <div
@@ -307,8 +530,16 @@ const DocumentsPage = () => {
                         </p>
                       </div>
                     </div>
-                    <span className="px-3 py-1 bg-[#04844B]/10 text-[#04844B] rounded-full text-[9px] font-bold uppercase tracking-wider border border-[#04844B]/20">
-                      Đã xác thực
+                    <span
+                      className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
+                        ekycStepStatus
+                          ? EKYC_STATUS_STYLES[ekycStepStatus]
+                          : "bg-[#F4F6F9] text-[#667085] border-[#D0D5DD]"
+                      }`}
+                    >
+                      {ekycStepStatus
+                        ? EKYC_STEP_LABELS[ekycStepStatus]
+                        : "Đã tải lên"}
                     </span>
                   </div>
 
