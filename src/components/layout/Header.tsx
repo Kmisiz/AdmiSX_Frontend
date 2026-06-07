@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { to: "/dashboard", label: "Tổng quan" },
   { to: "/dashboard/admissions", label: "Xét tuyển" },
   { to: "/dashboard/documents", label: "Tài liệu" },
+  { to: "/dashboard/upload-guide", label: "Hướng dẫn" },
   { to: "/dashboard/notifications", label: "Thông báo" },
 ];
 

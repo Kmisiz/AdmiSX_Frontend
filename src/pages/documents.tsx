@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "@tanstack/react-router";
 import Toast from "../components/common/Toast";
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import DocumentViewer from "../components/common/DocumentViewer";
@@ -678,12 +679,12 @@ const DocumentsPage = () => {
                 góc.
               </p>
               <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                <a
-                  href="#"
+                <Link
+                  to="/dashboard/upload-guide"
                   className="px-6 py-2.5 bg-white text-[var(--color-primary)] font-bold text-xs rounded shadow-md hover:bg-[var(--color-canvas-soft)] transition-colors"
                 >
                   Xem hướng dẫn chi tiết
-                </a>
+                </Link>
                 <a
                   href="#"
                   className="px-6 py-2.5 border border-white/30 text-white font-bold text-xs rounded hover:bg-white/10 transition-colors"
