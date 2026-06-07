@@ -7,12 +7,18 @@ import {
   type Major,
   type University,
 } from "../apis/admissions";
+import {
+  defaultEkycStatus,
+  ekycApi,
+  type EkycStatusData,
+  type EkycStepStatus,
+} from "../apis/ekyc";
 import { profileApi } from "../apis/profile";
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import DocumentViewer from "../components/common/DocumentViewer";
 import Toast from "../components/common/Toast";
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3 | 4 | 5;
 
 interface Wish {
   university: University;
@@ -28,10 +34,11 @@ interface ScoreEntry {
 
 const STEP_LABELS = [
   "Thông tin cá nhân",
+  "Xác thực eKYC",
   "Chọn nguyện vọng",
   "Nhập điểm & Minh chứng",
   "Kiểm tra & Xác nhận",
-];
+] as const;
 
 const OPTIONAL_SUBJECTS: { code: string; name: string }[] = [
   { code: "LY", name: "Vật lý" },
@@ -76,11 +83,22 @@ const CERTIFICATE_OPTIONS = [
   "TestDaF/Goethe-Zertifikat (Tiếng Đức)",
 ];
 
-const DOCUMENT_TYPES: { value: string; label: string; required: boolean }[] = [
-  { value: "TRANSCRIPT", label: "Bảng điểm", required: true },
+const EKYC_DOCUMENT_TYPES: {
+  value: string;
+  label: string;
+  required: boolean;
+}[] = [
   { value: "CITIZEN_ID_Front", label: "CMND/CCCD (Mặt trước)", required: true },
   { value: "CITIZEN_ID_Back", label: "CMND/CCCD (Mặt sau)", required: true },
   { value: "PORTRAIT", label: "Ảnh thẻ", required: true },
+];
+
+const APPLICATION_DOCUMENT_TYPES: {
+  value: string;
+  label: string;
+  required: boolean;
+}[] = [
+  { value: "TRANSCRIPT", label: "Bảng điểm", required: true },
   {
     value: "EXAM_CERTIFICATE",
     label: "Giấy chứng nhận kết quả thi",
@@ -88,6 +106,46 @@ const DOCUMENT_TYPES: { value: string; label: string; required: boolean }[] = [
   },
   { value: "CERTIFICATE", label: "Chứng chỉ khác", required: false },
 ];
+
+const EKYC_STATUS_LABELS: Record<EkycStatusData["overall_status"], string> = {
+  UNVERIFIED: "Chưa xác thực",
+  PARTIAL: "Đang xác thực",
+  VERIFIED: "Đã xác thực",
+  FAILED: "Cần kiểm tra lại",
+};
+
+const EKYC_STEP_LABELS: Record<EkycStepStatus, string> = {
+  PENDING: "Chưa xác thực",
+  VERIFIED: "Đã xác thực",
+  FAILED: "Không đạt",
+};
+
+const EKYC_STATUS_STYLES: Record<
+  EkycStepStatus | EkycStatusData["overall_status"],
+  string
+> = {
+  UNVERIFIED: "bg-[#F4F6F9] text-[#667085] border-[#D0D5DD]",
+  PARTIAL: "bg-[#FFFAEB] text-[#B54708] border-[#FEDF89]",
+  VERIFIED: "bg-[#ECFDF3] text-[#04844B] border-[#ABEFC6]",
+  FAILED: "bg-[#FEF3F2] text-[#B42318] border-[#FECDCA]",
+  PENDING: "bg-[#F4F6F9] text-[#667085] border-[#D0D5DD]",
+};
+
+const getDocumentEkycStepStatus = (
+  documentType: string,
+  status: EkycStatusData,
+): EkycStepStatus | null => {
+  if (documentType === "CITIZEN_ID_Front") return status.front_status;
+  if (documentType === "CITIZEN_ID_Back") return status.back_status;
+  if (documentType === "PORTRAIT") return status.face_status;
+  return null;
+};
+
+const getApiErrorMessage = (error: unknown, fallback: string): string => {
+  const response = (error as { response?: { data?: { message?: string } } })
+    .response;
+  return response?.data?.message || fallback;
+};
 
 const normalizeSubjectName = (code: string): string => {
   const map: Record<string, string> = {
@@ -114,49 +172,122 @@ const firstTextValue = (...values: unknown[]): string => {
 };
 
 const Stepper = ({ current }: { current: Step }) => (
-  <div className="flex items-center justify-center gap-0 mb-8">
-    {([1, 2, 3, 4] as Step[]).map((s, i) => (
-      <div key={s} className="flex items-center">
-        <div className="flex items-center gap-2">
-          <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-              s < current
-                ? "bg-[#032D60] text-white"
-                : s === current
-                  ? "bg-[#032D60] text-white ring-4 ring-[#032D60]/20"
-                  : "bg-[#E4E7EC] text-[#667085]"
-            }`}
-          >
-            {s < current ? (
-              <span
-                className="material-symbols-outlined text-[18px]"
-                style={{ fontVariationSettings: "'FILL' 1" }}
+  <div className="mb-8">
+    <div className="mx-auto flex flex-wrap items-center justify-center gap-x-2 gap-y-3 lg:flex-nowrap">
+      {STEP_LABELS.map((label, i) => {
+        const s = (i + 1) as Step;
+        return (
+          <div key={s} className="flex items-center">
+            <div className="flex items-center gap-1.5">
+              <div
+                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all shrink-0 ${
+                  s < current
+                    ? "bg-[#032D60] text-white"
+                    : s === current
+                      ? "bg-[#032D60] text-white ring-3 ring-[#032D60]/20"
+                      : "bg-[#E4E7EC] text-[#667085]"
+                }`}
               >
-                check
+                {s < current ? (
+                  <span
+                    className="material-symbols-outlined text-[16px]"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    check
+                  </span>
+                ) : (
+                  s
+                )}
+              </div>
+              <span
+                className={`text-xs md:text-[13px] font-medium hidden sm:inline whitespace-nowrap ${
+                  s <= current ? "text-[#101828]" : "text-[#667085]"
+                }`}
+              >
+                {label}
               </span>
-            ) : (
-              s
+            </div>
+            {i < STEP_LABELS.length - 1 && (
+              <div
+                className={`hidden h-0.5 w-8 md:block lg:w-12 xl:w-16 mx-1.5 ${
+                  s < current ? "bg-[#032D60]" : "bg-[#E4E7EC]"
+                }`}
+              />
             )}
           </div>
-          <span
-            className={`text-sm font-medium hidden sm:inline ${
-              s <= current ? "text-[#101828]" : "text-[#667085]"
-            }`}
-          >
-            {STEP_LABELS[i]}
-          </span>
-        </div>
-        {i < 3 && (
-          <div
-            className={`w-12 sm:w-20 h-0.5 mx-2 ${
-              s < current ? "bg-[#032D60]" : "bg-[#E4E7EC]"
-            }`}
-          />
-        )}
-      </div>
-    ))}
+        );
+      })}
+    </div>
   </div>
 );
+
+const EkycStatusPanel = ({
+  status,
+  verifying,
+}: {
+  status: EkycStatusData;
+  verifying?: boolean;
+}) => {
+  const steps: Array<[string, EkycStepStatus]> = [
+    ["CCCD mặt trước", status.front_status],
+    ["CCCD mặt sau", status.back_status],
+    ["Đối chiếu chân dung", status.face_status],
+  ];
+
+  return (
+    <div className="border border-[#E4E7EC] rounded-xl p-4 bg-[#F9FAFB]">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <p className="text-sm font-bold text-[#101828]">Xác thực CCCD/eKYC</p>
+          <p className="text-xs text-[#667085] mt-1">
+            Tải lên CCCD và ảnh chân dung, hệ thống sẽ xác thực bằng API eKYC
+            riêng.
+          </p>
+        </div>
+        <span
+          className={`inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-bold ${EKYC_STATUS_STYLES[status.overall_status]}`}
+        >
+          {verifying
+            ? "Đang kiểm tra..."
+            : EKYC_STATUS_LABELS[status.overall_status]}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4">
+        {steps.map(([label, stepStatus]) => (
+          <div
+            key={label}
+            className="flex items-center justify-between gap-2 rounded-lg bg-white border border-[#E4E7EC] px-3 py-2"
+          >
+            <span className="text-xs font-semibold text-[#344054]">
+              {label}
+            </span>
+            <span
+              className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${EKYC_STATUS_STYLES[stepStatus]}`}
+            >
+              {EKYC_STEP_LABELS[stepStatus]}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {status.similarity !== null && (
+        <p className="mt-3 text-xs text-[#667085]">
+          Độ tương đồng khuôn mặt:{" "}
+          <span className="font-bold text-[#101828]">{status.similarity}%</span>
+        </p>
+      )}
+      {status.failure_reason && (
+        <p className="mt-2 text-xs text-[#B42318]">{status.failure_reason}</p>
+      )}
+      {status.verified_at && (
+        <p className="mt-2 text-xs text-[#04844B]">
+          Xác thực lúc {new Date(status.verified_at).toLocaleString("vi-VN")}
+        </p>
+      )}
+    </div>
+  );
+};
 
 const AdmissionsPage = () => {
   const navigate = useNavigate();
@@ -191,7 +322,7 @@ const AdmissionsPage = () => {
     nation: "",
   });
 
-  // Step 2 — Wishes
+  // Step 3 — Wishes
   const [universities, setUniversities] = useState<University[]>([]);
   const [majors, setMajors] = useState<Major[]>([]);
   const [combinations, setCombinations] = useState<Combination[]>([]);
@@ -200,7 +331,7 @@ const AdmissionsPage = () => {
   const [selectedComb, setSelectedComb] = useState("");
   const [wishes, setWishes] = useState<Wish[]>([]);
 
-  // Step 3 — Scores & documents
+  // Step 4 — Scores & documents
   const [scores, setScores] = useState<ScoreEntry[]>([
     { subject_code: "TOAN", subject_name: "Toán", score: "" },
     { subject_code: "VAN", subject_name: "Ngữ văn", score: "" },
@@ -208,13 +339,16 @@ const AdmissionsPage = () => {
   const [selectedOptional, setSelectedOptional] = useState<string[]>([]);
   const [foreignLanguage, setForeignLanguage] = useState("");
   const [documents, setDocuments] = useState<DocumentData[]>([]);
+  const [ekycStatus, setEkycStatus] =
+    useState<EkycStatusData>(defaultEkycStatus);
+  const [verifyingEkyc, setVerifyingEkyc] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
-  // Step 3 — Academic info
+  // Step 4 — Academic info
   const [graduationYear, setGraduationYear] = useState("");
   const [grade12School, setGrade12School] = useState("");
   const [viewDoc, setViewDoc] = useState<DocumentData | null>(null);
@@ -283,6 +417,13 @@ const AdmissionsPage = () => {
         // Applications không critical — bỏ qua, không báo lỗi
       }
 
+      try {
+        const ekycRes = await ekycApi.getStatus();
+        setEkycStatus(ekycRes.data.data || defaultEkycStatus);
+      } catch {
+        // eKYC status is refreshed again before submit; keep default state here.
+      }
+
       if (hasError) {
         setMessage({ type: "error", text: "Không thể tải thông tin." });
       }
@@ -313,7 +454,7 @@ const AdmissionsPage = () => {
     }
   };
 
-  // Step 2 — cascade selects
+  // Step 3 — cascade selects
   const handleUniChange = async (code: string) => {
     setSelectedUni(code);
     setSelectedMajor("");
@@ -385,7 +526,7 @@ const AdmissionsPage = () => {
     setDeleteWishIndex(null);
   };
 
-  // Step 3 — scores
+  // Step 4 — scores
   useEffect(() => {
     const fetchAcademic = async () => {
       try {
@@ -506,13 +647,94 @@ const AdmissionsPage = () => {
     );
   };
 
-  // Step 3 — documents
+  // Step 4 — documents
   const fetchDocuments = async () => {
     try {
       const res = await admissionsApi.getDocuments();
       setDocuments(res.data.data || []);
     } catch {
       // ignore
+    }
+  };
+
+  const refreshEkycStatus = async () => {
+    const res = await ekycApi.getStatus();
+    const status = res.data.data || defaultEkycStatus;
+    setEkycStatus(status);
+    return status;
+  };
+
+  const verifyEkycFromDocuments = async (
+    changedDoc: DocumentData,
+    knownDocs: DocumentData[] = documents,
+  ) => {
+    if (
+      !["CITIZEN_ID_Front", "CITIZEN_ID_Back", "PORTRAIT"].includes(
+        changedDoc.document_type,
+      )
+    ) {
+      return;
+    }
+
+    setVerifyingEkyc(true);
+    try {
+      let status = await refreshEkycStatus();
+      const allDocs = [
+        changedDoc,
+        ...knownDocs.filter((doc) => doc.id !== changedDoc.id),
+      ];
+
+      if (changedDoc.document_type === "CITIZEN_ID_Front") {
+        status = (await ekycApi.verifyFront(changedDoc.id)).data.data;
+        setEkycStatus(status);
+      }
+
+      if (changedDoc.document_type === "CITIZEN_ID_Back") {
+        status = (await ekycApi.verifyBack(changedDoc.id)).data.data;
+        setEkycStatus(status);
+      }
+
+      const frontDoc = allDocs.find(
+        (doc) => doc.document_type === "CITIZEN_ID_Front",
+      );
+      const portraitDoc = allDocs.find(
+        (doc) => doc.document_type === "PORTRAIT",
+      );
+      const canVerifyFace =
+        portraitDoc &&
+        frontDoc &&
+        (status.front_status === "VERIFIED" ||
+          status.front_document_id === frontDoc.id);
+
+      if (canVerifyFace && changedDoc.document_type !== "CITIZEN_ID_Back") {
+        status = (await ekycApi.verifyPortrait(frontDoc.id, portraitDoc.id))
+          .data.data;
+        setEkycStatus(status);
+      }
+
+      setMessage({
+        type: status.overall_status === "VERIFIED" ? "success" : "success",
+        text:
+          status.overall_status === "VERIFIED"
+            ? "eKYC đã xác thực thành công."
+            : "Đã cập nhật trạng thái eKYC. Vui lòng hoàn tất đủ CCCD và ảnh chân dung.",
+      });
+    } catch (err: unknown) {
+      const apiErr = err as {
+        response?: { data?: { code?: string; message?: string } };
+      };
+      await refreshEkycStatus().catch(() => undefined);
+      const providerMissing =
+        apiErr?.response?.data?.code === "EKYC_PROVIDER_CONFIG_MISSING";
+      setMessage({
+        type: "error",
+        text: providerMissing
+          ? "Tài liệu đã tải lên, nhưng backend chưa cấu hình FPT_API_KEY để xác thực eKYC."
+          : apiErr?.response?.data?.message ||
+            "Tài liệu đã tải lên, nhưng chưa thể xác thực eKYC.",
+      });
+    } finally {
+      setVerifyingEkyc(false);
     }
   };
 
@@ -537,21 +759,26 @@ const AdmissionsPage = () => {
     setUploading(true);
     setUploadProgress(0);
     try {
-      await admissionsApi.uploadDocument(
+      const uploadRes = await admissionsApi.uploadDocument(
         file,
         docType,
         displayName,
         setUploadProgress,
       );
+      const createdDoc = uploadRes.data.data;
       await fetchDocuments();
+      await verifyEkycFromDocuments(createdDoc);
       if (docType === "CERTIFICATE" && displayName) {
         setCertEntries((prev) => {
           const next = prev.filter((t) => t !== displayName);
           return next.length === 0 ? [""] : next;
         });
       }
-    } catch {
-      setMessage({ type: "error", text: "Tải file thất bại." });
+    } catch (err: unknown) {
+      setMessage({
+        type: "error",
+        text: getApiErrorMessage(err, "Tải file thất bại."),
+      });
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -562,9 +789,22 @@ const AdmissionsPage = () => {
     try {
       await admissionsApi.deleteDocument(id);
       setDocuments((prev) => prev.filter((d) => d.id !== id));
+      await refreshEkycStatus().catch(() => undefined);
       setDeleteDocTarget(null);
-    } catch {
-      setMessage({ type: "error", text: "Xóa file thất bại." });
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } }).response
+        ?.status;
+      if (status === 404) {
+        setDocuments((prev) => prev.filter((d) => d.id !== id));
+        await fetchDocuments();
+        await refreshEkycStatus().catch(() => undefined);
+        setMessage({
+          type: "error",
+          text: "Tài liệu này không còn tồn tại hoặc đã được xóa trước đó.",
+        });
+      } else {
+        setMessage({ type: "error", text: "Xóa file thất bại." });
+      }
       setDeleteDocTarget(null);
     }
   };
@@ -575,13 +815,18 @@ const AdmissionsPage = () => {
     setUploadProgress(0);
     try {
       await admissionsApi.deleteDocument(docId);
-      await admissionsApi.uploadDocument(
+      const uploadRes = await admissionsApi.uploadDocument(
         newDocFile,
         docType,
         undefined,
         setUploadProgress,
       );
+      const createdDoc = uploadRes.data.data;
       await fetchDocuments();
+      await verifyEkycFromDocuments(
+        createdDoc,
+        documents.filter((doc) => doc.id !== docId),
+      );
       setEditingDocType(null);
       setNewDocFile(null);
     } catch {
@@ -591,7 +836,7 @@ const AdmissionsPage = () => {
     }
   };
 
-  // Step 4 — submit
+  // Step 5 — submit
   const handleSubmit = async () => {
     if (hasSubmitted) {
       setMessage({ type: "error", text: "Bạn đã nộp hồ sơ, hãy đợi đợt sau." });
@@ -678,6 +923,25 @@ const AdmissionsPage = () => {
         });
         return;
       }
+    }
+
+    let latestEkyc: EkycStatusData;
+    try {
+      latestEkyc = await refreshEkycStatus();
+    } catch {
+      setMessage({
+        type: "error",
+        text: "Không thể kiểm tra trạng thái eKYC. Vui lòng thử lại.",
+      });
+      return;
+    }
+
+    if (latestEkyc.overall_status !== "VERIFIED") {
+      setMessage({
+        type: "error",
+        text: "Vui lòng hoàn tất xác thực CCCD/eKYC trước khi gửi hồ sơ.",
+      });
+      return;
     }
 
     setSubmitting(true);
@@ -944,8 +1208,222 @@ const AdmissionsPage = () => {
         </section>
       )}
 
-      {/* Step 2 — Wishes */}
+      {/* Step 2 — eKYC */}
       {step === 2 && (
+        <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
+            <h3 className="text-lg font-bold text-[#101828]">
+              Xác thực CCCD/eKYC
+            </h3>
+            <p className="text-xs text-[#667085] mt-1">
+              Tải lên CCCD mặt trước, mặt sau và ảnh chân dung để hệ thống xác
+              thực danh tính.
+            </p>
+          </div>
+          <div className="p-6 space-y-4">
+            <EkycStatusPanel status={ekycStatus} verifying={verifyingEkyc} />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {EKYC_DOCUMENT_TYPES.map((dt) => {
+                const existingDoc = documents.find(
+                  (d) => d.document_type === dt.value,
+                );
+                const isEditing = editingDocType === dt.value;
+
+                if (existingDoc && !isEditing) {
+                  const isImage =
+                    existingDoc.file_type.startsWith("image/") ||
+                    /\.(jpg|jpeg|png|gif|webp)$/i.test(existingDoc.file_url);
+                  const ekycStepStatus = getDocumentEkycStepStatus(
+                    existingDoc.document_type,
+                    ekycStatus,
+                  );
+                  return (
+                    <div
+                      key={dt.value}
+                      className="border border-[#E4E7EC] rounded-xl overflow-hidden"
+                    >
+                      <div className="bg-[#F9FAFB] p-3">
+                        <div className="flex items-center gap-3">
+                          {isImage ? (
+                            <img
+                              src={existingDoc.file_url}
+                              alt={existingDoc.file_name}
+                              className="w-12 h-12 object-cover rounded border border-[#E4E7EC]"
+                            />
+                          ) : (
+                            <span className="material-symbols-outlined text-[28px] text-[#032D60]">
+                              picture_as_pdf
+                            </span>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-medium text-[#101828] truncate">
+                              {existingDoc.file_name}
+                            </p>
+                            <p className="text-[10px] text-[#667085]">
+                              {dt.label}
+                            </p>
+                          </div>
+                          {ekycStepStatus && (
+                            <span
+                              className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${EKYC_STATUS_STYLES[ekycStepStatus]}`}
+                            >
+                              {EKYC_STEP_LABELS[ekycStepStatus]}
+                            </span>
+                          )}
+                          <button
+                            onClick={() => setViewDoc(existingDoc)}
+                            className="text-[#032D60] hover:text-[#021a40] flex-shrink-0"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">
+                              open_in_new
+                            </span>
+                          </button>
+                        </div>
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            onClick={() => {
+                              setEditingDocType(dt.value);
+                              setNewDocFile(null);
+                            }}
+                            className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[#032D60] border border-[#032D60] rounded hover:bg-[#EFF6FF] transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">
+                              edit
+                            </span>
+                            Sửa
+                          </button>
+                          <button
+                            onClick={() => setDeleteDocTarget(existingDoc)}
+                            className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[#EF4444] border border-[#EF4444] rounded hover:bg-[#FEF2F2] transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">
+                              delete
+                            </span>
+                            Xóa
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                if (isEditing) {
+                  return (
+                    <div
+                      key={dt.value}
+                      className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl p-4"
+                    >
+                      <p className="text-xs text-[#1E40AF] mb-2 font-semibold">
+                        {dt.label}
+                      </p>
+                      <p className="text-xs text-[#1E40AF] mb-2">
+                        Chọn file mới:
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <label className="flex-1 flex items-center justify-center gap-2 h-9 px-3 border border-dashed border-[#93C5FD] rounded-lg cursor-pointer hover:border-[#3B82F6] transition-colors bg-white">
+                          <span className="material-symbols-outlined text-[16px] text-[#3B82F6]">
+                            cloud_upload
+                          </span>
+                          <span className="text-xs text-[#3B82F6]">
+                            {newDocFile ? newDocFile.name : "Chọn file"}
+                          </span>
+                          <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) setNewDocFile(file);
+                            }}
+                          />
+                        </label>
+                        <div className="flex items-center gap-2">
+                          {uploading && (
+                            <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-[#032D60] rounded-full transition-all duration-200"
+                                style={{ width: `${uploadProgress}%` }}
+                              />
+                            </div>
+                          )}
+                          <button
+                            onClick={() =>
+                              handleReplaceDoc(existingDoc!.id, dt.value)
+                            }
+                            disabled={!newDocFile || uploading}
+                            className="h-9 px-3 bg-[#2563EB] text-white text-xs font-semibold rounded-lg hover:bg-[#1D4ED8] disabled:opacity-50 transition-colors"
+                          >
+                            {uploading ? `${uploadProgress}%` : "Lưu"}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingDocType(null);
+                              setNewDocFile(null);
+                            }}
+                            className="h-9 px-3 text-xs font-semibold text-[#667085] border border-[#D0D5DD] rounded-lg hover:bg-[#F9FAFB] transition-colors"
+                          >
+                            Hủy
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div
+                    key={dt.value}
+                    className="border border-dashed border-[#D0D5DD] rounded-xl p-4 text-center hover:border-[#032D60] transition-colors"
+                  >
+                    <p className="text-sm font-medium text-[#344054] mb-2">
+                      {dt.label}
+                      <span className="text-[#EF4444] ml-0.5">*</span>
+                    </p>
+                    <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#032D60] hover:text-[#021a40]">
+                      <span className="material-symbols-outlined text-[20px]">
+                        cloud_upload
+                      </span>
+                      Chọn file
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        className="hidden"
+                        onChange={(e) => handleUpload(e, dt.value)}
+                        disabled={uploading}
+                      />
+                    </label>
+                    <p className="text-[10px] text-[#667085] mt-1">
+                      PDF, JPG, PNG tối đa 5MB
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex justify-between pt-4 border-t border-[#E4E7EC]">
+              <button
+                onClick={() => setStep(1)}
+                className="px-6 py-2.5 bg-white text-[#475467] border border-[#D0D5DD] rounded-full text-sm font-semibold hover:bg-[#F4F6F9] transition-all active:scale-95"
+              >
+                Quay lại
+              </button>
+              <button
+                onClick={() => setStep(3)}
+                disabled={
+                  uploading ||
+                  verifyingEkyc ||
+                  ekycStatus.overall_status !== "VERIFIED"
+                }
+                className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Tiếp tục
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Step 3 — Wishes */}
+      {step === 3 && (
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 lg:w-5/12">
             <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
@@ -1091,24 +1569,24 @@ const AdmissionsPage = () => {
             </div>
             <div className="flex justify-between mt-6">
               <button
-                onClick={() => setStep(1)}
+                onClick={() => setStep(2)}
                 className="px-6 py-2.5 bg-white text-[#475467] border border-[#D0D5DD] rounded-full text-sm font-semibold hover:bg-[#F4F6F9] transition-all active:scale-95"
               >
                 Quay lại
               </button>
               <button
-                onClick={() => setStep(3)}
+                onClick={() => setStep(4)}
                 className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95"
               >
-                Tiếp tục bước 3
+                Tiếp tục bước 4
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Step 3 — Scores & Documents */}
-      {step === 3 && (
+      {/* Step 4 — Scores & Documents */}
+      {step === 4 && (
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 lg:w-7/12">
             <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
@@ -1357,7 +1835,7 @@ const AdmissionsPage = () => {
                 </h3>
               </div>
               <div className="p-6 space-y-3">
-                {DOCUMENT_TYPES.map((dt) => {
+                {APPLICATION_DOCUMENT_TYPES.map((dt) => {
                   const existingDoc = documents.find(
                     (d) => d.document_type === dt.value,
                   );
@@ -1512,6 +1990,10 @@ const AdmissionsPage = () => {
                     const isImage =
                       existingDoc.file_type.startsWith("image/") ||
                       /\.(jpg|jpeg|png|gif|webp)$/i.test(existingDoc.file_url);
+                    const ekycStepStatus = getDocumentEkycStepStatus(
+                      existingDoc.document_type,
+                      ekycStatus,
+                    );
                     return (
                       <div
                         key={dt.value}
@@ -1541,6 +2023,13 @@ const AdmissionsPage = () => {
                                 {dt.label}
                               </p>
                             </div>
+                            {ekycStepStatus && (
+                              <span
+                                className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${EKYC_STATUS_STYLES[ekycStepStatus]}`}
+                              >
+                                {EKYC_STEP_LABELS[ekycStepStatus]}
+                              </span>
+                            )}
                             <button
                               onClick={() => setViewDoc(existingDoc)}
                               className="text-[#032D60] hover:text-[#021a40] flex-shrink-0"
@@ -1680,16 +2169,16 @@ const AdmissionsPage = () => {
           </div>
         </div>
       )}
-      {step === 3 && (
+      {step === 4 && (
         <div className="flex justify-between mt-6">
           <button
-            onClick={() => setStep(2)}
+            onClick={() => setStep(3)}
             className="px-6 py-2.5 bg-white text-[#475467] border border-[#D0D5DD] rounded-full text-sm font-semibold hover:bg-[#F4F6F9] transition-all active:scale-95"
           >
             Quay lại
           </button>
           <button
-            onClick={() => setStep(4)}
+            onClick={() => setStep(5)}
             className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95"
           >
             Tiếp tục
@@ -1697,8 +2186,8 @@ const AdmissionsPage = () => {
         </div>
       )}
 
-      {/* Step 4 — Confirmation */}
-      {step === 4 && (
+      {/* Step 5 — Confirmation */}
+      {step === 5 && (
         <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
           <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
             <h3 className="text-lg font-bold text-[#101828]">
@@ -1769,6 +2258,8 @@ const AdmissionsPage = () => {
                 </div>
               )}
             </div>
+
+            <EkycStatusPanel status={ekycStatus} verifying={verifyingEkyc} />
 
             {scores.length > 0 && (
               <div>
@@ -1861,14 +2352,19 @@ const AdmissionsPage = () => {
 
             <div className="flex justify-between pt-4 border-t border-[#E4E7EC]">
               <button
-                onClick={() => setStep(3)}
+                onClick={() => setStep(4)}
                 className="px-6 py-2.5 bg-white text-[#475467] border border-[#D0D5DD] rounded-full text-sm font-semibold hover:bg-[#F4F6F9] transition-all active:scale-95"
               >
                 Quay lại
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={submitting || !agreed || wishes.length === 0}
+                disabled={
+                  submitting ||
+                  !agreed ||
+                  wishes.length === 0 ||
+                  ekycStatus.overall_status !== "VERIFIED"
+                }
                 className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? "Đang nộp..." : "Gửi hồ sơ"}
