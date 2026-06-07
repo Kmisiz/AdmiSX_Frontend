@@ -184,8 +184,7 @@ const PrivateDashboard = () => {
   const getSectionStatus = (fields: string[]): SectionStatus => {
     if (!completeness) return "pending";
     if (fields.some((f) => missing.includes(f))) return "pending";
-    if (fields.length > 0) return "completed";
-    return "not_started";
+    return "completed";
   };
 
   const personalComplete: SectionStatus = profileNotCreated
