@@ -10,7 +10,9 @@ const RootLayout = ({ children }: RootLayoutProps) => {
   return (
     <>
       <Header />
-      <main className="flex-grow w-full bg-[#F5F7FB]">{children}</main>
+      <main className="flex-grow w-full bg-[var(--color-canvas-soft)]">
+        {children}
+      </main>
       <Footer />
     </>
   );

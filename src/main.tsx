@@ -13,7 +13,6 @@ import { Route as contactRoute } from "./routes/contact";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useAuthStore, initAuthFromUrl } from "./store/auth";
 import { authApi } from "./apis/auth";
-import "antd/dist/reset.css";
 import "./index.css";
 
 const loginToken = initAuthFromUrl();

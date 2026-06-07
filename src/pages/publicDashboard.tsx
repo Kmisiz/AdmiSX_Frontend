@@ -77,16 +77,15 @@ const PublicDashboard = () => {
         className="relative overflow-hidden bg-cover bg-center py-24"
         style={{
           backgroundImage:
-            "linear-gradient(90deg, rgba(2, 26, 64, 0.92) 0%, rgba(3, 45, 96, 0.78) 45%, rgba(3, 45, 96, 0.5) 100%), url('/hero-campus.jpg')",
+            "linear-gradient(90deg, rgba(52, 58, 64, 0.92) 0%, rgba(52, 58, 64, 0.75) 50%, rgba(52, 58, 64, 0.5) 100%), url('/hero-campus.jpg')",
         }}
       >
-        <div className="absolute inset-0 bg-[#021A40]/20" />
-        <div className="max-w-7xl mx-auto relative z-10 flex min-h-[520px] items-center px-6">
+        <div className="max-w-[1280px] mx-auto relative z-10 flex min-h-[520px] items-center px-4 sm:px-6 lg:px-9">
           <div className="max-w-3xl text-left">
             <h1 className="hero-title-animate text-white font-bold leading-tight mb-4 text-[40px] md:text-[48px]">
               Bắt đầu hành trình đại học của bạn tại AdmiSX
             </h1>
-            <p className="hero-subtitle-animate text-[#84cfff] mb-6 max-w-xl text-[15px] leading-relaxed">
+            <p className="hero-subtitle-animate text-[var(--color-slate)] mb-6 max-w-xl text-[15px] leading-relaxed">
               Nền tảng tuyển sinh hiện đại giúp bạn kết nối với những cơ hội học
               tập hàng đầu. Đơn giản, minh bạch và định hướng tương lai.
             </p>
@@ -94,13 +93,13 @@ const PublicDashboard = () => {
               <div className="hero-actions-animate flex gap-4">
                 <a
                   href={`${ADMIS_URL}/register`}
-                  className="bg-white text-[#032D60] font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 text-[16px]"
+                  className="btn-primary-on-dark text-[16px]"
                 >
                   Đăng ký ngay
                 </a>
                 <a
                   href="#admissions-process"
-                  className="inline-flex items-center justify-center rounded-full border-2 border-white/80 bg-white/15 px-8 py-4 text-[16px] font-bold text-white shadow-lg backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-white hover:bg-white hover:text-[#032D60] hover:shadow-xl active:scale-95"
+                  className="btn-secondary border-white/80 text-white hover:bg-white/10 hover:text-white hover:border-white"
                 >
                   Tìm hiểu thêm
                 </a>
@@ -110,7 +109,7 @@ const PublicDashboard = () => {
               <div className="hero-actions-animate flex gap-4">
                 <a
                   href="/dashboard"
-                  className="bg-white text-[#032D60] font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95 text-[16px]"
+                  className="btn-primary-on-dark text-[16px]"
                 >
                   Vào Dashboard
                 </a>
@@ -123,13 +122,13 @@ const PublicDashboard = () => {
       {/* Admissions Process */}
       <section
         id="admissions-process"
-        className="scroll-mt-24 py-12 px-6 max-w-7xl mx-auto"
+        className="scroll-mt-24 py-12 px-4 sm:px-6 lg:px-9 max-w-[1280px] mx-auto"
       >
         <div className="text-center mb-12">
-          <h2 className="text-[#101828] font-bold mb-2 text-[32px] leading-tight">
+          <h2 className="text-[var(--color-ink-deep)] font-bold mb-2 text-[32px] leading-tight">
             Quy trình tuyển sinh
           </h2>
-          <div className="h-1 w-20 bg-[#032D60] mx-auto rounded-full" />
+          <div className="h-1 w-20 bg-[var(--color-primary)] mx-auto rounded-full" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
@@ -157,20 +156,20 @@ const PublicDashboard = () => {
           ].map((step) => (
             <div
               key={step.title}
-              className="bg-white p-6 rounded-3xl border border-[#E4E7EC] bento-card relative z-10"
+              className="bg-white border border-[var(--color-hairline)] rounded p-6 flat-card relative z-10"
             >
-              <div className="bg-[#032D60]/10 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
+              <div className="bg-[var(--color-primary-soft)] w-12 h-12 rounded flex items-center justify-center mb-4">
                 <span
-                  className="material-symbols-outlined text-[#032D60]"
+                  className="material-symbols-outlined text-[var(--color-primary)]"
                   style={{ fontSize: "28px" }}
                 >
                   {step.icon}
                 </span>
               </div>
-              <h3 className="text-[#101828] font-bold mb-2 text-[20px] leading-tight">
+              <h3 className="text-[var(--color-ink-deep)] font-bold mb-2 text-[20px] leading-tight">
                 {step.title}
               </h3>
-              <p className="text-[#667085] text-[14px] leading-relaxed">
+              <p className="text-[var(--color-charcoal)] text-[14px] leading-relaxed">
                 {step.desc}
               </p>
             </div>
@@ -181,41 +180,41 @@ const PublicDashboard = () => {
       {/* Featured Programs + Benefits Grid */}
       <section
         id="featured-programs"
-        className="scroll-mt-24 py-12 bg-[#F4F6F9]"
+        className="scroll-mt-24 py-12 bg-[var(--color-canvas-soft)]"
       >
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 px-6">
+        <div className="max-w-[1280px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 px-4 sm:px-6 lg:px-9">
           {/* Featured Programs (2/3) */}
           <div className="lg:col-span-2">
-            <h2 className="text-[#101828] font-bold mb-6 text-[32px] leading-tight">
+            <h2 className="text-[var(--color-ink-deep)] font-bold mb-6 text-[32px] leading-tight">
               Chương trình nổi bật
             </h2>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {featuredPrograms.map((program) => (
                 <Card
                   key={`${program.school}-${program.title}`}
-                  className="h-full border-[#E4E7EC] shadow-sm transition-all hover:-translate-y-1 hover:border-[#032D60]/30 hover:shadow-lg"
+                  className="h-full border-[var(--color-hairline)] shadow-sm transition-all hover:-translate-y-0.5 hover:border-[var(--color-primary)]/30 hover:shadow-[0_2px_8px_rgba(0,0,0,0.08)]"
                   styles={{ body: { height: "100%", padding: 24 } }}
                 >
                   <div className="flex h-full flex-col">
                     <div className="mb-4 flex items-start gap-4">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#032D60]/10 text-[22px] text-[#032D60]">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded bg-[var(--color-primary-soft)] text-[22px] text-[var(--color-primary)]">
                         {program.icon}
                       </div>
                     </div>
 
-                    <h3 className="text-[20px] font-bold leading-tight text-[#101828]">
+                    <h3 className="text-[20px] font-bold leading-tight text-[var(--color-ink-deep)]">
                       {program.title}
                     </h3>
-                    <p className="mt-2 text-sm font-semibold text-[#032D60]">
+                    <p className="mt-2 text-sm font-semibold text-[var(--color-primary)]">
                       {program.school}
                     </p>
-                    <p className="mt-3 flex-1 text-[14px] leading-relaxed text-[#667085]">
+                    <p className="mt-3 flex-1 text-[14px] leading-relaxed text-[var(--color-charcoal)]">
                       {program.description}
                     </p>
 
                     <div className="mt-4 flex flex-wrap gap-2">
                       {program.tags.map((tag) => (
-                        <Tag key={tag} className="m-0 rounded-full">
+                        <Tag key={tag} className="m-0 rounded">
                           {tag}
                         </Tag>
                       ))}
@@ -226,7 +225,7 @@ const PublicDashboard = () => {
                       href={program.href}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-5 inline-flex w-fit items-center rounded-full bg-[#2563EB] font-semibold"
+                      className="mt-5 inline-flex w-fit items-center rounded bg-[var(--color-primary)] font-semibold border-none shadow-[0_2px_4px_rgba(0,0,0,0.10)] hover:bg-[var(--color-primary-dark)]"
                       icon={<ArrowRightOutlined />}
                       iconPlacement="end"
                     >
@@ -240,7 +239,7 @@ const PublicDashboard = () => {
 
           {/* Why Choose AdmiSX (1/3) */}
           <div className="lg:col-span-1">
-            <h2 className="text-[#101828] font-bold mb-6 text-[32px] leading-tight">
+            <h2 className="text-[var(--color-ink-deep)] font-bold mb-6 text-[32px] leading-tight">
               Tại sao chọn AdmiSX?
             </h2>
             <div className="flex flex-col gap-4">
@@ -263,18 +262,18 @@ const PublicDashboard = () => {
               ].map((benefit) => (
                 <div
                   key={benefit.title}
-                  className="bg-white p-4 rounded-xl flex gap-4 items-start border-l-4 border-[#032D60]"
+                  className="bg-white border border-[var(--color-hairline)] rounded p-4 flex gap-4 items-start"
                 >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#032D60]/10 text-[#032D60]">
+                  <div className="w-10 h-10 rounded flex items-center justify-center shrink-0 bg-[var(--color-primary-soft)] text-[var(--color-primary)]">
                     <span className="material-symbols-outlined">
                       {benefit.icon}
                     </span>
                   </div>
                   <div>
-                    <p className="text-[#101828] font-semibold text-[16px] leading-relaxed">
+                    <p className="text-[var(--color-ink-deep)] font-semibold text-[16px] leading-relaxed">
                       {benefit.title}
                     </p>
-                    <p className="text-[#667085] text-[13px] leading-relaxed">
+                    <p className="text-[var(--color-charcoal)] text-[13px] leading-relaxed">
                       {benefit.desc}
                     </p>
                   </div>
@@ -283,7 +282,7 @@ const PublicDashboard = () => {
             </div>
 
             {/* Support Card */}
-            <div className="mt-8 bg-[#032D60] text-white p-8 rounded-3xl relative overflow-hidden">
+            <div className="mt-8 bg-[var(--color-primary)] text-white p-8 rounded relative overflow-hidden">
               <div className="relative z-10">
                 <h4 className="font-bold mb-3 text-[20px] leading-tight">
                   Cần trợ giúp?
@@ -293,7 +292,7 @@ const PublicDashboard = () => {
                 </p>
                 <Link
                   to="/contact"
-                  className="inline-flex bg-white text-[#032D60] px-6 py-3 rounded-full font-semibold hover:bg-[#f4f6f9] transition-colors text-[14px]"
+                  className="inline-flex bg-white text-[var(--color-primary)] px-6 py-3 rounded font-semibold hover:bg-[var(--color-canvas-soft)] transition-colors text-[14px]"
                 >
                   Liên hệ ngay
                 </Link>

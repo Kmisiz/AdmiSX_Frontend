@@ -1,30 +1,118 @@
-@import "tailwindcss";
+@layer theme, base, antd, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "antd/dist/reset.css" layer(antd);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+:root {
+  --color-canvas: #ffffff;
+  --color-canvas-soft: #f8f9fa;
+  --color-hairline: #dee2e6;
+  --color-hairline-soft: #e9ecef;
+
+  --color-ink-deep: #343a40;
+  --color-ink: #495057;
+  --color-charcoal: #6c757d;
+  --color-slate: #adb5bd;
+
+  --color-primary: #007bff;
+  --color-primary-dark: #0062cc;
+  --color-primary-deep: #004c9e;
+  --color-primary-soft: rgba(0, 123, 255, 0.1);
+  --color-primary-ring: rgba(0, 123, 255, 0.25);
+
+  --color-success: #28a745;
+  --color-success-soft: rgba(40, 167, 69, 0.1);
+  --color-warning: #ffc107;
+  --color-warning-soft: rgba(255, 193, 7, 0.12);
+  --color-danger: #dc3545;
+  --color-danger-deep: #b02a37;
+  --color-danger-soft: rgba(220, 53, 69, 0.1);
+  --color-info: #17a2b8;
+  --color-info-soft: rgba(23, 162, 184, 0.1);
+
+  --color-on-primary: #ffffff;
+  --color-on-ink-deep: #ffffff;
+  --color-on-success: #ffffff;
+  --color-on-danger: #ffffff;
+  --color-on-warning: #212529;
+  --color-on-info: #ffffff;
+  --color-disabled-text: #ced4da;
+
+  --font-display: "Lato", "Inter", sans-serif;
+  --font-heading: "Lato", "Inter", sans-serif;
+  --font-body: "Lato", "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", "Lato", monospace;
+
+  --z-base: 0;
+  --z-sticky: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-toast: 500;
+
+  --ease-flat: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 200ms;
+  --duration-base: 480ms;
+}
 
 @theme {
-  --color-primary: #032d60;
-  --color-primary-deep: #021a40;
-  --color-primary-soft: rgba(3, 45, 96, 0.1);
+  /* ── Surface ── */
   --color-canvas: #ffffff;
-  --color-surface-soft: #f4f6f9;
-  --color-hairline: #d0d5dd;
-  --color-hairline-soft: #e4e7ec;
-  --color-ink-deep: #101828;
-  --color-ink: #344054;
-  --color-charcoal: #475467;
-  --color-slate: #667085;
-  --color-steel: #98a2b3;
-  --color-stone: #d0d5dd;
-  --color-success: #04844b;
-  --color-attention: #f97316;
-  --color-warning: #f59e0b;
-  --color-critical: #ef4444;
-  --color-critical-strong: #dc2626;
-  --color-fb-blue: #0066ff;
+  --color-canvas-soft: #f8f9fa;
+  --color-hairline: #dee2e6;
+  --color-hairline-soft: #e9ecef;
 
-  --font-hero-display: "Montserrat", "Inter", sans-serif;
-  --font-display-lg: "Montserrat", "Inter", sans-serif;
-  --font-heading: "Montserrat", "Inter", sans-serif;
-  --font-body: "Montserrat", "Inter", sans-serif;
+  /* ── Text (Dark Grey scale) ── */
+  --color-ink-deep: #343a40;
+  --color-ink: #495057;
+  --color-charcoal: #6c757d;
+  --color-slate: #adb5bd;
+
+  /* ── Primary: Corporate Blue #007BFF ── */
+  --color-primary: #007bff;
+  --color-primary-dark: #0062cc;
+  --color-primary-deep: #004c9e;
+  --color-primary-soft: rgba(0, 123, 255, 0.1);
+  --color-primary-ring: rgba(0, 123, 255, 0.25);
+
+  /* ── Semantic ── */
+  --color-success: #28a745;
+  --color-success-soft: rgba(40, 167, 69, 0.1);
+  --color-warning: #ffc107;
+  --color-warning-soft: rgba(255, 193, 7, 0.12);
+  --color-danger: #dc3545;
+  --color-danger-deep: #b02a37;
+  --color-danger-soft: rgba(220, 53, 69, 0.1);
+  --color-info: #17a2b8;
+  --color-info-soft: rgba(23, 162, 184, 0.1);
+
+  /* ── Button text tokens ── */
+  --color-on-primary: #ffffff;
+  --color-on-ink-deep: #ffffff;
+  --color-on-success: #ffffff;
+  --color-on-danger: #ffffff;
+  --color-on-warning: #212529;
+  --color-on-info: #ffffff;
+  --color-disabled-text: #ced4da;
+
+  /* ── Typography ── */
+  --font-display: "Lato", "Inter", sans-serif;
+  --font-heading: "Lato", "Inter", sans-serif;
+  --font-body: "Lato", "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", "Lato", monospace;
+
+  /* ── z-index contract ── */
+  --z-base: 0;
+  --z-sticky: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-toast: 500;
+
+  /* ── Motion ── */
+  --ease-flat: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 200ms;
+  --duration-base: 480ms;
 }
 
 @layer base {
@@ -33,17 +121,25 @@
   }
 
   body {
-    font-family: "Montserrat", "Inter", sans-serif;
-    background-color: var(--color-canvas);
+    font-family: "Lato", "Inter", sans-serif;
+    background-color: var(--color-canvas-soft);
     margin: 0;
-    color: var(--color-ink);
+    color: var(--color-ink-deep);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
   #root {
-    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
+  }
+
+  code,
+  pre,
+  kbd,
+  samp {
+    font-family: "JetBrains Mono", "Lato", monospace;
   }
 }
 
@@ -56,24 +152,18 @@
   vertical-align: middle;
 }
 
-.hero-gradient {
-  background: linear-gradient(135deg, #021a40 0%, #003b5c 100%);
-}
-
+/* ── Hero entrance animation ── */
 .hero-title-animate,
 .hero-subtitle-animate,
 .hero-actions-animate {
-  animation: heroTextEnter 0.72s ease-out both;
+  animation: heroTextEnter var(--duration-base) var(--ease-flat) both;
 }
-
 .hero-title-animate {
   animation-delay: 0.08s;
 }
-
 .hero-subtitle-animate {
   animation-delay: 0.24s;
 }
-
 .hero-actions-animate {
   animation-delay: 0.4s;
 }
@@ -81,13 +171,11 @@
 @keyframes heroTextEnter {
   from {
     opacity: 0;
-    transform: translateY(18px);
-    filter: blur(4px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
-    filter: blur(0);
   }
 }
 
@@ -99,12 +187,155 @@
   }
 }
 
-.bento-card {
+/* ── Card hover ── */
+.flat-card {
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    transform var(--duration-fast) var(--ease-flat),
+    box-shadow var(--duration-fast) var(--ease-flat);
 }
-.bento-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+.flat-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   Button System — Flat Design Corporativo
+   4px sharp corners · 600 weight · 8% darken on hover · -1px on active
+   No outer glows · Solid colors · Sharp corners
+   ════════════════════════════════════════════════════════════════ */
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-family: "Lato", "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.43;
+  letter-spacing: -0.14px;
+  padding: 12px 24px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition:
+    background-color var(--duration-fast) var(--ease-flat),
+    transform 0.1s var(--ease-flat),
+    box-shadow var(--duration-fast) var(--ease-flat);
+}
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+.btn-primary:disabled {
+  background-color: var(--color-disabled-text);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-primary-on-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #ffffff;
+  color: var(--color-ink-deep);
+  font-family: "Lato", "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.43;
+  padding: 12px 24px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition:
+    background-color var(--duration-fast) var(--ease-flat),
+    transform 0.1s var(--ease-flat),
+    box-shadow var(--duration-fast) var(--ease-flat);
+}
+.btn-primary-on-dark:hover {
+  background-color: var(--color-canvas-soft);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.btn-primary-on-dark:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: transparent;
+  color: var(--color-primary);
+  font-family: "Lato", "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.43;
+  padding: 11px 23px;
+  border-radius: 4px;
+  border: 1.5px solid var(--color-primary);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-flat),
+    color var(--duration-fast) var(--ease-flat),
+    transform 0.1s var(--ease-flat);
+}
+.btn-secondary:hover {
+  background-color: var(--color-primary-soft);
+}
+.btn-secondary:active {
+  transform: translateY(-1px);
+}
+.btn-secondary:disabled {
+  color: var(--color-disabled-text);
+  border-color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: transparent;
+  color: var(--color-ink-deep);
+  font-family: "Lato", "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.43;
+  padding: 10px 22px;
+  border-radius: 4px;
+  border: 1.5px solid var(--color-hairline);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-flat),
+    border-color var(--duration-fast) var(--ease-flat),
+    transform 0.1s var(--ease-flat);
+}
+.btn-ghost:hover {
+  background-color: var(--color-canvas-soft);
+  border-color: var(--color-charcoal);
+}
+.btn-ghost:active {
+  transform: translateY(-1px);
+}
+.btn-ghost:disabled {
+  color: var(--color-disabled-text);
+  border-color: var(--color-disabled-text);
+  cursor: not-allowed;
 }

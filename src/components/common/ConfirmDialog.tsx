@@ -35,25 +35,25 @@ export default function ConfirmDialog({
       onClick={onCancel}
     >
       <div
-        className="bg-white rounded-2xl shadow-lg max-w-[340px] w-full p-6"
+        className="bg-white rounded shadow-lg max-w-[340px] w-full p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <p className="text-[15px] text-[#1E293B] leading-relaxed mb-5">
+        <p className="text-[15px] text-[var(--color-ink)] leading-relaxed mb-5">
           {message}
         </p>
         <div className="flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-[13px] font-medium text-[#475467] hover:text-[#101828] hover:bg-[#F4F6F9] rounded-full transition-colors"
+            className="px-4 py-2 text-[13px] font-medium text-[var(--color-charcoal)] hover:text-[var(--color-ink-deep)] hover:bg-[var(--color-canvas-soft)] rounded transition-colors"
           >
             {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
-            className={`px-4 py-2 text-[13px] font-medium rounded-full transition-colors ${
+            className={`px-4 py-2 text-[13px] font-medium rounded transition-colors ${
               danger
-                ? "bg-[#FEE2E2] text-[#DC2626] hover:bg-[#FECACA]"
-                : "bg-[#2563EB] text-white hover:bg-[#1D4ED8]"
+                ? "bg-[#FEE2E2] text-[var(--color-danger-deep)] hover:bg-[#FECACA]"
+                : "bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)]"
             }`}
           >
             {confirmLabel}

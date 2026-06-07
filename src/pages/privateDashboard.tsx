@@ -39,26 +39,26 @@ const SectionStatusBadge = ({
     completed: {
       icon: "check_circle",
       fill: true,
-      color: "text-[#04844B]",
+      color: "text-[var(--color-success)]",
       text: "Hoàn thành",
     },
     pending: {
       icon: "pending",
       fill: false,
-      color: "text-[#F97316]",
+      color: "text-[var(--color-warning)]",
       text: "Đang xử lý",
     },
     not_started: {
       icon: "circle",
       fill: false,
-      color: "text-[#667085]",
+      color: "text-[var(--color-charcoal)]",
       text: "Chưa bắt đầu",
     },
   };
   const cfg = config[status];
   return (
-    <div className="bg-[#F4F6F9] p-4 rounded-xl flex flex-col gap-1">
-      <span className="text-sm text-[#667085]">{label}</span>
+    <div className="bg-[var(--color-canvas-soft)] p-4 rounded flex flex-col gap-1">
+      <span className="text-sm text-[var(--color-charcoal)]">{label}</span>
       <div className={`flex items-center gap-2 ${cfg.color}`}>
         <span
           className="material-symbols-outlined text-lg"
@@ -182,6 +182,7 @@ const PrivateDashboard = () => {
     missing.includes("Thông tin học tập (chưa có bảng điểm)");
 
   const getSectionStatus = (fields: string[]): SectionStatus => {
+    if (!completeness) return "pending";
     if (fields.some((f) => missing.includes(f))) return "pending";
     if (fields.length > 0) return "completed";
     return "not_started";
@@ -215,14 +216,14 @@ const PrivateDashboard = () => {
       case "APPROVAL":
       case "RESULT":
       case "PASSED":
-        return { icon: "check_circle", color: "text-[#04844B]" };
+        return { icon: "check_circle", color: "text-[var(--color-success)]" };
       case "REJECTION":
       case "FAILED":
-        return { icon: "cancel", color: "text-[#EF4444]" };
+        return { icon: "cancel", color: "text-[var(--color-danger)]" };
       case "PASSWORD_RESET":
-        return { icon: "lock", color: "text-[#F97316]" };
+        return { icon: "lock", color: "text-[var(--color-warning)]" };
       default:
-        return { icon: "info", color: "text-[#032D60]" };
+        return { icon: "info", color: "text-[var(--color-primary)]" };
     }
   };
 
@@ -259,10 +260,12 @@ const PrivateDashboard = () => {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
-          <span className="material-symbols-outlined text-[#032D60] animate-spin text-[40px]">
+          <span className="material-symbols-outlined text-[var(--color-primary)] animate-spin text-[40px]">
             progress_activity
           </span>
-          <p className="text-[#667085] text-sm">Đang tải dữ liệu...</p>
+          <p className="text-[var(--color-charcoal)] text-sm">
+            Đang tải dữ liệu...
+          </p>
         </div>
       </div>
     );
@@ -281,10 +284,10 @@ const PrivateDashboard = () => {
     <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
       {/* Welcome Section */}
       <div className="mb-8">
-        <h1 className="text-[32px] sm:text-[40px] font-bold text-[#101828] leading-tight">
+        <h1 className="text-[32px] sm:text-[40px] font-bold text-[var(--color-ink-deep)] leading-tight">
           Xin chào, {user?.full_name || user?.email || "Thí sinh"}
         </h1>
-        <p className="text-[16px] text-[#667085] mt-2">
+        <p className="text-[16px] text-[var(--color-charcoal)] mt-2">
           Chào mừng bạn quay trở lại cổng tuyển sinh AdmiSX.
         </p>
       </div>
@@ -292,19 +295,19 @@ const PrivateDashboard = () => {
       {/* Dashboard Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
         {/* Progress Card */}
-        <section className="bg-white border border-[#E4E7EC] rounded-2xl p-6">
+        <section className="bg-white border border-[var(--color-hairline)] rounded p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-[#101828]">
+            <h2 className="text-xl font-bold text-[var(--color-ink-deep)]">
               Tiến độ hoàn thiện hồ sơ
             </h2>
-            <span className="text-2xl font-bold text-[#032D60]">
+            <span className="text-2xl font-bold text-[var(--color-primary)]">
               {progress}%
             </span>
           </div>
 
-          <div className="h-3 bg-[#E4E7EC] rounded-full overflow-hidden">
+          <div className="h-3 bg-[var(--color-hairline)] rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#032D60] rounded-full transition-all duration-500"
+              className="h-full bg-[var(--color-primary)] rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -325,7 +328,7 @@ const PrivateDashboard = () => {
           <div className="flex justify-end mt-6">
             <button
               onClick={() => navigate({ to: "/dashboard/admissions" })}
-              className="bg-[#2563EB] text-white h-[52px] px-7 rounded-full font-semibold text-[15px] hover:bg-[#1D4ED8] transition-all active:scale-95 flex items-center gap-2"
+              className="btn-primary"
             >
               Tiếp tục hoàn thiện
               <span className="material-symbols-outlined text-xl">
@@ -336,8 +339,8 @@ const PrivateDashboard = () => {
         </section>
 
         {/* Deadline Card */}
-        <section className="bg-white border border-[#E4E7EC] rounded-2xl p-6 flex flex-col">
-          <h2 className="text-xl font-bold text-[#101828] mb-6">
+        <section className="bg-white border border-[var(--color-hairline)] rounded p-6 flex flex-col">
+          <h2 className="text-xl font-bold text-[var(--color-ink-deep)] mb-6">
             Hạn chót quan trọng
           </h2>
 
@@ -345,12 +348,12 @@ const PrivateDashboard = () => {
             <div className="flex-1 flex flex-col gap-5">
               <div className="flex gap-4">
                 <div
-                  className={`flex-shrink-0 w-12 h-12 rounded-2xl flex flex-col items-center justify-center ${
+                  className={`flex-shrink-0 w-12 h-12 rounded flex flex-col items-center justify-center ${
                     isPastDeadline
-                      ? "bg-[#F4F6F9] text-[#667085]"
+                      ? "bg-[var(--color-canvas-soft)] text-[var(--color-charcoal)]"
                       : isUrgentDeadline
-                        ? "bg-[#FEE2E2] text-[#EF4444]"
-                        : "bg-[#032D60]/10 text-[#032D60]"
+                        ? "bg-[var(--color-danger-soft)] text-[var(--color-danger)]"
+                        : "bg-[var(--color-primary-soft)] text-[var(--color-primary)]"
                   }`}
                 >
                   <span className="font-bold text-lg leading-none">
@@ -361,10 +364,10 @@ const PrivateDashboard = () => {
                   </span>
                 </div>
                 <div className="flex flex-col justify-center">
-                  <span className="text-[15px] font-semibold text-[#101828]">
+                  <span className="text-[15px] font-semibold text-[var(--color-ink-deep)]">
                     Nộp hồ sơ đợt 1
                   </span>
-                  <span className="text-[13px] text-[#667085] mt-0.5">
+                  <span className="text-[13px] text-[var(--color-charcoal)] mt-0.5">
                     {deadline.status === "during" && timeRemaining
                       ? timeRemaining
                       : getDeadlineLabel(
@@ -376,7 +379,7 @@ const PrivateDashboard = () => {
               </div>
 
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-2xl flex flex-col items-center justify-center bg-[#F4F6F9] text-[#667085]">
+                <div className="flex-shrink-0 w-12 h-12 rounded flex flex-col items-center justify-center bg-[var(--color-canvas-soft)] text-[var(--color-charcoal)]">
                   <span className="font-bold text-lg leading-none">
                     {deadlineDate.day}
                   </span>
@@ -385,10 +388,10 @@ const PrivateDashboard = () => {
                   </span>
                 </div>
                 <div className="flex flex-col justify-center">
-                  <span className="text-[15px] font-semibold text-[#101828]">
+                  <span className="text-[15px] font-semibold text-[var(--color-ink-deep)]">
                     Bổ sung minh chứng
                   </span>
-                  <span className="text-[13px] text-[#667085] mt-0.5">
+                  <span className="text-[13px] text-[var(--color-charcoal)] mt-0.5">
                     {deadline.status === "during"
                       ? "Sau khi nộp hồ sơ"
                       : deadline.status === "before"
@@ -401,7 +404,7 @@ const PrivateDashboard = () => {
               <div className="mt-auto pt-4">
                 <a
                   href="#"
-                  className="text-[#032D60] text-[13px] font-medium hover:underline flex items-center gap-1"
+                  className="text-[var(--color-primary)] text-[13px] font-medium hover:underline flex items-center gap-1"
                 >
                   Xem tất cả lịch trình
                   <span className="material-symbols-outlined text-[16px]">
@@ -412,7 +415,7 @@ const PrivateDashboard = () => {
             </div>
           ) : (
             <div className="flex-1 flex items-center justify-center">
-              <p className="text-[#667085] text-sm">
+              <p className="text-[var(--color-charcoal)] text-sm">
                 Chưa có thông tin hạn chót
               </p>
             </div>
@@ -420,13 +423,13 @@ const PrivateDashboard = () => {
         </section>
 
         {/* Notifications Card */}
-        <section className="bg-white border border-[#E4E7EC] rounded-2xl p-6">
+        <section className="bg-white border border-[var(--color-hairline)] rounded p-6">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl font-bold text-[#101828]">
+            <h2 className="text-xl font-bold text-[var(--color-ink-deep)]">
               Thông báo từ văn phòng tuyển sinh
             </h2>
             {notifications.length > 0 && (
-              <span className="bg-[#032D60]/10 text-[#032D60] px-3 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">
+              <span className="bg-[var(--color-primary-soft)] text-[var(--color-primary)] px-3 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
                 {notifications.length > 1
                   ? `${notifications.length} mới`
                   : "Mới"}
@@ -447,7 +450,7 @@ const PrivateDashboard = () => {
                         params: { id: notif.id.toString() },
                       })
                     }
-                    className="w-full flex items-start gap-4 py-5 border-b border-[#E4E7EC] last:border-b-0 cursor-pointer hover:bg-[#F4F6F9] -mx-6 px-6 transition-colors group text-left"
+                    className="w-full flex items-start gap-4 py-5 border-b border-[var(--color-hairline)] last:border-b-0 cursor-pointer hover:bg-[var(--color-canvas-soft)] -mx-6 px-6 transition-colors group text-left"
                   >
                     <span
                       className={`material-symbols-outlined mt-0.5 ${meta.color}`}
@@ -455,13 +458,13 @@ const PrivateDashboard = () => {
                       {meta.icon}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-[15px] font-semibold text-[#101828] group-hover:text-[#032D60] transition-colors truncate">
+                      <h3 className="text-[15px] font-semibold text-[var(--color-ink-deep)] group-hover:text-[var(--color-primary)] transition-colors truncate">
                         {notif.subject}
                       </h3>
-                      <p className="text-[13px] text-[#667085] mt-1 line-clamp-2">
+                      <p className="text-[13px] text-[var(--color-charcoal)] mt-1 line-clamp-2">
                         {notif.content}
                       </p>
-                      <span className="text-[11px] text-[#667085] mt-2 inline-block">
+                      <span className="text-[11px] text-[var(--color-charcoal)] mt-2 inline-block">
                         {formatTimeAgo(notif.created_at)}
                       </span>
                     </div>
@@ -471,19 +474,19 @@ const PrivateDashboard = () => {
             </div>
           ) : (
             <div className="py-10 text-center">
-              <span className="material-symbols-outlined text-[#667085] text-[40px]">
+              <span className="material-symbols-outlined text-[var(--color-charcoal)] text-[40px]">
                 notifications_off
               </span>
-              <p className="text-[#667085] text-sm mt-3">
+              <p className="text-[var(--color-charcoal)] text-sm mt-3">
                 Chưa có thông báo nào
               </p>
             </div>
           )}
           {notifications.length > 0 && (
-            <div className="border-t border-[#E4E7EC] px-6 py-3">
+            <div className="border-t border-[var(--color-hairline)] px-6 py-3">
               <Link
                 to="/dashboard/notifications"
-                className="flex items-center justify-center gap-1 text-[13px] font-medium text-[#032D60] hover:text-[#021a40] transition-colors"
+                className="flex items-center justify-center gap-1 text-[13px] font-medium text-[var(--color-primary)] hover:text-[var(--color-primary-deep)] transition-colors"
               >
                 Xem tất cả thông báo
                 <span className="material-symbols-outlined text-[16px]">
@@ -495,41 +498,41 @@ const PrivateDashboard = () => {
         </section>
 
         {/* Quick Access Card */}
-        <section className="bg-white border border-[#E4E7EC] rounded-2xl p-6">
-          <h2 className="text-xl font-bold text-[#101828] mb-6">
+        <section className="bg-white border border-[var(--color-hairline)] rounded p-6">
+          <h2 className="text-xl font-bold text-[var(--color-ink-deep)] mb-6">
             Truy cập nhanh
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Link
               to="/dashboard/documents"
-              className="h-[110px] border border-[#D0D5DD] rounded-xl bg-white flex flex-col items-center justify-center gap-3 transition-all duration-200 hover:border-[#032D60] hover:shadow-[0_4px_12px_rgba(3,45,96,0.12)] group"
+              className="h-[110px] border border-[var(--color-hairline)] rounded bg-white flex flex-col items-center justify-center gap-3 flat-card group"
             >
-              <span className="material-symbols-outlined text-[#032D60] text-[32px] group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-[var(--color-primary)] text-[32px] group-hover:scale-105 transition-transform">
                 description
               </span>
-              <span className="text-[13px] font-medium text-[#101828] text-center">
+              <span className="text-[13px] font-medium text-[var(--color-ink-deep)] text-center">
                 Tải lên tài liệu
               </span>
             </Link>
             <a
               href="#"
-              className="h-[110px] border border-[#D0D5DD] rounded-xl bg-white flex flex-col items-center justify-center gap-3 transition-all duration-200 hover:border-[#032D60] hover:shadow-[0_4px_12px_rgba(3,45,96,0.12)] group"
+              className="h-[110px] border border-[var(--color-hairline)] rounded bg-white flex flex-col items-center justify-center gap-3 flat-card group"
             >
-              <span className="material-symbols-outlined text-[#032D60] text-[32px] group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-[var(--color-primary)] text-[32px] group-hover:scale-105 transition-transform">
                 contact_support
               </span>
-              <span className="text-[13px] font-medium text-[#101828] text-center">
+              <span className="text-[13px] font-medium text-[var(--color-ink-deep)] text-center">
                 Hỗ trợ trực tuyến
               </span>
             </a>
             <Link
               to="/dashboard/notifications"
-              className="h-[110px] border border-[#D0D5DD] rounded-xl bg-white flex flex-col items-center justify-center gap-3 transition-all duration-200 hover:border-[#032D60] hover:shadow-[0_4px_12px_rgba(3,45,96,0.12)] group"
+              className="h-[110px] border border-[var(--color-hairline)] rounded bg-white flex flex-col items-center justify-center gap-3 flat-card group"
             >
-              <span className="material-symbols-outlined text-[#032D60] text-[32px] group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-[var(--color-primary)] text-[32px] group-hover:scale-105 transition-transform">
                 history_edu
               </span>
-              <span className="text-[13px] font-medium text-[#101828] text-center">
+              <span className="text-[13px] font-medium text-[var(--color-ink-deep)] text-center">
                 Lịch sử nộp hồ sơ
               </span>
             </Link>

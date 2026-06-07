@@ -9,14 +9,14 @@ const getNotificationMeta = (type: string) => {
     case "APPROVAL":
     case "RESULT":
     case "PASSED":
-      return { icon: "check_circle", color: "text-[#04844B]" };
+      return { icon: "check_circle", color: "text-[var(--color-success)]" };
     case "REJECTION":
     case "FAILED":
-      return { icon: "cancel", color: "text-[#EF4444]" };
+      return { icon: "cancel", color: "text-[var(--color-danger)]" };
     case "PASSWORD_RESET":
-      return { icon: "lock", color: "text-[#F97316]" };
+      return { icon: "lock", color: "text-[var(--color-warning)]" };
     default:
-      return { icon: "info", color: "text-[#032D60]" };
+      return { icon: "info", color: "text-[var(--color-primary)]" };
   }
 };
 
@@ -99,10 +99,12 @@ const NotificationsPage = () => {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
-          <span className="material-symbols-outlined text-[#032D60] animate-spin text-[40px]">
+          <span className="material-symbols-outlined text-[var(--color-primary)] animate-spin text-[40px]">
             progress_activity
           </span>
-          <p className="text-[#667085] text-sm">Đang tải thông báo...</p>
+          <p className="text-[var(--color-charcoal)] text-sm">
+            Đang tải thông báo...
+          </p>
         </div>
       </div>
     );
@@ -111,15 +113,15 @@ const NotificationsPage = () => {
   return (
     <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
       <div className="mb-8">
-        <h1 className="text-[32px] sm:text-[40px] font-bold text-[#101828] leading-tight">
+        <h1 className="text-[32px] sm:text-[40px] font-bold text-[var(--color-ink-deep)] leading-tight">
           Thông báo
         </h1>
-        <p className="text-[16px] text-[#667085] mt-2">
+        <p className="text-[16px] text-[var(--color-charcoal)] mt-2">
           Các thông báo từ văn phòng tuyển sinh
         </p>
       </div>
 
-      <section className="bg-white border border-[#E4E7EC] rounded-2xl overflow-hidden">
+      <section className="bg-white border border-[var(--color-hairline)] rounded overflow-hidden">
         {notifications.length > 0 ? (
           <div>
             {notifications.map((notif) => {
@@ -134,10 +136,10 @@ const NotificationsPage = () => {
                       params: { id: notif.id.toString() },
                     })
                   }
-                  className={`w-full flex items-start gap-4 py-5 border-b border-[#E4E7EC] last:border-b-0 text-left transition-colors ${
+                  className={`w-full flex items-start gap-4 py-5 border-b border-[var(--color-hairline)] last:border-b-0 text-left transition-colors ${
                     isUnread
-                      ? "bg-[#F4F6F9] hover:bg-[#EFF6FF]"
-                      : "hover:bg-[#F4F6F9]"
+                      ? "bg-[var(--color-canvas-soft)] hover:bg-[var(--color-primary-soft)]"
+                      : "hover:bg-[var(--color-canvas-soft)]"
                   } px-6`}
                 >
                   <div className="relative flex-shrink-0">
@@ -147,7 +149,7 @@ const NotificationsPage = () => {
                       {meta.icon}
                     </span>
                     {isUnread && (
-                      <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-[#032D60] rounded-full border-2 border-white" />
+                      <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-[var(--color-primary)] rounded-full border-2 border-white" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -155,30 +157,30 @@ const NotificationsPage = () => {
                       <h3
                         className={`text-[15px] ${
                           isUnread ? "font-bold" : "font-semibold"
-                        } text-[#101828] truncate`}
+                        } text-[var(--color-ink-deep)] truncate`}
                       >
                         {notif.subject}
                       </h3>
                     </div>
-                    <p className="text-[13px] text-[#667085] mt-1 line-clamp-2">
+                    <p className="text-[13px] text-[var(--color-charcoal)] mt-1 line-clamp-2">
                       {notif.content}
                     </p>
-                    <span className="text-[11px] text-[#667085] mt-2 inline-block">
+                    <span className="text-[11px] text-[var(--color-charcoal)] mt-2 inline-block">
                       {formatTimeAgo(notif.created_at)}
                     </span>
                   </div>
-                  <span className="material-symbols-outlined text-[#98A2B3] text-[18px] flex-shrink-0">
+                  <span className="material-symbols-outlined text-[var(--color-slate)] text-[18px] flex-shrink-0">
                     chevron_right
                   </span>
                 </button>
               );
             })}
             {hasMore && (
-              <div className="px-6 py-4 border-t border-[#E4E7EC]">
+              <div className="px-6 py-4 border-t border-[var(--color-hairline)]">
                 <button
                   onClick={handleLoadMore}
                   disabled={loadingMore}
-                  className="w-full py-2.5 bg-[#F4F6F9] text-[#475467] rounded-full text-sm font-semibold hover:bg-[#E4E7EC] transition-all active:scale-95 disabled:opacity-50"
+                  className="w-full py-2.5 bg-[var(--color-canvas-soft)] text-[var(--color-ink)] rounded text-sm font-semibold hover:bg-[var(--color-hairline)] transition-all active:scale-95 disabled:opacity-50"
                 >
                   {loadingMore ? "Đang tải..." : "Xem thêm thông báo"}
                 </button>
@@ -187,10 +189,12 @@ const NotificationsPage = () => {
           </div>
         ) : (
           <div className="py-16 text-center">
-            <span className="material-symbols-outlined text-[#667085] text-[48px]">
+            <span className="material-symbols-outlined text-[var(--color-charcoal)] text-[48px]">
               notifications_off
             </span>
-            <p className="text-[#667085] text-sm mt-3">Chưa có thông báo nào</p>
+            <p className="text-[var(--color-charcoal)] text-sm mt-3">
+              Chưa có thông báo nào
+            </p>
           </div>
         )}
       </section>

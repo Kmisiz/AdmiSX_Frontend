@@ -31,10 +31,10 @@ const Toast = ({ message, onDismiss, duration = 4000 }: ToastProps) => {
         .toast-animate-in { animation: toastSlideIn 0.3s ease-out forwards; }
       `}</style>
       <div
-        className={`fixed top-6 right-6 z-50 max-w-sm px-5 py-3 rounded-2xl shadow-lg text-sm font-medium toast-animate-in ${
+        className={`fixed top-6 right-6 z-50 max-w-sm px-5 py-3 rounded shadow-lg text-sm font-medium toast-animate-in ${
           message.type === "success"
-            ? "bg-[#04844B] text-white"
-            : "bg-[#EF4444] text-white"
+            ? "bg-[var(--color-success)] text-white"
+            : "bg-[var(--color-danger)] text-white"
         }`}
       >
         <div className="flex items-center gap-3">

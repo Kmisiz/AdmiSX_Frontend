@@ -8,16 +8,31 @@ const NOTIFICATION_TYPE_LABELS: Record<
 > = {
   APPLICATION_SUBMITTED: {
     label: "Đã nộp hồ sơ",
-    color: "bg-[#04844B]/10 text-[#04844B]",
+    color: "bg-[var(--color-success)]/10 text-[var(--color-success)]",
   },
-  APPROVAL: { label: "Đã duyệt", color: "bg-[#04844B]/10 text-[#04844B]" },
-  REJECTION: { label: "Bị từ chối", color: "bg-[#EF4444]/10 text-[#EF4444]" },
-  RESULT: { label: "Kết quả", color: "bg-[#032D60]/10 text-[#032D60]" },
-  PASSED: { label: "Đỗ", color: "bg-[#04844B]/10 text-[#04844B]" },
-  FAILED: { label: "Trượt", color: "bg-[#EF4444]/10 text-[#EF4444]" },
+  APPROVAL: {
+    label: "Đã duyệt",
+    color: "bg-[var(--color-success)]/10 text-[var(--color-success)]",
+  },
+  REJECTION: {
+    label: "Bị từ chối",
+    color: "bg-[var(--color-danger)]/10 text-[var(--color-danger)]",
+  },
+  RESULT: {
+    label: "Kết quả",
+    color: "bg-[var(--color-primary)]/10 text-[var(--color-primary)]",
+  },
+  PASSED: {
+    label: "Đỗ",
+    color: "bg-[var(--color-success)]/10 text-[var(--color-success)]",
+  },
+  FAILED: {
+    label: "Trượt",
+    color: "bg-[var(--color-danger)]/10 text-[var(--color-danger)]",
+  },
   PASSWORD_RESET: {
     label: "Mật khẩu",
-    color: "bg-[#F97316]/10 text-[#F97316]",
+    color: "bg-[var(--color-warning)]/10 text-[var(--color-warning)]",
   },
 };
 
@@ -60,10 +75,12 @@ const NotificationDetailPage = () => {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
-          <span className="material-symbols-outlined text-[#032D60] animate-spin text-[40px]">
+          <span className="material-symbols-outlined text-[var(--color-primary)] animate-spin text-[40px]">
             progress_activity
           </span>
-          <p className="text-[#667085] text-sm">Đang tải thông báo...</p>
+          <p className="text-[var(--color-charcoal)] text-sm">
+            Đang tải thông báo...
+          </p>
         </div>
       </div>
     );
@@ -72,16 +89,16 @@ const NotificationDetailPage = () => {
   if (!notification) {
     return (
       <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
-        <div className="bg-white border border-[#E4E7EC] rounded-2xl p-12 text-center">
-          <span className="material-symbols-outlined text-[#667085] text-[48px]">
+        <div className="bg-white border border-[var(--color-hairline)] rounded p-12 text-center">
+          <span className="material-symbols-outlined text-[var(--color-charcoal)] text-[48px]">
             notifications_off
           </span>
-          <p className="text-[#667085] text-sm mt-3">
+          <p className="text-[var(--color-charcoal)] text-sm mt-3">
             Không tìm thấy thông báo
           </p>
           <button
             onClick={() => navigate({ to: "/dashboard/notifications" })}
-            className="mt-4 px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95"
+            className="mt-4 px-6 py-2.5 bg-[var(--color-primary)] text-white rounded text-sm font-semibold hover:bg-[var(--color-primary-dark)] transition-all active:scale-95"
           >
             Quay lại danh sách
           </button>
@@ -92,14 +109,14 @@ const NotificationDetailPage = () => {
 
   const typeMeta = NOTIFICATION_TYPE_LABELS[notification.type] || {
     label: notification.type,
-    color: "bg-[#032D60]/10 text-[#032D60]",
+    color: "bg-[var(--color-primary)]/10 text-[var(--color-primary)]",
   };
 
   return (
     <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
       <button
         onClick={() => navigate({ to: "/dashboard/notifications" })}
-        className="flex items-center gap-2 text-[#667085] hover:text-[#101828] transition-colors mb-6 text-sm font-medium"
+        className="flex items-center gap-2 text-[var(--color-charcoal)] hover:text-[var(--color-ink-deep)] transition-colors mb-6 text-sm font-medium"
       >
         <span className="material-symbols-outlined text-[18px]">
           arrow_back
@@ -107,24 +124,24 @@ const NotificationDetailPage = () => {
         Quay lại danh sách
       </button>
 
-      <section className="bg-white border border-[#E4E7EC] rounded-2xl overflow-hidden">
-        <div className="px-6 py-5 border-b border-[#E4E7EC] bg-[#F4F6F9]">
+      <section className="bg-white border border-[var(--color-hairline)] rounded overflow-hidden">
+        <div className="px-6 py-5 border-b border-[var(--color-hairline)] bg-[var(--color-canvas-soft)]">
           <div className="flex items-center gap-3 mb-3">
             <span
-              className={`px-3 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider ${typeMeta.color}`}
+              className={`px-3 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider ${typeMeta.color}`}
             >
               {typeMeta.label}
             </span>
-            <span className="text-[12px] text-[#667085]">
+            <span className="text-[12px] text-[var(--color-charcoal)]">
               {formatDateTime(notification.created_at)}
             </span>
           </div>
-          <h1 className="text-[22px] sm:text-[28px] font-bold text-[#101828] leading-tight">
+          <h1 className="text-[22px] sm:text-[28px] font-bold text-[var(--color-ink-deep)] leading-tight">
             {notification.subject}
           </h1>
         </div>
         <div className="p-6">
-          <p className="text-[15px] text-[#344054] leading-relaxed whitespace-pre-line">
+          <p className="text-[15px] text-[var(--color-ink)] leading-relaxed whitespace-pre-line">
             {notification.content}
           </p>
         </div>

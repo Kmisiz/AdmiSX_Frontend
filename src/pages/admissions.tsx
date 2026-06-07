@@ -124,11 +124,16 @@ const EKYC_STATUS_STYLES: Record<
   EkycStepStatus | EkycStatusData["overall_status"],
   string
 > = {
-  UNVERIFIED: "bg-[#F4F6F9] text-[#667085] border-[#D0D5DD]",
-  PARTIAL: "bg-[#FFFAEB] text-[#B54708] border-[#FEDF89]",
-  VERIFIED: "bg-[#ECFDF3] text-[#04844B] border-[#ABEFC6]",
-  FAILED: "bg-[#FEF3F2] text-[#B42318] border-[#FECDCA]",
-  PENDING: "bg-[#F4F6F9] text-[#667085] border-[#D0D5DD]",
+  UNVERIFIED:
+    "bg-[var(--color-canvas-soft)] text-[var(--color-charcoal)] border-[var(--color-hairline)]",
+  PARTIAL:
+    "bg-[var(--color-warning-soft)] text-[var(--color-warning)] border-[var(--color-warning)]/20",
+  VERIFIED:
+    "bg-[var(--color-success-soft)] text-[var(--color-success)] border-[var(--color-success)]/20",
+  FAILED:
+    "bg-[var(--color-danger-soft)] text-[var(--color-danger)] border-[var(--color-danger)]/20",
+  PENDING:
+    "bg-[var(--color-canvas-soft)] text-[var(--color-charcoal)] border-[var(--color-hairline)]",
 };
 
 const getDocumentEkycStepStatus = (
@@ -182,10 +187,10 @@ const Stepper = ({ current }: { current: Step }) => (
               <div
                 className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all shrink-0 ${
                   s < current
-                    ? "bg-[#032D60] text-white"
+                    ? "bg-[var(--color-primary)] text-white"
                     : s === current
-                      ? "bg-[#032D60] text-white ring-3 ring-[#032D60]/20"
-                      : "bg-[#E4E7EC] text-[#667085]"
+                      ? "bg-[var(--color-primary)] text-white ring-3 ring-[var(--color-primary)]/20"
+                      : "bg-[var(--color-hairline)] text-[var(--color-charcoal)]"
                 }`}
               >
                 {s < current ? (
@@ -201,7 +206,9 @@ const Stepper = ({ current }: { current: Step }) => (
               </div>
               <span
                 className={`text-xs md:text-[13px] font-medium hidden sm:inline whitespace-nowrap ${
-                  s <= current ? "text-[#101828]" : "text-[#667085]"
+                  s <= current
+                    ? "text-[var(--color-ink-deep)]"
+                    : "text-[var(--color-charcoal)]"
                 }`}
               >
                 {label}
@@ -210,7 +217,9 @@ const Stepper = ({ current }: { current: Step }) => (
             {i < STEP_LABELS.length - 1 && (
               <div
                 className={`hidden h-0.5 w-8 md:block lg:w-12 xl:w-16 mx-1.5 ${
-                  s < current ? "bg-[#032D60]" : "bg-[#E4E7EC]"
+                  s < current
+                    ? "bg-[var(--color-primary)]"
+                    : "bg-[var(--color-hairline)]"
                 }`}
               />
             )}
@@ -235,17 +244,19 @@ const EkycStatusPanel = ({
   ];
 
   return (
-    <div className="border border-[#E4E7EC] rounded-xl p-4 bg-[#F9FAFB]">
+    <div className="border border-[var(--color-hairline)] rounded p-4 bg-[var(--color-canvas-soft)]">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <p className="text-sm font-bold text-[#101828]">Xác thực CCCD/eKYC</p>
-          <p className="text-xs text-[#667085] mt-1">
+          <p className="text-sm font-bold text-[var(--color-ink-deep)]">
+            Xác thực CCCD/eKYC
+          </p>
+          <p className="text-xs text-[var(--color-charcoal)] mt-1">
             Tải lên CCCD và ảnh chân dung, hệ thống sẽ xác thực bằng API eKYC
             riêng.
           </p>
         </div>
         <span
-          className={`inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-bold ${EKYC_STATUS_STYLES[status.overall_status]}`}
+          className={`inline-flex w-fit items-center rounded border px-3 py-1 text-xs font-bold ${EKYC_STATUS_STYLES[status.overall_status]}`}
         >
           {verifying
             ? "Đang kiểm tra..."
@@ -257,13 +268,13 @@ const EkycStatusPanel = ({
         {steps.map(([label, stepStatus]) => (
           <div
             key={label}
-            className="flex items-center justify-between gap-2 rounded-lg bg-white border border-[#E4E7EC] px-3 py-2"
+            className="flex items-center justify-between gap-2 rounded bg-white border border-[var(--color-hairline)] px-3 py-2"
           >
-            <span className="text-xs font-semibold text-[#344054]">
+            <span className="text-xs font-semibold text-[var(--color-ink)]">
               {label}
             </span>
             <span
-              className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${EKYC_STATUS_STYLES[stepStatus]}`}
+              className={`rounded border px-2 py-0.5 text-[10px] font-bold ${EKYC_STATUS_STYLES[stepStatus]}`}
             >
               {EKYC_STEP_LABELS[stepStatus]}
             </span>
@@ -272,16 +283,20 @@ const EkycStatusPanel = ({
       </div>
 
       {status.similarity !== null && (
-        <p className="mt-3 text-xs text-[#667085]">
+        <p className="mt-3 text-xs text-[var(--color-charcoal)]">
           Độ tương đồng khuôn mặt:{" "}
-          <span className="font-bold text-[#101828]">{status.similarity}%</span>
+          <span className="font-bold text-[var(--color-ink-deep)]">
+            {status.similarity}%
+          </span>
         </p>
       )}
       {status.failure_reason && (
-        <p className="mt-2 text-xs text-[#B42318]">{status.failure_reason}</p>
+        <p className="mt-2 text-xs text-[var(--color-danger)]">
+          {status.failure_reason}
+        </p>
       )}
       {status.verified_at && (
-        <p className="mt-2 text-xs text-[#04844B]">
+        <p className="mt-2 text-xs text-[var(--color-success)]">
           Xác thực lúc {new Date(status.verified_at).toLocaleString("vi-VN")}
         </p>
       )}
@@ -1010,10 +1025,12 @@ const AdmissionsPage = () => {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
-          <span className="material-symbols-outlined text-[#032D60] animate-spin text-[40px]">
+          <span className="material-symbols-outlined text-[var(--color-primary)] animate-spin text-[40px]">
             progress_activity
           </span>
-          <p className="text-[#667085] text-sm">Đang tải thông tin...</p>
+          <p className="text-[var(--color-charcoal)] text-sm">
+            Đang tải thông tin...
+          </p>
         </div>
       </div>
     );
@@ -1023,19 +1040,19 @@ const AdmissionsPage = () => {
     return (
       <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <span className="material-symbols-outlined text-[64px] text-[#F97316]">
+          <span className="material-symbols-outlined text-[64px] text-[var(--color-warning)]">
             gavel
           </span>
-          <h2 className="text-2xl font-bold text-[#101828] mt-4">
+          <h2 className="text-2xl font-bold text-[var(--color-ink-deep)] mt-4">
             Bạn đã nộp hồ sơ, hãy đợi đợt sau
           </h2>
-          <p className="text-[#667085] text-sm mt-2 max-w-md">
+          <p className="text-[var(--color-charcoal)] text-sm mt-2 max-w-md">
             Mỗi đợt tuyển sinh hệ thống sẽ mở khóa lại để bạn có thể nộp hồ sơ
             mới. Nếu cần hỗ trợ, vui lòng liên hệ văn phòng tuyển sinh.
           </p>
           <button
             onClick={() => navigate({ to: "/dashboard" })}
-            className="mt-6 px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95"
+            className="mt-6 px-6 py-2.5 bg-[var(--color-primary)] text-white rounded text-sm font-semibold hover:bg-[var(--color-primary-dark)] transition-all active:scale-95"
           >
             Quay lại bảng điều khiển
           </button>
@@ -1047,10 +1064,10 @@ const AdmissionsPage = () => {
   return (
     <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8">
       <div className="mb-6">
-        <h1 className="text-[32px] font-bold text-[#101828]">
+        <h1 className="text-[32px] font-bold text-[var(--color-ink-deep)]">
           Đăng ký tuyển sinh
         </h1>
-        <p className="text-[#667085] text-sm mt-1">
+        <p className="text-[var(--color-charcoal)] text-sm mt-1">
           Hoàn tất các bước để nộp hồ sơ trực tuyến
         </p>
       </div>
@@ -1061,9 +1078,9 @@ const AdmissionsPage = () => {
 
       {/* Step 1 — Personal Info */}
       {step === 1 && (
-        <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
-            <h3 className="text-lg font-bold text-[#101828]">
+        <section className="bg-white rounded border border-[var(--color-hairline)] overflow-hidden">
+          <div className="px-6 py-4 border-b border-[var(--color-hairline)] bg-[var(--color-canvas-soft)]">
+            <h3 className="text-lg font-bold text-[var(--color-ink-deep)]">
               Thông tin cá nhân & Liên lạc
             </h3>
           </div>
@@ -1079,7 +1096,7 @@ const AdmissionsPage = () => {
                       full_name: e.target.value,
                     }))
                   }
-                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                  className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
                   placeholder="Nhập họ và tên"
                 />
               </Field>
@@ -1093,7 +1110,7 @@ const AdmissionsPage = () => {
                       date_of_birth: e.target.value,
                     }))
                   }
-                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                  className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
                 />
               </Field>
               <Field label="Giới tính">
@@ -1105,7 +1122,7 @@ const AdmissionsPage = () => {
                       gender: e.target.value,
                     }))
                   }
-                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                  className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
                 >
                   <option value="">Chọn giới tính</option>
                   <option value="MALE">Nam</option>
@@ -1118,7 +1135,7 @@ const AdmissionsPage = () => {
                   type="text"
                   value={profileData.citizen_id}
                   disabled
-                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg bg-[#F4F6F9] text-[#667085] cursor-not-allowed w-full text-sm"
+                  className="h-11 px-3 border border-[var(--color-hairline)] rounded bg-[var(--color-canvas-soft)] text-[var(--color-charcoal)] cursor-not-allowed w-full text-sm"
                 />
               </Field>
               <Field label="Email">
@@ -1126,7 +1143,7 @@ const AdmissionsPage = () => {
                   type="email"
                   value={profileData.email}
                   disabled
-                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg bg-[#F4F6F9] text-[#667085] cursor-not-allowed w-full text-sm"
+                  className="h-11 px-3 border border-[var(--color-hairline)] rounded bg-[var(--color-canvas-soft)] text-[var(--color-charcoal)] cursor-not-allowed w-full text-sm"
                 />
               </Field>
               <Field label="Số điện thoại">
@@ -1139,7 +1156,7 @@ const AdmissionsPage = () => {
                       phone: e.target.value.replace(/\D/g, ""),
                     }))
                   }
-                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                  className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
                   placeholder="Nhập số điện thoại"
                 />
               </Field>
@@ -1153,7 +1170,7 @@ const AdmissionsPage = () => {
                       nation: e.target.value,
                     }))
                   }
-                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                  className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
                   placeholder="Nhập quốc tịch"
                 />
               </Field>
@@ -1167,12 +1184,12 @@ const AdmissionsPage = () => {
                       province: e.target.value,
                     }))
                   }
-                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                  className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
                   placeholder="Nhập tỉnh/thành phố"
                 />
               </Field>
               <div className="flex flex-col gap-1.5 md:col-span-2">
-                <label className="text-xs font-semibold text-[#344054]">
+                <label className="text-xs font-semibold text-[var(--color-ink)]">
                   Địa chỉ thường trú
                 </label>
                 <textarea
@@ -1183,23 +1200,23 @@ const AdmissionsPage = () => {
                       address: e.target.value,
                     }))
                   }
-                  className="min-h-[72px] w-full resize-none rounded-lg border border-[#D0D5DD] px-3 py-2.5 text-sm leading-5 outline-none transition-all focus:border-[#032D60] focus:ring-2 focus:ring-[#032D60]/20"
+                  className="min-h-[72px] w-full resize-none rounded border border-[var(--color-hairline)] px-3 py-2.5 text-sm leading-5 outline-none transition-all focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
                   placeholder="Nhập địa chỉ"
                   rows={2}
                 />
               </div>
             </div>
-            <div className="flex justify-between pt-4 border-t border-[#E4E7EC]">
+            <div className="flex justify-between pt-4 border-t border-[var(--color-hairline)]">
               <button
                 onClick={() => navigate({ to: "/dashboard" })}
-                className="px-6 py-2.5 bg-white text-[#475467] border border-[#D0D5DD] rounded-full text-sm font-semibold hover:bg-[#F4F6F9] transition-all active:scale-95"
+                className="px-6 py-2.5 bg-white text-[var(--color-charcoal)] border border-[var(--color-hairline)] rounded text-sm font-semibold hover:bg-[var(--color-canvas-soft)] transition-all active:scale-95"
               >
                 Hủy bỏ
               </button>
               <button
                 onClick={handleStep1Next}
                 disabled={saving}
-                className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 bg-[var(--color-primary)] text-white rounded text-sm font-semibold hover:bg-[var(--color-primary-dark)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? "Đang lưu..." : "Tiếp theo"}
               </button>
@@ -1210,12 +1227,12 @@ const AdmissionsPage = () => {
 
       {/* Step 2 — eKYC */}
       {step === 2 && (
-        <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
-            <h3 className="text-lg font-bold text-[#101828]">
+        <section className="bg-white rounded border border-[var(--color-hairline)] overflow-hidden">
+          <div className="px-6 py-4 border-b border-[var(--color-hairline)] bg-[var(--color-canvas-soft)]">
+            <h3 className="text-lg font-bold text-[var(--color-ink-deep)]">
               Xác thực CCCD/eKYC
             </h3>
-            <p className="text-xs text-[#667085] mt-1">
+            <p className="text-xs text-[var(--color-charcoal)] mt-1">
               Tải lên CCCD mặt trước, mặt sau và ảnh chân dung để hệ thống xác
               thực danh tính.
             </p>
@@ -1240,39 +1257,39 @@ const AdmissionsPage = () => {
                   return (
                     <div
                       key={dt.value}
-                      className="border border-[#E4E7EC] rounded-xl overflow-hidden"
+                      className="border border-[var(--color-hairline)] rounded overflow-hidden"
                     >
-                      <div className="bg-[#F9FAFB] p-3">
+                      <div className="bg-[var(--color-canvas-soft)] p-3">
                         <div className="flex items-center gap-3">
                           {isImage ? (
                             <img
                               src={existingDoc.file_url}
                               alt={existingDoc.file_name}
-                              className="w-12 h-12 object-cover rounded border border-[#E4E7EC]"
+                              className="w-12 h-12 object-cover rounded border border-[var(--color-hairline)]"
                             />
                           ) : (
-                            <span className="material-symbols-outlined text-[28px] text-[#032D60]">
+                            <span className="material-symbols-outlined text-[28px] text-[var(--color-primary)]">
                               picture_as_pdf
                             </span>
                           )}
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs font-medium text-[#101828] truncate">
+                            <p className="text-xs font-medium text-[var(--color-ink-deep)] truncate">
                               {existingDoc.file_name}
                             </p>
-                            <p className="text-[10px] text-[#667085]">
+                            <p className="text-[10px] text-[var(--color-charcoal)]">
                               {dt.label}
                             </p>
                           </div>
                           {ekycStepStatus && (
                             <span
-                              className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${EKYC_STATUS_STYLES[ekycStepStatus]}`}
+                              className={`rounded border px-2 py-0.5 text-[10px] font-bold ${EKYC_STATUS_STYLES[ekycStepStatus]}`}
                             >
                               {EKYC_STEP_LABELS[ekycStepStatus]}
                             </span>
                           )}
                           <button
                             onClick={() => setViewDoc(existingDoc)}
-                            className="text-[#032D60] hover:text-[#021a40] flex-shrink-0"
+                            className="text-[var(--color-primary)] hover:text-[#021a40] flex-shrink-0"
                           >
                             <span className="material-symbols-outlined text-[18px]">
                               open_in_new
@@ -1285,7 +1302,7 @@ const AdmissionsPage = () => {
                               setEditingDocType(dt.value);
                               setNewDocFile(null);
                             }}
-                            className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[#032D60] border border-[#032D60] rounded hover:bg-[#EFF6FF] transition-colors"
+                            className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[var(--color-primary)] border border-[var(--color-primary)] rounded hover:bg-[var(--color-primary-soft)] transition-colors"
                           >
                             <span className="material-symbols-outlined text-[14px]">
                               edit
@@ -1294,7 +1311,7 @@ const AdmissionsPage = () => {
                           </button>
                           <button
                             onClick={() => setDeleteDocTarget(existingDoc)}
-                            className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[#EF4444] border border-[#EF4444] rounded hover:bg-[#FEF2F2] transition-colors"
+                            className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[var(--color-danger)] border border-[var(--color-danger)] rounded hover:bg-[#FEF2F2] transition-colors"
                           >
                             <span className="material-symbols-outlined text-[14px]">
                               delete
@@ -1311,20 +1328,20 @@ const AdmissionsPage = () => {
                   return (
                     <div
                       key={dt.value}
-                      className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl p-4"
+                      className="bg-[var(--color-primary-soft)] border border-[var(--color-primary-ring)] rounded p-4"
                     >
-                      <p className="text-xs text-[#1E40AF] mb-2 font-semibold">
+                      <p className="text-xs text-[var(--color-primary)] mb-2 font-semibold">
                         {dt.label}
                       </p>
-                      <p className="text-xs text-[#1E40AF] mb-2">
+                      <p className="text-xs text-[var(--color-primary)] mb-2">
                         Chọn file mới:
                       </p>
                       <div className="flex items-center gap-2">
-                        <label className="flex-1 flex items-center justify-center gap-2 h-9 px-3 border border-dashed border-[#93C5FD] rounded-lg cursor-pointer hover:border-[#3B82F6] transition-colors bg-white">
-                          <span className="material-symbols-outlined text-[16px] text-[#3B82F6]">
+                        <label className="flex-1 flex items-center justify-center gap-2 h-9 px-3 border border-dashed border-[#93C5FD] rounded cursor-pointer hover:border-[var(--color-primary)] transition-colors bg-white">
+                          <span className="material-symbols-outlined text-[16px] text-[var(--color-primary)]">
                             cloud_upload
                           </span>
-                          <span className="text-xs text-[#3B82F6]">
+                          <span className="text-xs text-[var(--color-primary)]">
                             {newDocFile ? newDocFile.name : "Chọn file"}
                           </span>
                           <input
@@ -1339,9 +1356,9 @@ const AdmissionsPage = () => {
                         </label>
                         <div className="flex items-center gap-2">
                           {uploading && (
-                            <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="w-16 h-1.5 bg-gray-200 rounded overflow-hidden">
                               <div
-                                className="h-full bg-[#032D60] rounded-full transition-all duration-200"
+                                className="h-full bg-[var(--color-primary)] rounded transition-all duration-200"
                                 style={{ width: `${uploadProgress}%` }}
                               />
                             </div>
@@ -1351,7 +1368,7 @@ const AdmissionsPage = () => {
                               handleReplaceDoc(existingDoc!.id, dt.value)
                             }
                             disabled={!newDocFile || uploading}
-                            className="h-9 px-3 bg-[#2563EB] text-white text-xs font-semibold rounded-lg hover:bg-[#1D4ED8] disabled:opacity-50 transition-colors"
+                            className="h-9 px-3 bg-[var(--color-primary)] text-white text-xs font-semibold rounded hover:bg-[var(--color-primary-dark)] disabled:opacity-50 transition-colors"
                           >
                             {uploading ? `${uploadProgress}%` : "Lưu"}
                           </button>
@@ -1360,7 +1377,7 @@ const AdmissionsPage = () => {
                               setEditingDocType(null);
                               setNewDocFile(null);
                             }}
-                            className="h-9 px-3 text-xs font-semibold text-[#667085] border border-[#D0D5DD] rounded-lg hover:bg-[#F9FAFB] transition-colors"
+                            className="h-9 px-3 text-xs font-semibold text-[var(--color-charcoal)] border border-[var(--color-hairline)] rounded hover:bg-[var(--color-canvas-soft)] transition-colors"
                           >
                             Hủy
                           </button>
@@ -1373,13 +1390,15 @@ const AdmissionsPage = () => {
                 return (
                   <div
                     key={dt.value}
-                    className="border border-dashed border-[#D0D5DD] rounded-xl p-4 text-center hover:border-[#032D60] transition-colors"
+                    className="border border-dashed border-[var(--color-hairline)] rounded p-4 text-center hover:border-[var(--color-primary)] transition-colors"
                   >
-                    <p className="text-sm font-medium text-[#344054] mb-2">
+                    <p className="text-sm font-medium text-[var(--color-ink)] mb-2">
                       {dt.label}
-                      <span className="text-[#EF4444] ml-0.5">*</span>
+                      <span className="text-[var(--color-danger)] ml-0.5">
+                        *
+                      </span>
                     </p>
-                    <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#032D60] hover:text-[#021a40]">
+                    <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[var(--color-primary)] hover:text-[#021a40]">
                       <span className="material-symbols-outlined text-[20px]">
                         cloud_upload
                       </span>
@@ -1392,17 +1411,17 @@ const AdmissionsPage = () => {
                         disabled={uploading}
                       />
                     </label>
-                    <p className="text-[10px] text-[#667085] mt-1">
+                    <p className="text-[10px] text-[var(--color-charcoal)] mt-1">
                       PDF, JPG, PNG tối đa 5MB
                     </p>
                   </div>
                 );
               })}
             </div>
-            <div className="flex justify-between pt-4 border-t border-[#E4E7EC]">
+            <div className="flex justify-between pt-4 border-t border-[var(--color-hairline)]">
               <button
                 onClick={() => setStep(1)}
-                className="px-6 py-2.5 bg-white text-[#475467] border border-[#D0D5DD] rounded-full text-sm font-semibold hover:bg-[#F4F6F9] transition-all active:scale-95"
+                className="px-6 py-2.5 bg-white text-[var(--color-charcoal)] border border-[var(--color-hairline)] rounded text-sm font-semibold hover:bg-[var(--color-canvas-soft)] transition-all active:scale-95"
               >
                 Quay lại
               </button>
@@ -1413,7 +1432,7 @@ const AdmissionsPage = () => {
                   verifyingEkyc ||
                   ekycStatus.overall_status !== "VERIFIED"
                 }
-                className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 bg-[var(--color-primary)] text-white rounded text-sm font-semibold hover:bg-[var(--color-primary-dark)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Tiếp tục
               </button>
@@ -1426,9 +1445,9 @@ const AdmissionsPage = () => {
       {step === 3 && (
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 lg:w-5/12">
-            <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
-                <h3 className="text-lg font-bold text-[#101828]">
+            <section className="bg-white rounded border border-[var(--color-hairline)] overflow-hidden">
+              <div className="px-6 py-4 border-b border-[var(--color-hairline)] bg-[var(--color-canvas-soft)]">
+                <h3 className="text-lg font-bold text-[var(--color-ink-deep)]">
                   Thêm nguyện vọng
                 </h3>
               </div>
@@ -1437,7 +1456,7 @@ const AdmissionsPage = () => {
                   <select
                     value={selectedUni}
                     onChange={(e) => handleUniChange(e.target.value)}
-                    className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                    className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
                   >
                     <option value="">Chọn trường</option>
                     {universities.map((u) => (
@@ -1451,7 +1470,7 @@ const AdmissionsPage = () => {
                   <select
                     value={selectedMajor}
                     onChange={(e) => handleMajorChange(e.target.value)}
-                    className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full disabled:bg-[#F4F6F9] disabled:text-[#667085] disabled:cursor-not-allowed"
+                    className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full disabled:bg-[var(--color-canvas-soft)] disabled:text-[var(--color-charcoal)] disabled:cursor-not-allowed"
                     disabled={!selectedUni}
                   >
                     <option value="">Chọn ngành</option>
@@ -1469,7 +1488,7 @@ const AdmissionsPage = () => {
                   <select
                     value={selectedComb}
                     onChange={(e) => setSelectedComb(e.target.value)}
-                    className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full disabled:bg-[#F4F6F9] disabled:text-[#667085] disabled:cursor-not-allowed"
+                    className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full disabled:bg-[var(--color-canvas-soft)] disabled:text-[var(--color-charcoal)] disabled:cursor-not-allowed"
                     disabled={!selectedMajor}
                   >
                     <option value="">Chọn tổ hợp</option>
@@ -1484,7 +1503,7 @@ const AdmissionsPage = () => {
                 </Field>
                 <button
                   onClick={addWish}
-                  className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 w-full"
+                  className="px-6 py-2.5 bg-[var(--color-primary)] text-white rounded text-sm font-semibold hover:bg-[var(--color-primary-dark)] transition-all active:scale-95 w-full"
                 >
                   Thêm vào danh sách
                 </button>
@@ -1492,18 +1511,18 @@ const AdmissionsPage = () => {
             </section>
           </div>
           <div className="flex-1 lg:w-7/12">
-            <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9] flex justify-between items-center">
-                <h3 className="text-lg font-bold text-[#101828]">
+            <section className="bg-white rounded border border-[var(--color-hairline)] overflow-hidden">
+              <div className="px-6 py-4 border-b border-[var(--color-hairline)] bg-[var(--color-canvas-soft)] flex justify-between items-center">
+                <h3 className="text-lg font-bold text-[var(--color-ink-deep)]">
                   Danh sách nguyện vọng
                 </h3>
-                <span className="text-sm text-[#667085]">
+                <span className="text-sm text-[var(--color-charcoal)]">
                   {wishes.length.toString().padStart(2, "0")} Nguyện vọng
                 </span>
               </div>
               <div className="p-6">
                 {wishes.length === 0 ? (
-                  <div className="text-center py-12 text-[#667085]">
+                  <div className="text-center py-12 text-[var(--color-charcoal)]">
                     <span className="material-symbols-outlined text-[48px] block mb-2">
                       playlist_add
                     </span>
@@ -1517,19 +1536,19 @@ const AdmissionsPage = () => {
                     {wishes.map((w, i) => (
                       <div
                         key={i}
-                        className="flex items-start gap-3 p-4 border border-[#E4E7EC] rounded-xl hover:bg-[#F4F6F9] transition-colors"
+                        className="flex items-start gap-3 p-4 border border-[var(--color-hairline)] rounded hover:bg-[var(--color-canvas-soft)] transition-colors"
                       >
-                        <div className="w-8 h-8 rounded-full bg-[#032D60]/10 text-[#032D60] flex items-center justify-center text-sm font-bold flex-shrink-0">
+                        <div className="w-8 h-8 rounded bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center text-sm font-bold flex-shrink-0">
                           {i + 1}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-[#101828]">
+                          <p className="text-sm font-semibold text-[var(--color-ink-deep)]">
                             {w.university.name}
                           </p>
-                          <p className="text-xs text-[#667085] mt-0.5">
+                          <p className="text-xs text-[var(--color-charcoal)] mt-0.5">
                             {w.major.name}
                           </p>
-                          <p className="text-xs text-[#667085]">
+                          <p className="text-xs text-[var(--color-charcoal)]">
                             Tổ hợp: {w.combination.code} (
                             {normalizeSubjectName(w.combination.subject_1)},{" "}
                             {normalizeSubjectName(w.combination.subject_2)},{" "}
@@ -1538,7 +1557,7 @@ const AdmissionsPage = () => {
                         </div>
                         <button
                           onClick={() => confirmRemoveWish(i)}
-                          className="text-[#EF4444] hover:text-[#DC2626] p-1 flex-shrink-0"
+                          className="text-[var(--color-danger)] hover:text-[#DC2626] p-1 flex-shrink-0"
                         >
                           <span className="material-symbols-outlined text-[20px]">
                             delete
@@ -1550,16 +1569,16 @@ const AdmissionsPage = () => {
                 )}
               </div>
             </section>
-            <div className="mt-4 p-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-xl">
+            <div className="mt-4 p-4 bg-[var(--color-warning-soft)] border border-[var(--color-warning)]/20 rounded">
               <div className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#F59E0B] text-[20px]">
+                <span className="material-symbols-outlined text-[var(--color-warning)] text-[20px]">
                   info
                 </span>
                 <div>
-                  <p className="text-sm font-semibold text-[#92400E]">
+                  <p className="text-sm font-semibold text-[var(--color-warning)]">
                     Lưu ý quan trọng
                   </p>
-                  <p className="text-xs text-[#92400E] mt-1">
+                  <p className="text-xs text-[var(--color-warning)] mt-1">
                     Mỗi thí sinh có thể đăng ký nhiều nguyện vọng và sắp xếp
                     theo thứ tự ưu tiên. Sau khi nộp hồ sơ sẽ không thể thay
                     đổi.
@@ -1570,13 +1589,13 @@ const AdmissionsPage = () => {
             <div className="flex justify-between mt-6">
               <button
                 onClick={() => setStep(2)}
-                className="px-6 py-2.5 bg-white text-[#475467] border border-[#D0D5DD] rounded-full text-sm font-semibold hover:bg-[#F4F6F9] transition-all active:scale-95"
+                className="px-6 py-2.5 bg-white text-[var(--color-charcoal)] border border-[var(--color-hairline)] rounded text-sm font-semibold hover:bg-[var(--color-canvas-soft)] transition-all active:scale-95"
               >
                 Quay lại
               </button>
               <button
                 onClick={() => setStep(4)}
-                className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95"
+                className="px-6 py-2.5 bg-[var(--color-primary)] text-white rounded text-sm font-semibold hover:bg-[var(--color-primary-dark)] transition-all active:scale-95"
               >
                 Tiếp tục bước 4
               </button>
@@ -1589,19 +1608,19 @@ const AdmissionsPage = () => {
       {step === 4 && (
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 lg:w-7/12">
-            <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
-                <h3 className="text-lg font-bold text-[#101828]">
+            <section className="bg-white rounded border border-[var(--color-hairline)] overflow-hidden">
+              <div className="px-6 py-4 border-b border-[var(--color-hairline)] bg-[var(--color-canvas-soft)]">
+                <h3 className="text-lg font-bold text-[var(--color-ink-deep)]">
                   Nhập điểm thi THPT
                 </h3>
-                <p className="text-xs text-[#667085] mt-1">
+                <p className="text-xs text-[var(--color-charcoal)] mt-1">
                   Bắt buộc 2 môn Toán + Văn. Chọn thêm 2 môn tự chọn.
                 </p>
               </div>
               <div className="p-6 space-y-6">
                 {/* Required subjects */}
                 <div>
-                  <h4 className="text-sm font-bold text-[#101828] mb-3">
+                  <h4 className="text-sm font-bold text-[var(--color-ink-deep)] mb-3">
                     Môn bắt buộc
                   </h4>
                   <div className="grid grid-cols-2 gap-4">
@@ -1619,7 +1638,7 @@ const AdmissionsPage = () => {
                             key={s.subject_code}
                             className="flex flex-col gap-1.5"
                           >
-                            <label className="text-xs font-semibold text-[#344054]">
+                            <label className="text-xs font-semibold text-[var(--color-ink)]">
                               {s.subject_name} *
                             </label>
                             <input
@@ -1631,7 +1650,7 @@ const AdmissionsPage = () => {
                               onChange={(e) =>
                                 updateScore(globalIdx, e.target.value)
                               }
-                              className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                              className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
                               placeholder="0.0 - 10.0"
                             />
                           </div>
@@ -1642,13 +1661,13 @@ const AdmissionsPage = () => {
 
                 {/* Optional subjects */}
                 <div>
-                  <h4 className="text-sm font-bold text-[#101828] mb-1">
+                  <h4 className="text-sm font-bold text-[var(--color-ink-deep)] mb-1">
                     Môn tự chọn{" "}
-                    <span className="text-[#667085] font-normal">
+                    <span className="text-[var(--color-charcoal)] font-normal">
                       (Chọn đúng 2)
                     </span>
                   </h4>
-                  <p className="text-xs text-[#667085] mb-3">
+                  <p className="text-xs text-[var(--color-charcoal)] mb-3">
                     Đã chọn: {selectedOptional.length}/2
                   </p>
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mb-4">
@@ -1661,12 +1680,12 @@ const AdmissionsPage = () => {
                           key={opt.code}
                           onClick={() => toggleOptionalSubject(opt.code)}
                           disabled={isFull}
-                          className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all ${
+                          className={`px-3 py-2 rounded text-xs font-medium border transition-all ${
                             isSelected
-                              ? "bg-[#2563EB] text-white border-[#2563EB]"
+                              ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
                               : isFull
-                                ? "bg-[#F4F6F9] text-[#98A2B3] border-[#E4E7EC] cursor-not-allowed"
-                                : "bg-white text-[#475467] border-[#D0D5DD] hover:border-[#032D60] hover:text-[#032D60]"
+                                ? "bg-[var(--color-canvas-soft)] text-[var(--color-slate)] border-[var(--color-hairline)] cursor-not-allowed"
+                                : "bg-white text-[var(--color-charcoal)] border-[var(--color-hairline)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                           }`}
                         >
                           {opt.name}
@@ -1693,7 +1712,7 @@ const AdmissionsPage = () => {
                               key={s.subject_code}
                               className="flex flex-col gap-1.5"
                             >
-                              <label className="text-xs font-semibold text-[#344054]">
+                              <label className="text-xs font-semibold text-[var(--color-ink)]">
                                 {s.subject_name} *
                               </label>
                               <input
@@ -1705,7 +1724,7 @@ const AdmissionsPage = () => {
                                 onChange={(e) =>
                                   updateScore(globalIdx, e.target.value)
                                 }
-                                className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                                className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
                                 placeholder="0.0 - 10.0"
                               />
                             </div>
@@ -1716,8 +1735,8 @@ const AdmissionsPage = () => {
 
                   {/* Foreign language picker if NGOAINGU selected */}
                   {selectedOptional.includes("NGOAINGU") && (
-                    <div className="mt-4 p-3 bg-[#032D60]/5 border border-[#032D60]/20 rounded-xl">
-                      <label className="text-xs font-semibold text-[#032D60] mb-2 block">
+                    <div className="mt-4 p-3 bg-[var(--color-primary)]/5 border border-[var(--color-primary)]/20 rounded">
+                      <label className="text-xs font-semibold text-[var(--color-primary)] mb-2 block">
                         Chọn ngoại ngữ thi *
                       </label>
                       <select
@@ -1744,7 +1763,7 @@ const AdmissionsPage = () => {
                             }
                           }
                         }}
-                        className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                        className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
                       >
                         <option value="">-- Chọn ngoại ngữ --</option>
                         {FOREIGN_LANGUAGES.map((lang) => (
@@ -1770,7 +1789,7 @@ const AdmissionsPage = () => {
                               key={s.subject_code}
                               className="flex flex-col gap-1.5"
                             >
-                              <label className="text-xs font-semibold text-[#344054]">
+                              <label className="text-xs font-semibold text-[var(--color-ink)]">
                                 {s.subject_name} *
                               </label>
                               <input
@@ -1782,7 +1801,7 @@ const AdmissionsPage = () => {
                                 onChange={(e) =>
                                   updateScore(globalIdx, e.target.value)
                                 }
-                                className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                                className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
                                 placeholder="0.0 - 10.0"
                               />
                             </div>
@@ -1793,32 +1812,32 @@ const AdmissionsPage = () => {
                 </div>
 
                 {/* Academic info */}
-                <div className="border-t border-[#E4E7EC] pt-5">
-                  <h4 className="text-sm font-bold text-[#101828] mb-4">
+                <div className="border-t border-[var(--color-hairline)] pt-5">
+                  <h4 className="text-sm font-bold text-[var(--color-ink-deep)] mb-4">
                     Thông tin học tập
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-[#344054]">
+                      <label className="text-xs font-semibold text-[var(--color-ink)]">
                         Năm tốt nghiệp THPT *
                       </label>
                       <input
                         type="number"
                         value={graduationYear}
                         onChange={(e) => setGraduationYear(e.target.value)}
-                        className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                        className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
                         placeholder="VD: 2025"
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-[#344054]">
+                      <label className="text-xs font-semibold text-[var(--color-ink)]">
                         Trường THPT (lớp 12) *
                       </label>
                       <input
                         type="text"
                         value={grade12School}
                         onChange={(e) => setGrade12School(e.target.value)}
-                        className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
+                        className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
                         placeholder="Tên trường lớp 12"
                       />
                     </div>
@@ -1828,9 +1847,9 @@ const AdmissionsPage = () => {
             </section>
           </div>
           <div className="flex-1 lg:w-5/12">
-            <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
-                <h3 className="text-lg font-bold text-[#101828]">
+            <section className="bg-white rounded border border-[var(--color-hairline)] overflow-hidden">
+              <div className="px-6 py-4 border-b border-[var(--color-hairline)] bg-[var(--color-canvas-soft)]">
+                <h3 className="text-lg font-bold text-[var(--color-ink-deep)]">
                   Tải lên minh chứng
                 </h3>
               </div>
@@ -1860,11 +1879,11 @@ const AdmissionsPage = () => {
                     return (
                       <div
                         key={dt.value}
-                        className="border border-[#E4E7EC] rounded-xl p-4 space-y-3"
+                        className="border border-[var(--color-hairline)] rounded p-4 space-y-3"
                       >
-                        <p className="text-sm font-medium text-[#344054]">
+                        <p className="text-sm font-medium text-[var(--color-ink)]">
                           {dt.label}{" "}
-                          <span className="text-[#98A2B3] font-normal">
+                          <span className="text-[var(--color-slate)] font-normal">
                             (Tùy chọn)
                           </span>
                         </p>
@@ -1876,32 +1895,32 @@ const AdmissionsPage = () => {
                           return (
                             <div
                               key={cert.id}
-                              className="border border-[#E4E7EC] rounded-xl overflow-hidden"
+                              className="border border-[var(--color-hairline)] rounded overflow-hidden"
                             >
-                              <div className="bg-[#F9FAFB] p-3">
+                              <div className="bg-[var(--color-canvas-soft)] p-3">
                                 <div className="flex items-center gap-3">
                                   {isImage ? (
                                     <img
                                       src={cert.file_url}
                                       alt={cert.file_name}
-                                      className="w-12 h-12 object-cover rounded border border-[#E4E7EC]"
+                                      className="w-12 h-12 object-cover rounded border border-[var(--color-hairline)]"
                                     />
                                   ) : (
-                                    <span className="material-symbols-outlined text-[28px] text-[#032D60]">
+                                    <span className="material-symbols-outlined text-[28px] text-[var(--color-primary)]">
                                       picture_as_pdf
                                     </span>
                                   )}
                                   <div className="min-w-0 flex-1">
-                                    <p className="text-xs font-medium text-[#101828] truncate">
+                                    <p className="text-xs font-medium text-[var(--color-ink-deep)] truncate">
                                       {cert.display_name || cert.file_name}
                                     </p>
-                                    <p className="text-[10px] text-[#667085]">
+                                    <p className="text-[10px] text-[var(--color-charcoal)]">
                                       {cert.display_name || cert.file_name}
                                     </p>
                                   </div>
                                   <button
                                     onClick={() => setViewDoc(cert)}
-                                    className="text-[#032D60] hover:text-[#021a40] flex-shrink-0"
+                                    className="text-[var(--color-primary)] hover:text-[#021a40] flex-shrink-0"
                                   >
                                     <span className="material-symbols-outlined text-[18px]">
                                       open_in_new
@@ -1911,7 +1930,7 @@ const AdmissionsPage = () => {
                                 <div className="flex gap-2 mt-2">
                                   <button
                                     onClick={() => setDeleteDocTarget(cert)}
-                                    className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[#EF4444] border border-[#EF4444] rounded hover:bg-[#FEF2F2] transition-colors"
+                                    className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[var(--color-danger)] border border-[var(--color-danger)] rounded hover:bg-[#FEF2F2] transition-colors"
                                   >
                                     <span className="material-symbols-outlined text-[14px]">
                                       delete
@@ -1927,7 +1946,7 @@ const AdmissionsPage = () => {
                         {certEntries.map((entry, idx) => (
                           <div
                             key={idx}
-                            className="border border-dashed border-[#D0D5DD] rounded-xl p-4 text-center hover:border-[#032D60] transition-colors space-y-2"
+                            className="border border-dashed border-[var(--color-hairline)] rounded p-4 text-center hover:border-[var(--color-primary)] transition-colors space-y-2"
                           >
                             <select
                               value={entry}
@@ -1936,7 +1955,7 @@ const AdmissionsPage = () => {
                                 next[idx] = e.target.value;
                                 setCertEntries(next);
                               }}
-                              className="w-full h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm"
+                              className="w-full h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm"
                             >
                               <option value="">-- Loại chứng chỉ --</option>
                               {availableOptions.map((opt) => (
@@ -1946,7 +1965,7 @@ const AdmissionsPage = () => {
                               ))}
                             </select>
                             {entry && (
-                              <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#032D60] hover:text-[#021a40]">
+                              <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[var(--color-primary)] hover:text-[#021a40]">
                                 <span className="material-symbols-outlined text-[20px]">
                                   cloud_upload
                                 </span>
@@ -1962,7 +1981,7 @@ const AdmissionsPage = () => {
                                 />
                               </label>
                             )}
-                            <p className="text-[10px] text-[#667085]">
+                            <p className="text-[10px] text-[var(--color-charcoal)]">
                               PDF, JPG, PNG tối đa 5MB
                             </p>
                           </div>
@@ -1974,7 +1993,7 @@ const AdmissionsPage = () => {
                               onClick={() =>
                                 setCertEntries([...certEntries, ""])
                               }
-                              className="w-full flex items-center justify-center gap-1.5 h-10 border-2 border-dashed border-[#D0D5DD] rounded-xl text-sm text-[#667085] hover:text-[#032D60] hover:border-[#032D60] transition-colors"
+                              className="w-full flex items-center justify-center gap-1.5 h-10 border-2 border-dashed border-[var(--color-hairline)] rounded text-sm text-[var(--color-charcoal)] hover:text-[var(--color-primary)] hover:border-[var(--color-primary)] transition-colors"
                             >
                               <span className="material-symbols-outlined text-[18px]">
                                 add
@@ -1997,42 +2016,42 @@ const AdmissionsPage = () => {
                     return (
                       <div
                         key={dt.value}
-                        className="border border-[#E4E7EC] rounded-xl overflow-hidden"
+                        className="border border-[var(--color-hairline)] rounded overflow-hidden"
                       >
-                        <div className="bg-[#F9FAFB] p-3">
+                        <div className="bg-[var(--color-canvas-soft)] p-3">
                           <div className="flex items-center gap-3">
                             {isImage ? (
                               <img
                                 src={existingDoc.file_url}
                                 alt={existingDoc.file_name}
-                                className="w-12 h-12 object-cover rounded border border-[#E4E7EC]"
+                                className="w-12 h-12 object-cover rounded border border-[var(--color-hairline)]"
                               />
                             ) : (
-                              <span className="material-symbols-outlined text-[28px] text-[#032D60]">
+                              <span className="material-symbols-outlined text-[28px] text-[var(--color-primary)]">
                                 picture_as_pdf
                               </span>
                             )}
                             <div className="min-w-0 flex-1">
-                              <p className="text-xs font-medium text-[#101828] truncate">
+                              <p className="text-xs font-medium text-[var(--color-ink-deep)] truncate">
                                 {existingDoc.document_type === "CERTIFICATE" &&
                                 existingDoc.display_name
                                   ? existingDoc.display_name
                                   : existingDoc.file_name}
                               </p>
-                              <p className="text-[10px] text-[#667085]">
+                              <p className="text-[10px] text-[var(--color-charcoal)]">
                                 {dt.label}
                               </p>
                             </div>
                             {ekycStepStatus && (
                               <span
-                                className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${EKYC_STATUS_STYLES[ekycStepStatus]}`}
+                                className={`rounded border px-2 py-0.5 text-[10px] font-bold ${EKYC_STATUS_STYLES[ekycStepStatus]}`}
                               >
                                 {EKYC_STEP_LABELS[ekycStepStatus]}
                               </span>
                             )}
                             <button
                               onClick={() => setViewDoc(existingDoc)}
-                              className="text-[#032D60] hover:text-[#021a40] flex-shrink-0"
+                              className="text-[var(--color-primary)] hover:text-[#021a40] flex-shrink-0"
                             >
                               <span className="material-symbols-outlined text-[18px]">
                                 open_in_new
@@ -2045,7 +2064,7 @@ const AdmissionsPage = () => {
                                 setEditingDocType(dt.value);
                                 setNewDocFile(null);
                               }}
-                              className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[#032D60] border border-[#032D60] rounded hover:bg-[#EFF6FF] transition-colors"
+                              className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[var(--color-primary)] border border-[var(--color-primary)] rounded hover:bg-[var(--color-primary-soft)] transition-colors"
                             >
                               <span className="material-symbols-outlined text-[14px]">
                                 edit
@@ -2054,7 +2073,7 @@ const AdmissionsPage = () => {
                             </button>
                             <button
                               onClick={() => setDeleteDocTarget(existingDoc)}
-                              className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[#EF4444] border border-[#EF4444] rounded hover:bg-[#FEF2F2] transition-colors"
+                              className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[var(--color-danger)] border border-[var(--color-danger)] rounded hover:bg-[#FEF2F2] transition-colors"
                             >
                               <span className="material-symbols-outlined text-[14px]">
                                 delete
@@ -2071,20 +2090,20 @@ const AdmissionsPage = () => {
                     return (
                       <div
                         key={dt.value}
-                        className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl p-4"
+                        className="bg-[var(--color-primary-soft)] border border-[var(--color-primary-ring)] rounded p-4"
                       >
-                        <p className="text-xs text-[#1E40AF] mb-2 font-semibold">
+                        <p className="text-xs text-[var(--color-primary)] mb-2 font-semibold">
                           {dt.label}
                         </p>
-                        <p className="text-xs text-[#1E40AF] mb-2">
+                        <p className="text-xs text-[var(--color-primary)] mb-2">
                           Chọn file mới:
                         </p>
                         <div className="flex items-center gap-2">
-                          <label className="flex-1 flex items-center justify-center gap-2 h-9 px-3 border border-dashed border-[#93C5FD] rounded-lg cursor-pointer hover:border-[#3B82F6] transition-colors bg-white">
-                            <span className="material-symbols-outlined text-[16px] text-[#3B82F6]">
+                          <label className="flex-1 flex items-center justify-center gap-2 h-9 px-3 border border-dashed border-[#93C5FD] rounded cursor-pointer hover:border-[var(--color-primary)] transition-colors bg-white">
+                            <span className="material-symbols-outlined text-[16px] text-[var(--color-primary)]">
                               cloud_upload
                             </span>
-                            <span className="text-xs text-[#3B82F6]">
+                            <span className="text-xs text-[var(--color-primary)]">
                               {newDocFile ? newDocFile.name : "Chọn file"}
                             </span>
                             <input
@@ -2099,9 +2118,9 @@ const AdmissionsPage = () => {
                           </label>
                           <div className="flex items-center gap-2">
                             {uploading && (
-                              <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                              <div className="w-16 h-1.5 bg-gray-200 rounded overflow-hidden">
                                 <div
-                                  className="h-full bg-[#032D60] rounded-full transition-all duration-200"
+                                  className="h-full bg-[var(--color-primary)] rounded transition-all duration-200"
                                   style={{ width: `${uploadProgress}%` }}
                                 />
                               </div>
@@ -2111,7 +2130,7 @@ const AdmissionsPage = () => {
                                 handleReplaceDoc(existingDoc!.id, dt.value)
                               }
                               disabled={!newDocFile || uploading}
-                              className="h-9 px-3 bg-[#2563EB] text-white text-xs font-semibold rounded-lg hover:bg-[#1D4ED8] disabled:opacity-50 transition-colors"
+                              className="h-9 px-3 bg-[var(--color-primary)] text-white text-xs font-semibold rounded hover:bg-[var(--color-primary-dark)] disabled:opacity-50 transition-colors"
                             >
                               {uploading ? `${uploadProgress}%` : "Lưu"}
                             </button>
@@ -2120,7 +2139,7 @@ const AdmissionsPage = () => {
                                 setEditingDocType(null);
                                 setNewDocFile(null);
                               }}
-                              className="h-9 px-3 text-xs font-semibold text-[#667085] border border-[#D0D5DD] rounded-lg hover:bg-[#F9FAFB] transition-colors"
+                              className="h-9 px-3 text-xs font-semibold text-[var(--color-charcoal)] border border-[var(--color-hairline)] rounded hover:bg-[var(--color-canvas-soft)] transition-colors"
                             >
                               Hủy
                             </button>
@@ -2133,19 +2152,21 @@ const AdmissionsPage = () => {
                   return (
                     <div
                       key={dt.value}
-                      className="border border-dashed border-[#D0D5DD] rounded-xl p-4 text-center hover:border-[#032D60] transition-colors"
+                      className="border border-dashed border-[var(--color-hairline)] rounded p-4 text-center hover:border-[var(--color-primary)] transition-colors"
                     >
-                      <p className="text-sm font-medium text-[#344054] mb-2">
+                      <p className="text-sm font-medium text-[var(--color-ink)] mb-2">
                         {dt.label}
                         {dt.required ? (
-                          <span className="text-[#EF4444] ml-0.5">*</span>
+                          <span className="text-[var(--color-danger)] ml-0.5">
+                            *
+                          </span>
                         ) : (
-                          <span className="text-[#98A2B3] font-normal ml-1">
+                          <span className="text-[var(--color-slate)] font-normal ml-1">
                             (Tùy chọn)
                           </span>
                         )}
                       </p>
-                      <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#032D60] hover:text-[#021a40]">
+                      <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[var(--color-primary)] hover:text-[#021a40]">
                         <span className="material-symbols-outlined text-[20px]">
                           cloud_upload
                         </span>
@@ -2158,7 +2179,7 @@ const AdmissionsPage = () => {
                           disabled={uploading}
                         />
                       </label>
-                      <p className="text-[10px] text-[#667085] mt-1">
+                      <p className="text-[10px] text-[var(--color-charcoal)] mt-1">
                         PDF, JPG, PNG tối đa 5MB
                       </p>
                     </div>
@@ -2173,13 +2194,13 @@ const AdmissionsPage = () => {
         <div className="flex justify-between mt-6">
           <button
             onClick={() => setStep(3)}
-            className="px-6 py-2.5 bg-white text-[#475467] border border-[#D0D5DD] rounded-full text-sm font-semibold hover:bg-[#F4F6F9] transition-all active:scale-95"
+            className="px-6 py-2.5 bg-white text-[var(--color-charcoal)] border border-[var(--color-hairline)] rounded text-sm font-semibold hover:bg-[var(--color-canvas-soft)] transition-all active:scale-95"
           >
             Quay lại
           </button>
           <button
             onClick={() => setStep(5)}
-            className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95"
+            className="px-6 py-2.5 bg-[var(--color-primary)] text-white rounded text-sm font-semibold hover:bg-[var(--color-primary-dark)] transition-all active:scale-95"
           >
             Tiếp tục
           </button>
@@ -2188,18 +2209,18 @@ const AdmissionsPage = () => {
 
       {/* Step 5 — Confirmation */}
       {step === 5 && (
-        <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
-            <h3 className="text-lg font-bold text-[#101828]">
+        <section className="bg-white rounded border border-[var(--color-hairline)] overflow-hidden">
+          <div className="px-6 py-4 border-b border-[var(--color-hairline)] bg-[var(--color-canvas-soft)]">
+            <h3 className="text-lg font-bold text-[var(--color-ink-deep)]">
               Kiểm tra & Xác nhận
             </h3>
           </div>
           <div className="p-6 space-y-6">
             <div>
-              <h4 className="text-sm font-bold text-[#101828] mb-3">
+              <h4 className="text-sm font-bold text-[var(--color-ink-deep)] mb-3">
                 Thông tin cá nhân
               </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-[#F4F6F9] rounded-xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-[var(--color-canvas-soft)] rounded">
                 <InfoRow label="Họ và tên" value={profileData.full_name} />
                 <InfoRow label="Email" value={profileData.email} />
                 <InfoRow label="Số điện thoại" value={profileData.phone} />
@@ -2225,11 +2246,11 @@ const AdmissionsPage = () => {
             </div>
 
             <div>
-              <h4 className="text-sm font-bold text-[#101828] mb-3">
+              <h4 className="text-sm font-bold text-[var(--color-ink-deep)] mb-3">
                 Nguyện vọng
               </h4>
               {wishes.length === 0 ? (
-                <p className="text-sm text-[#EF4444]">
+                <p className="text-sm text-[var(--color-danger)]">
                   Chưa có nguyện vọng nào
                 </p>
               ) : (
@@ -2237,16 +2258,16 @@ const AdmissionsPage = () => {
                   {wishes.map((w, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-3 p-3 bg-[#F4F6F9] rounded-xl"
+                      className="flex items-center gap-3 p-3 bg-[var(--color-canvas-soft)] rounded"
                     >
-                      <span className="w-6 h-6 rounded-full bg-[#032D60] text-white text-xs flex items-center justify-center font-bold">
+                      <span className="w-6 h-6 rounded bg-[var(--color-primary)] text-white text-xs flex items-center justify-center font-bold">
                         {i + 1}
                       </span>
                       <div>
-                        <p className="text-sm font-medium text-[#101828]">
+                        <p className="text-sm font-medium text-[var(--color-ink-deep)]">
                           {w.university.name} — {w.major.name}
                         </p>
-                        <p className="text-xs text-[#667085]">
+                        <p className="text-xs text-[var(--color-charcoal)]">
                           Tổ hợp: {w.combination.code} (
                           {normalizeSubjectName(w.combination.subject_1)},{" "}
                           {normalizeSubjectName(w.combination.subject_2)},{" "}
@@ -2263,26 +2284,26 @@ const AdmissionsPage = () => {
 
             {scores.length > 0 && (
               <div>
-                <h4 className="text-sm font-bold text-[#101828] mb-3">
+                <h4 className="text-sm font-bold text-[var(--color-ink-deep)] mb-3">
                   Điểm thi ({scores.length} môn)
                 </h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-[#F4F6F9] rounded-xl">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-[var(--color-canvas-soft)] rounded">
                   {scores.map((s) => (
                     <div
                       key={s.subject_code}
                       className="flex justify-between items-center"
                     >
-                      <span className="text-sm text-[#667085]">
+                      <span className="text-sm text-[var(--color-charcoal)]">
                         {s.subject_name}
                       </span>
-                      <span className="text-sm font-bold text-[#101828]">
+                      <span className="text-sm font-bold text-[var(--color-ink-deep)]">
                         {s.score || "—"}
                       </span>
                     </div>
                   ))}
                 </div>
                 {foreignLanguage && (
-                  <p className="text-xs text-[#667085] mt-2">
+                  <p className="text-xs text-[var(--color-charcoal)] mt-2">
                     Ngoại ngữ:{" "}
                     {FOREIGN_LANGUAGES.find((l) => l.code === foreignLanguage)
                       ?.name || foreignLanguage}
@@ -2291,7 +2312,7 @@ const AdmissionsPage = () => {
                       "—"}
                   </p>
                 )}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 text-xs text-[#667085]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 text-xs text-[var(--color-charcoal)]">
                   <span>Năm tốt nghiệp: {graduationYear || "—"}</span>
                   <span>Trường lớp 12: {grade12School || "—"}</span>
                 </div>
@@ -2300,7 +2321,7 @@ const AdmissionsPage = () => {
 
             {documents.length > 0 && (
               <div>
-                <h4 className="text-sm font-bold text-[#101828] mb-3">
+                <h4 className="text-sm font-bold text-[var(--color-ink-deep)] mb-3">
                   Tài liệu đính kèm
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -2308,19 +2329,19 @@ const AdmissionsPage = () => {
                     <button
                       key={doc.id}
                       onClick={() => setViewDoc(doc)}
-                      className="flex items-center gap-2 p-3 bg-[#F4F6F9] rounded-xl text-left hover:bg-[#E4E7EC] transition-colors"
+                      className="flex items-center gap-2 p-3 bg-[var(--color-canvas-soft)] rounded text-left hover:bg-[var(--color-hairline)] transition-colors"
                     >
-                      <span className="material-symbols-outlined text-[#032D60] text-[18px]">
+                      <span className="material-symbols-outlined text-[var(--color-primary)] text-[18px]">
                         {doc.file_type === "application/pdf" ||
                         /\.pdf$/i.test(doc.file_url)
                           ? "picture_as_pdf"
                           : "image"}
                       </span>
                       <div className="min-w-0">
-                        <p className="text-xs font-medium text-[#101828] truncate">
+                        <p className="text-xs font-medium text-[var(--color-ink-deep)] truncate">
                           {doc.file_name}
                         </p>
-                        <p className="text-[10px] text-[#667085]">
+                        <p className="text-[10px] text-[var(--color-charcoal)]">
                           {doc.document_type === "CERTIFICATE" &&
                           doc.display_name
                             ? doc.display_name
@@ -2334,15 +2355,15 @@ const AdmissionsPage = () => {
               </div>
             )}
 
-            <div className="border-t border-[#E4E7EC] pt-4">
+            <div className="border-t border-[var(--color-hairline)] pt-4">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={agreed}
                   onChange={(e) => setAgreed(e.target.checked)}
-                  className="mt-1 w-4 h-4 rounded border-[#D0D5DD] text-[#032D60] focus:ring-[#032D60]"
+                  className="mt-1 w-4 h-4 rounded border-[var(--color-hairline)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                 />
-                <span className="text-sm text-[#667085]">
+                <span className="text-sm text-[var(--color-charcoal)]">
                   Tôi cam đoan những thông tin đã khai báo là đúng sự thật và
                   chịu trách nhiệm trước pháp luật về nội dung đã khai báo. Tôi
                   đồng ý với các điều khoản và chính sách của trường.
@@ -2350,10 +2371,10 @@ const AdmissionsPage = () => {
               </label>
             </div>
 
-            <div className="flex justify-between pt-4 border-t border-[#E4E7EC]">
+            <div className="flex justify-between pt-4 border-t border-[var(--color-hairline)]">
               <button
                 onClick={() => setStep(4)}
-                className="px-6 py-2.5 bg-white text-[#475467] border border-[#D0D5DD] rounded-full text-sm font-semibold hover:bg-[#F4F6F9] transition-all active:scale-95"
+                className="px-6 py-2.5 bg-white text-[var(--color-charcoal)] border border-[var(--color-hairline)] rounded text-sm font-semibold hover:bg-[var(--color-canvas-soft)] transition-all active:scale-95"
               >
                 Quay lại
               </button>
@@ -2365,7 +2386,7 @@ const AdmissionsPage = () => {
                   wishes.length === 0 ||
                   ekycStatus.overall_status !== "VERIFIED"
                 }
-                className="px-6 py-2.5 bg-[#2563EB] text-white rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2.5 bg-[var(--color-primary)] text-white rounded text-sm font-semibold hover:bg-[var(--color-primary-dark)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? "Đang nộp..." : "Gửi hồ sơ"}
               </button>
@@ -2412,15 +2433,19 @@ const Field = ({
   children: React.ReactNode;
 }) => (
   <div className="flex flex-col gap-1.5">
-    <label className="text-xs font-semibold text-[#344054]">{label}</label>
+    <label className="text-xs font-semibold text-[var(--color-ink)]">
+      {label}
+    </label>
     {children}
   </div>
 );
 
 const InfoRow = ({ label, value }: { label: string; value: string }) => (
   <div className="flex flex-col">
-    <span className="text-xs text-[#667085]">{label}</span>
-    <span className="text-sm font-medium text-[#101828]">{value || "—"}</span>
+    <span className="text-xs text-[var(--color-charcoal)]">{label}</span>
+    <span className="text-sm font-medium text-[var(--color-ink-deep)]">
+      {value || "—"}
+    </span>
   </div>
 );
 

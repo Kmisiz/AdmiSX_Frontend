@@ -36,22 +36,22 @@ export default function DocumentViewer({
       onClick={onClose}
     >
       <div
-        className="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden"
+        className="relative bg-white rounded shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-3 border-b border-[#E4E7EC]">
-          <h3 className="text-sm font-semibold text-[#101828] truncate max-w-[80%]">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--color-hairline)]">
+          <h3 className="text-sm font-semibold text-[var(--color-ink-deep)] truncate max-w-[80%]">
             {fileName}
           </h3>
           <button
             onClick={onClose}
-            className="text-[#667085] hover:text-[#101828] p-1 flex-shrink-0 rounded-full hover:bg-[#F4F6F9] transition-colors"
+            className="text-[var(--color-charcoal)] hover:text-[var(--color-ink-deep)] p-1 flex-shrink-0 rounded hover:bg-[var(--color-canvas-soft)] transition-colors"
           >
             <span className="material-symbols-outlined text-[22px]">close</span>
           </button>
         </div>
 
-        <div className="flex-1 overflow-auto bg-[#F9FAFB] flex items-center justify-center min-h-[300px]">
+        <div className="flex-1 overflow-auto bg-[var(--color-canvas-soft)] flex items-center justify-center min-h-[300px]">
           {isImage ? (
             <img
               src={fileUrl}
@@ -66,17 +66,17 @@ export default function DocumentViewer({
             />
           ) : (
             <div className="text-center p-8">
-              <span className="material-symbols-outlined text-[48px] text-[#667085]">
+              <span className="material-symbols-outlined text-[48px] text-[var(--color-charcoal)]">
                 description
               </span>
-              <p className="text-sm text-[#667085] mt-2">
+              <p className="text-sm text-[var(--color-charcoal)] mt-2">
                 Không thể xem trước loại file này
               </p>
               <a
                 href={fileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block mt-3 px-4 py-2 bg-[#2563EB] text-white text-sm rounded-full hover:bg-[#1D4ED8] transition-colors"
+                className="inline-block mt-3 px-4 py-2 bg-[var(--color-primary)] text-white text-sm rounded hover:bg-[var(--color-primary-dark)] transition-colors"
               >
                 Tải xuống
               </a>

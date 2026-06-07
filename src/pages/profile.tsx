@@ -53,6 +53,7 @@ const ProfilePage = () => {
     phone: "",
     date_of_birth: "",
     gender: "",
+    citizen_id: "",
     province: "",
     address: "",
     ethnic: "",
@@ -500,6 +501,7 @@ const ProfilePage = () => {
             ? new Date(cp.date_of_birth).toLocaleDateString("en-CA")
             : "",
           gender: cp.gender || "",
+          citizen_id: cp.citizen_id?.toString() || "",
           province: cp.province || "",
           address: cp.address || "",
           ethnic: cp.ethnic || "",
@@ -624,6 +626,9 @@ const ProfilePage = () => {
         phone: formData.phone,
         date_of_birth: formData.date_of_birth,
         gender: formData.gender,
+        citizen_id: formData.citizen_id
+          ? Number(formData.citizen_id.replace(/\D/g, ""))
+          : undefined,
         province: formData.province,
         address: formData.address,
         ethnic: formData.ethnic,
@@ -730,12 +735,14 @@ const ProfilePage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] bg-[#F5F7FB]">
+      <div className="flex items-center justify-center min-h-[60vh] bg-[var(--color-canvas-soft)]">
         <div className="flex flex-col items-center gap-4">
-          <span className="material-symbols-outlined text-[#032D60] animate-spin text-[40px]">
+          <span className="material-symbols-outlined text-[var(--color-primary)] animate-spin text-[40px]">
             progress_activity
           </span>
-          <p className="text-[#667085] text-sm">Đang tải thông tin...</p>
+          <p className="text-[var(--color-charcoal)] text-sm">
+            Đang tải thông tin...
+          </p>
         </div>
       </div>
     );
@@ -744,12 +751,12 @@ const ProfilePage = () => {
   return (
     <>
       <style>{PROFILE_STYLES}</style>
-      <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8 bg-[#F5F7FB]">
+      <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-9 py-8 bg-[var(--color-canvas-soft)]">
         <div className="mb-6">
-          <h1 className="text-[32px] font-bold text-[#101828]">
+          <h1 className="text-[32px] font-bold text-[var(--color-ink-deep)]">
             Hồ sơ của tôi
           </h1>
-          <p className="text-[#667085] text-sm mt-1">
+          <p className="text-[var(--color-charcoal)] text-sm mt-1">
             Quản lý thông tin cá nhân và hồ sơ học tập
           </p>
         </div>
@@ -758,11 +765,11 @@ const ProfilePage = () => {
 
         <div className="flex flex-col md:flex-row gap-6">
           <aside className="w-full md:w-64 flex-shrink-0">
-            <div className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden sticky top-24">
-              <div className="p-5 border-b border-[#E4E7EC]">
+            <div className="bg-white rounded border border-[var(--color-hairline)] overflow-hidden sticky top-24">
+              <div className="p-5 border-b border-[var(--color-hairline)]">
                 <div className="flex items-center gap-3">
                   {user?.avatar_url ? (
-                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-[#E4E7EC]">
+                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-[var(--color-hairline)]">
                       <img
                         src={user.avatar_url}
                         alt="avatar"
@@ -770,15 +777,15 @@ const ProfilePage = () => {
                       />
                     </div>
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-[#032D60] flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white font-bold">
                       {profile?.candidate_profile?.full_name?.charAt(0) || "?"}
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#101828] truncate">
+                    <p className="text-sm font-semibold text-[var(--color-ink-deep)] truncate">
                       {profile?.candidate_profile?.full_name || "Thí sinh"}
                     </p>
-                    <p className="text-[11px] text-[#667085] truncate">
+                    <p className="text-[11px] text-[var(--color-charcoal)] truncate">
                       {profile?.user?.email}
                     </p>
                   </div>
@@ -791,8 +798,8 @@ const ProfilePage = () => {
                     onClick={() => setActiveTab(tab.key)}
                     className={`flex items-center gap-3 px-5 py-3 text-left transition-all text-sm ${
                       activeTab === tab.key
-                        ? "bg-[#032D60]/10 border-l-4 border-[#032D60] text-[#032D60] font-semibold"
-                        : "text-[#667085] hover:bg-[#F9FAFB] border-l-4 border-transparent"
+                        ? "bg-[var(--color-primary)]/10 border-l-4 border-[var(--color-primary)] text-[var(--color-primary)] font-semibold"
+                        : "text-[var(--color-charcoal)] hover:bg-[var(--color-canvas-soft)] border-l-4 border-transparent"
                     }`}
                   >
                     <span className="material-symbols-outlined text-[20px]">
@@ -807,15 +814,15 @@ const ProfilePage = () => {
 
           <div className="flex-1 space-y-6">
             {activeTab === "personal" && (
-              <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
-                <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9] flex justify-between items-center">
-                  <h3 className="text-lg font-bold text-[#101828]">
+              <section className="bg-white rounded border border-[var(--color-hairline)] overflow-hidden">
+                <div className="px-6 py-4 border-b border-[var(--color-hairline)] bg-[var(--color-canvas-soft)] flex justify-between items-center">
+                  <h3 className="text-lg font-bold text-[var(--color-ink-deep)]">
                     Thông tin cá nhân
                   </h3>
                   <button
                     onClick={handleSaveProfile}
                     disabled={saving}
-                    className="bg-[#2563EB] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50"
+                    className="bg-[var(--color-primary)] text-white px-5 py-2 rounded text-sm font-semibold hover:bg-[var(--color-primary-dark)] transition-all active:scale-95 disabled:opacity-50"
                   >
                     {saving ? "Đang lưu..." : "Lưu thay đổi"}
                   </button>
@@ -837,7 +844,7 @@ const ProfilePage = () => {
                         title={
                           user?.avatar_url ? "Đổi avatar" : "Tải avatar lên"
                         }
-                        className="relative w-24 h-24 rounded-full border-4 border-[#E4E7EC] overflow-hidden bg-[#032D60] flex items-center justify-center disabled:opacity-60 cursor-pointer"
+                        className="relative w-24 h-24 rounded-full border-4 border-[var(--color-hairline)] overflow-hidden bg-[var(--color-primary)] flex items-center justify-center disabled:opacity-60 cursor-pointer"
                       >
                         {user?.avatar_url ? (
                           <img
@@ -870,7 +877,7 @@ const ProfilePage = () => {
                           onClick={handleDeleteAvatar}
                           disabled={avatarBusy}
                           title="Xoá avatar"
-                          className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#EF4444] text-white flex items-center justify-center shadow-md hover:bg-[#DC2626] transition-colors disabled:opacity-60"
+                          className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[var(--color-danger)] text-white flex items-center justify-center shadow-md hover:bg-[var(--color-danger-deep)] transition-colors disabled:opacity-60"
                         >
                           <span className="material-symbols-outlined text-[16px]">
                             delete
@@ -880,7 +887,7 @@ const ProfilePage = () => {
                     </div>
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-[#344054]">
+                        <label className="text-xs font-semibold text-[var(--color-ink)]">
                           Họ và tên
                         </label>
                         <input
@@ -897,29 +904,29 @@ const ProfilePage = () => {
                                 full_name: "",
                               }));
                           }}
-                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${fieldErrors.full_name ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                          className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${fieldErrors.full_name ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
                         />
                         {fieldErrors.full_name && (
-                          <p className="text-[11px] text-[#EF4444]">
+                          <p className="text-[11px] text-[var(--color-danger)]">
                             {fieldErrors.full_name}
                           </p>
                         )}
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-[#344054]">
+                        <label className="text-xs font-semibold text-[var(--color-ink)]">
                           Email
                         </label>
                         <input
                           type="email"
                           value={profile?.user?.email || ""}
                           disabled
-                          className="h-11 px-3 border border-[#D0D5DD] rounded-lg bg-[#F4F6F9] text-[#667085] cursor-not-allowed text-sm"
+                          className="h-11 px-3 border border-[var(--color-hairline)] rounded bg-[var(--color-canvas-soft)] text-[var(--color-charcoal)] cursor-not-allowed text-sm"
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-[#344054]">
+                        <label className="text-xs font-semibold text-[var(--color-ink)]">
                           Số điện thoại{" "}
-                          <span className="text-[#EF4444]">*</span>
+                          <span className="text-[var(--color-danger)]">*</span>
                         </label>
                         <input
                           type="tel"
@@ -935,17 +942,18 @@ const ProfilePage = () => {
                                 phone: "",
                               }));
                           }}
-                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${fieldErrors.phone ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                          className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${fieldErrors.phone ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
                         />
                         {fieldErrors.phone && (
-                          <p className="text-[11px] text-[#EF4444]">
+                          <p className="text-[11px] text-[var(--color-danger)]">
                             {fieldErrors.phone}
                           </p>
                         )}
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-[#344054]">
-                          Ngày sinh <span className="text-[#EF4444]">*</span>
+                        <label className="text-xs font-semibold text-[var(--color-ink)]">
+                          Ngày sinh{" "}
+                          <span className="text-[var(--color-danger)]">*</span>
                         </label>
                         <input
                           type="date"
@@ -961,17 +969,18 @@ const ProfilePage = () => {
                                 date_of_birth: "",
                               }));
                           }}
-                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${fieldErrors.date_of_birth ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                          className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${fieldErrors.date_of_birth ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
                         />
                         {fieldErrors.date_of_birth && (
-                          <p className="text-[11px] text-[#EF4444]">
+                          <p className="text-[11px] text-[var(--color-danger)]">
                             {fieldErrors.date_of_birth}
                           </p>
                         )}
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-[#344054]">
-                          Giới tính <span className="text-[#EF4444]">*</span>
+                        <label className="text-xs font-semibold text-[var(--color-ink)]">
+                          Giới tính{" "}
+                          <span className="text-[var(--color-danger)]">*</span>
                         </label>
                         <select
                           value={formData.gender}
@@ -986,7 +995,7 @@ const ProfilePage = () => {
                                 gender: "",
                               }));
                           }}
-                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm bg-white ${fieldErrors.gender ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                          className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm bg-white ${fieldErrors.gender ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
                         >
                           <option value="">Chọn giới tính</option>
                           {GENDER_OPTIONS.map((opt) => (
@@ -996,14 +1005,39 @@ const ProfilePage = () => {
                           ))}
                         </select>
                         {fieldErrors.gender && (
-                          <p className="text-[11px] text-[#EF4444]">
+                          <p className="text-[11px] text-[var(--color-danger)]">
                             {fieldErrors.gender}
                           </p>
                         )}
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-[#344054]">
-                          Dân tộc <span className="text-[#EF4444]">*</span>
+                        <label className="text-xs font-semibold text-[var(--color-ink)]">
+                          CCCD/CMND{" "}
+                          <span className="text-[var(--color-danger)]">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.citizen_id}
+                          onChange={(e) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              citizen_id: e.target.value.replace(/\D/g, ""),
+                            }));
+                          }}
+                          className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${fieldErrors.citizen_id ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
+                          placeholder="Số CCCD/CMND (12 hoặc 9 số)"
+                          maxLength={12}
+                        />
+                        {fieldErrors.citizen_id && (
+                          <p className="text-[11px] text-[var(--color-danger)]">
+                            {fieldErrors.citizen_id}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-semibold text-[var(--color-ink)]">
+                          Dân tộc{" "}
+                          <span className="text-[var(--color-danger)]">*</span>
                         </label>
                         <input
                           type="text"
@@ -1019,17 +1053,18 @@ const ProfilePage = () => {
                                 ethnic: "",
                               }));
                           }}
-                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${fieldErrors.ethnic ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                          className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${fieldErrors.ethnic ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
                         />
                         {fieldErrors.ethnic && (
-                          <p className="text-[11px] text-[#EF4444]">
+                          <p className="text-[11px] text-[var(--color-danger)]">
                             {fieldErrors.ethnic}
                           </p>
                         )}
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-[#344054]">
-                          Tôn giáo <span className="text-[#EF4444]">*</span>
+                        <label className="text-xs font-semibold text-[var(--color-ink)]">
+                          Tôn giáo{" "}
+                          <span className="text-[var(--color-danger)]">*</span>
                         </label>
                         <input
                           type="text"
@@ -1045,16 +1080,16 @@ const ProfilePage = () => {
                                 religion: "",
                               }));
                           }}
-                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${fieldErrors.religion ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                          className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${fieldErrors.religion ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
                         />
                         {fieldErrors.religion && (
-                          <p className="text-[11px] text-[#EF4444]">
+                          <p className="text-[11px] text-[var(--color-danger)]">
                             {fieldErrors.religion}
                           </p>
                         )}
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-[#344054]">
+                        <label className="text-xs font-semibold text-[var(--color-ink)]">
                           Quốc tịch
                         </label>
                         <input
@@ -1066,13 +1101,13 @@ const ProfilePage = () => {
                               nation: e.target.value,
                             }));
                           }}
-                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${fieldErrors.nation ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                          className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${fieldErrors.nation ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
                         />
                       </div>
                       <div className="flex flex-col gap-1.5 md:col-span-2">
-                        <label className="text-xs font-semibold text-[#344054]">
+                        <label className="text-xs font-semibold text-[var(--color-ink)]">
                           Tỉnh/Thành phố{" "}
-                          <span className="text-[#EF4444]">*</span>
+                          <span className="text-[var(--color-danger)]">*</span>
                         </label>
                         <input
                           type="text"
@@ -1088,17 +1123,18 @@ const ProfilePage = () => {
                                 province: "",
                               }));
                           }}
-                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${fieldErrors.province ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                          className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${fieldErrors.province ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
                         />
                         {fieldErrors.province && (
-                          <p className="text-[11px] text-[#EF4444]">
+                          <p className="text-[11px] text-[var(--color-danger)]">
                             {fieldErrors.province}
                           </p>
                         )}
                       </div>
                       <div className="flex flex-col gap-1.5 md:col-span-2">
-                        <label className="text-xs font-semibold text-[#344054]">
-                          Địa chỉ <span className="text-[#EF4444]">*</span>
+                        <label className="text-xs font-semibold text-[var(--color-ink)]">
+                          Địa chỉ{" "}
+                          <span className="text-[var(--color-danger)]">*</span>
                         </label>
                         <input
                           type="text"
@@ -1114,10 +1150,10 @@ const ProfilePage = () => {
                                 address: "",
                               }));
                           }}
-                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${fieldErrors.address ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                          className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${fieldErrors.address ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
                         />
                         {fieldErrors.address && (
-                          <p className="text-[11px] text-[#EF4444]">
+                          <p className="text-[11px] text-[var(--color-danger)]">
                             {fieldErrors.address}
                           </p>
                         )}
@@ -1129,15 +1165,15 @@ const ProfilePage = () => {
             )}
 
             {activeTab === "academic" && (
-              <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
-                <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9] flex justify-between items-center">
-                  <h3 className="text-lg font-bold text-[#101828]">
+              <section className="bg-white rounded border border-[var(--color-hairline)] overflow-hidden">
+                <div className="px-6 py-4 border-b border-[var(--color-hairline)] bg-[var(--color-canvas-soft)] flex justify-between items-center">
+                  <h3 className="text-lg font-bold text-[var(--color-ink-deep)]">
                     Hồ sơ học tập
                   </h3>
                   <button
                     onClick={handleSaveAcademic}
                     disabled={saving}
-                    className="bg-[#2563EB] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50"
+                    className="bg-[var(--color-primary)] text-white px-5 py-2 rounded text-sm font-semibold hover:bg-[var(--color-primary-dark)] transition-all active:scale-95 disabled:opacity-50"
                   >
                     {saving ? "Đang lưu..." : "Lưu thay đổi"}
                   </button>
@@ -1145,9 +1181,9 @@ const ProfilePage = () => {
                 <div className="p-6 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-[#344054]">
+                      <label className="text-xs font-semibold text-[var(--color-ink)]">
                         Năm tốt nghiệp THPT{" "}
-                        <span className="text-[#EF4444]">*</span>
+                        <span className="text-[var(--color-danger)]">*</span>
                       </label>
                       <input
                         type="number"
@@ -1163,19 +1199,19 @@ const ProfilePage = () => {
                               graduation_year: "",
                             }));
                         }}
-                        className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${academicFieldErrors.graduation_year ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                        className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${academicFieldErrors.graduation_year ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
                         placeholder="VD: 2025"
                       />
                       {academicFieldErrors.graduation_year && (
-                        <p className="text-[11px] text-[#EF4444]">
+                        <p className="text-[11px] text-[var(--color-danger)]">
                           {academicFieldErrors.graduation_year}
                         </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="border-t border-[#E4E7EC] pt-5">
-                    <h4 className="text-sm font-bold text-[#101828] mb-4">
+                  <div className="border-t border-[var(--color-hairline)] pt-5">
+                    <h4 className="text-sm font-bold text-[var(--color-ink-deep)] mb-4">
                       Thông tin học tập THPT
                     </h4>
                     {([10, 11, 12] as const).map((grade) => {
@@ -1186,12 +1222,14 @@ const ProfilePage = () => {
                       return (
                         <div
                           key={grade}
-                          className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 pb-4 border-b border-[#E4E7EC] last:border-b-0 last:pb-0 last:mb-0"
+                          className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 pb-4 border-b border-[var(--color-hairline)] last:border-b-0 last:pb-0 last:mb-0"
                         >
                           <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-[#344054]">
+                            <label className="text-xs font-semibold text-[var(--color-ink)]">
                               Lớp {grade} - Trường{" "}
-                              <span className="text-[#EF4444]">*</span>
+                              <span className="text-[var(--color-danger)]">
+                                *
+                              </span>
                             </label>
                             <input
                               type="text"
@@ -1207,19 +1245,21 @@ const ProfilePage = () => {
                                     [schoolKey]: "",
                                   }));
                               }}
-                              className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${academicFieldErrors[schoolKey] ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                              className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${academicFieldErrors[schoolKey] ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
                               placeholder={`Tên trường lớp ${grade}`}
                             />
                             {academicFieldErrors[schoolKey] && (
-                              <p className="text-[11px] text-[#EF4444]">
+                              <p className="text-[11px] text-[var(--color-danger)]">
                                 {academicFieldErrors[schoolKey]}
                               </p>
                             )}
                           </div>
                           <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-[#344054]">
+                            <label className="text-xs font-semibold text-[var(--color-ink)]">
                               Lớp {grade} - Điểm TB{" "}
-                              <span className="text-[#EF4444]">*</span>
+                              <span className="text-[var(--color-danger)]">
+                                *
+                              </span>
                             </label>
                             <input
                               type="number"
@@ -1236,11 +1276,11 @@ const ProfilePage = () => {
                                     [scoreKey]: "",
                                   }));
                               }}
-                              className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${academicFieldErrors[scoreKey] ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                              className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${academicFieldErrors[scoreKey] ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
                               placeholder="VD: 8.5"
                             />
                             {academicFieldErrors[scoreKey] && (
-                              <p className="text-[11px] text-[#EF4444]">
+                              <p className="text-[11px] text-[var(--color-danger)]">
                                 {academicFieldErrors[scoreKey]}
                               </p>
                             )}
@@ -1253,27 +1293,27 @@ const ProfilePage = () => {
                   {academic?.academic_record?.exam_scores &&
                   academic.academic_record.exam_scores.length > 0 &&
                   examMode === "view" ? (
-                    <div className="border-t border-[#E4E7EC] pt-5">
-                      <h4 className="text-sm font-bold text-[#101828] mb-4">
+                    <div className="border-t border-[var(--color-hairline)] pt-5">
+                      <h4 className="text-sm font-bold text-[var(--color-ink-deep)] mb-4">
                         Điểm thi hiện tại
                       </h4>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {academic.academic_record.exam_scores.map((score) => (
                           <div
                             key={score.subject_code}
-                            className="bg-[#F9FAFB] rounded-lg px-4 py-3 flex justify-between items-center"
+                            className="bg-[var(--color-canvas-soft)] rounded px-4 py-3 flex justify-between items-center"
                           >
-                            <span className="text-sm text-[#344054]">
+                            <span className="text-sm text-[var(--color-ink)]">
                               {score.subject_name}
                             </span>
-                            <span className="text-sm font-bold text-[#101828]">
+                            <span className="text-sm font-bold text-[var(--color-ink-deep)]">
                               {score.score}
                             </span>
                           </div>
                         ))}
                       </div>
                       {academic.academic_record.foreign_language && (
-                        <p className="text-xs text-[#667085] mt-2">
+                        <p className="text-xs text-[var(--color-charcoal)] mt-2">
                           Ngoại ngữ:{" "}
                           {
                             academic.academic_record.foreign_language
@@ -1292,16 +1332,16 @@ const ProfilePage = () => {
                           certDoc.file_type.startsWith("image/") ||
                           /\.(jpg|jpeg|png|gif|webp)$/i.test(certDoc.file_url);
                         return (
-                          <div className="mt-4 border-t border-[#E4E7EC] pt-4">
+                          <div className="mt-4 border-t border-[var(--color-hairline)] pt-4">
                             <div className="flex items-center justify-between mb-2">
-                              <h5 className="text-xs font-semibold text-[#344054]">
+                              <h5 className="text-xs font-semibold text-[var(--color-ink)]">
                                 Giấy chứng nhận kết quả thi
                               </h5>
                               {!certEditing && (
                                 <div className="flex gap-1">
                                   <button
                                     onClick={() => setCertEditing(true)}
-                                    className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[#032D60] border border-[#032D60] rounded hover:bg-[#EFF6FF] transition-colors"
+                                    className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[var(--color-primary)] border border-[var(--color-primary)] rounded hover:bg-[var(--color-primary-soft)] transition-colors"
                                   >
                                     <span className="material-symbols-outlined text-[14px]">
                                       edit
@@ -1310,7 +1350,7 @@ const ProfilePage = () => {
                                   </button>
                                   <button
                                     onClick={() => setDeleteCertTarget(certDoc)}
-                                    className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[#EF4444] border border-[#EF4444] rounded hover:bg-[#FEF2F2] transition-colors"
+                                    className="flex items-center gap-1 px-2 py-1 text-[11px] font-semibold text-[var(--color-danger)] border border-[var(--color-danger)] rounded hover:bg-[#FEF2F2] transition-colors"
                                   >
                                     <span className="material-symbols-outlined text-[14px]">
                                       delete
@@ -1321,16 +1361,16 @@ const ProfilePage = () => {
                               )}
                             </div>
                             {certEditing ? (
-                              <div className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-lg p-3">
-                                <p className="text-xs text-[#1E40AF] mb-2 font-semibold">
+                              <div className="bg-[var(--color-primary-soft)] border border-[var(--color-primary-ring)] rounded p-3">
+                                <p className="text-xs text-[var(--color-primary)] mb-2 font-semibold">
                                   Chọn file giấy chứng nhận mới:
                                 </p>
                                 <div className="flex items-center gap-2">
-                                  <label className="flex-1 flex items-center justify-center gap-2 h-9 px-3 border border-dashed border-[#93C5FD] rounded-lg cursor-pointer hover:border-[#3B82F6] transition-colors bg-white">
-                                    <span className="material-symbols-outlined text-[16px] text-[#3B82F6]">
+                                  <label className="flex-1 flex items-center justify-center gap-2 h-9 px-3 border border-dashed border-[var(--color-primary-ring)] rounded cursor-pointer hover:border-[var(--color-primary)] transition-colors bg-white">
+                                    <span className="material-symbols-outlined text-[16px] text-[var(--color-primary)]">
                                       cloud_upload
                                     </span>
-                                    <span className="text-xs text-[#3B82F6]">
+                                    <span className="text-xs text-[var(--color-primary)]">
                                       {newCertFile
                                         ? newCertFile.name
                                         : "Chọn file"}
@@ -1348,7 +1388,7 @@ const ProfilePage = () => {
                                   {uploadingScores && (
                                     <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
                                       <div
-                                        className="h-full bg-[#032D60] rounded-full transition-all duration-200"
+                                        className="h-full bg-[var(--color-primary)] rounded transition-all duration-200"
                                         style={{ width: `${uploadProgress}%` }}
                                       />
                                     </div>
@@ -1358,7 +1398,7 @@ const ProfilePage = () => {
                                       handleReplaceCertificate(certDoc.id)
                                     }
                                     disabled={!newCertFile || uploadingScores}
-                                    className="h-9 px-3 bg-[#2563EB] text-white text-xs font-semibold rounded-lg hover:bg-[#1D4ED8] disabled:opacity-50 transition-colors"
+                                    className="h-9 px-3 bg-[var(--color-primary)] text-white text-xs font-semibold rounded hover:bg-[var(--color-primary-dark)] disabled:opacity-50 transition-colors"
                                   >
                                     {uploadingScores
                                       ? `${uploadProgress}%`
@@ -1369,30 +1409,30 @@ const ProfilePage = () => {
                                       setCertEditing(false);
                                       setNewCertFile(null);
                                     }}
-                                    className="h-9 px-3 text-xs font-semibold text-[#667085] border border-[#D0D5DD] rounded-lg hover:bg-[#F9FAFB] transition-colors"
+                                    className="h-9 px-3 text-xs font-semibold text-[var(--color-charcoal)] border border-[var(--color-hairline)] rounded hover:bg-[var(--color-canvas-soft)] transition-colors"
                                   >
                                     Hủy
                                   </button>
                                 </div>
                               </div>
                             ) : (
-                              <div className="bg-[#F9FAFB] rounded-lg p-3 flex items-center gap-3">
+                              <div className="bg-[var(--color-canvas-soft)] rounded p-3 flex items-center gap-3">
                                 {isImage ? (
                                   <img
                                     src={certDoc.file_url}
                                     alt={certDoc.file_name}
-                                    className="w-16 h-16 object-cover rounded border border-[#E4E7EC]"
+                                    className="w-16 h-16 object-cover rounded border border-[var(--color-hairline)]"
                                   />
                                 ) : (
-                                  <span className="material-symbols-outlined text-[32px] text-[#032D60]">
+                                  <span className="material-symbols-outlined text-[32px] text-[var(--color-primary)]">
                                     picture_as_pdf
                                   </span>
                                 )}
                                 <div className="min-w-0 flex-1">
-                                  <p className="text-xs font-medium text-[#101828] truncate">
+                                  <p className="text-xs font-medium text-[var(--color-ink-deep)] truncate">
                                     {certDoc.file_name}
                                   </p>
-                                  <p className="text-[10px] text-[#667085]">
+                                  <p className="text-[10px] text-[var(--color-charcoal)]">
                                     Cập nhật:{" "}
                                     {new Date(
                                       certDoc.uploaded_at,
@@ -1401,7 +1441,7 @@ const ProfilePage = () => {
                                 </div>
                                 <button
                                   onClick={() => setViewCertDoc(certDoc)}
-                                  className="text-[#032D60] hover:text-[#021a40]"
+                                  className="text-[var(--color-primary)] hover:text-[#021a40]"
                                 >
                                   <span className="material-symbols-outlined text-[18px]">
                                     open_in_new
@@ -1414,20 +1454,20 @@ const ProfilePage = () => {
                       })()}
                     </div>
                   ) : (
-                    <div className="border-t border-[#E4E7EC] pt-5 mt-5">
-                      <h4 className="text-sm font-bold text-[#101828] mb-1">
+                    <div className="border-t border-[var(--color-hairline)] pt-5 mt-5">
+                      <h4 className="text-sm font-bold text-[var(--color-ink-deep)] mb-1">
                         {examMode === "edit"
                           ? "Sửa điểm thi"
                           : "Cập nhật điểm thi"}
                       </h4>
-                      <p className="text-xs text-[#667085] mb-4">
+                      <p className="text-xs text-[var(--color-charcoal)] mb-4">
                         Bắt buộc Toán + Văn. Chọn thêm 2 môn tự chọn. Tải lên
                         giấy chứng nhận kết quả thi.
                       </p>
 
                       {/* Required subjects */}
                       <div className="mb-4">
-                        <h5 className="text-xs font-semibold text-[#344054] mb-2">
+                        <h5 className="text-xs font-semibold text-[var(--color-ink)] mb-2">
                           Môn bắt buộc
                         </h5>
                         <div className="grid grid-cols-2 gap-4">
@@ -1446,7 +1486,7 @@ const ProfilePage = () => {
                                   key={s.subject_code}
                                   className="flex flex-col gap-1.5"
                                 >
-                                  <label className="text-xs font-semibold text-[#344054]">
+                                  <label className="text-xs font-semibold text-[var(--color-ink)]">
                                     {s.subject_name} *
                                   </label>
                                   <input
@@ -1458,7 +1498,7 @@ const ProfilePage = () => {
                                     onChange={(e) =>
                                       updateExamScore(globalIdx, e.target.value)
                                     }
-                                    className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm"
+                                    className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm"
                                     placeholder="0.0 - 10.0"
                                   />
                                 </div>
@@ -1469,13 +1509,13 @@ const ProfilePage = () => {
 
                       {/* Optional subjects */}
                       <div className="mb-4">
-                        <h5 className="text-xs font-semibold text-[#344054] mb-1">
+                        <h5 className="text-xs font-semibold text-[var(--color-ink)] mb-1">
                           Môn tự chọn{" "}
-                          <span className="text-[#667085] font-normal">
+                          <span className="text-[var(--color-charcoal)] font-normal">
                             (Chọn đúng 2)
                           </span>
                         </h5>
-                        <p className="text-[11px] text-[#667085] mb-2">
+                        <p className="text-[11px] text-[var(--color-charcoal)] mb-2">
                           Đã chọn: {selectedOptional.length}/2
                         </p>
                         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mb-3">
@@ -1490,12 +1530,12 @@ const ProfilePage = () => {
                                 key={opt.code}
                                 onClick={() => toggleOptionalSubject(opt.code)}
                                 disabled={isFull}
-                                className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all ${
+                                className={`px-3 py-2 rounded text-xs font-medium border transition-all ${
                                   isSelected
-                                    ? "bg-[#032D60] text-white border-[#032D60]"
+                                    ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
                                     : isFull
-                                      ? "bg-[#F9FAFB] text-[#9CA3AF] border-[#E4E7EC] cursor-not-allowed"
-                                      : "bg-white text-[#344054] border-[#D0D5DD] hover:border-[#032D60] hover:text-[#032D60]"
+                                      ? "bg-[var(--color-canvas-soft)] text-[#9CA3AF] border-[var(--color-hairline)] cursor-not-allowed"
+                                      : "bg-white text-[var(--color-ink)] border-[var(--color-hairline)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                                 }`}
                               >
                                 {opt.name}
@@ -1519,7 +1559,7 @@ const ProfilePage = () => {
                                     key={s.subject_code}
                                     className="flex flex-col gap-1.5"
                                   >
-                                    <label className="text-xs font-semibold text-[#344054]">
+                                    <label className="text-xs font-semibold text-[var(--color-ink)]">
                                       {s.subject_name} *
                                     </label>
                                     <input
@@ -1534,7 +1574,7 @@ const ProfilePage = () => {
                                           e.target.value,
                                         )
                                       }
-                                      className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm"
+                                      className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm"
                                       placeholder="0.0 - 10.0"
                                     />
                                   </div>
@@ -1544,8 +1584,8 @@ const ProfilePage = () => {
                         )}
 
                         {selectedOptional.includes("NGOAINGU") && (
-                          <div className="mt-3 p-3 bg-[#EFF6FF] border border-[#BFDBFE] rounded-lg">
-                            <label className="text-xs font-semibold text-[#1E40AF] mb-2 block">
+                          <div className="mt-3 p-3 bg-[var(--color-primary-soft)] border border-[var(--color-primary-ring)] rounded">
+                            <label className="text-xs font-semibold text-[var(--color-primary)] mb-2 block">
                               Chọn ngoại ngữ thi *
                             </label>
                             <select
@@ -1553,7 +1593,7 @@ const ProfilePage = () => {
                               onChange={(e) =>
                                 setForeignLanguage(e.target.value)
                               }
-                              className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm bg-white"
+                              className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm bg-white"
                             >
                               <option value="">-- Chọn ngoại ngữ --</option>
                               {FOREIGN_LANGUAGES.map((lang) => (
@@ -1568,11 +1608,11 @@ const ProfilePage = () => {
 
                       {/* Exam certificate upload */}
                       <div className="flex flex-col gap-1.5 mb-4">
-                        <label className="text-xs font-semibold text-[#344054]">
+                        <label className="text-xs font-semibold text-[var(--color-ink)]">
                           Giấy chứng nhận kết quả thi *
                         </label>
-                        <div className="border border-dashed border-[#D0D5DD] rounded-lg p-4 text-center hover:border-[#032D60] transition-colors">
-                          <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[#032D60] hover:text-[#021a40]">
+                        <div className="border border-dashed border-[var(--color-hairline)] rounded p-4 text-center hover:border-[var(--color-primary)] transition-colors">
+                          <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-[var(--color-primary)] hover:text-[#021a40]">
                             <span className="material-symbols-outlined text-[20px]">
                               cloud_upload
                             </span>
@@ -1594,7 +1634,7 @@ const ProfilePage = () => {
                       {uploadingScores && (
                         <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-[#032D60] rounded-full transition-all duration-200"
+                            className="h-full bg-[var(--color-primary)] rounded transition-all duration-200"
                             style={{ width: `${uploadProgress}%` }}
                           />
                         </div>
@@ -1602,7 +1642,7 @@ const ProfilePage = () => {
                       <button
                         onClick={handleUploadExamScores}
                         disabled={uploadingScores}
-                        className="bg-[#2563EB] text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50"
+                        className="bg-[var(--color-primary)] text-white px-5 py-2 rounded text-sm font-semibold hover:bg-[var(--color-primary-dark)] transition-all active:scale-95 disabled:opacity-50"
                       >
                         {uploadingScores
                           ? `${uploadProgress}%`
@@ -1615,16 +1655,16 @@ const ProfilePage = () => {
             )}
 
             {activeTab === "security" && (
-              <section className="bg-white rounded-2xl border border-[#E4E7EC] overflow-hidden">
-                <div className="px-6 py-4 border-b border-[#E4E7EC] bg-[#F4F6F9]">
-                  <h3 className="text-lg font-bold text-[#101828]">
+              <section className="bg-white rounded border border-[var(--color-hairline)] overflow-hidden">
+                <div className="px-6 py-4 border-b border-[var(--color-hairline)] bg-[var(--color-canvas-soft)]">
+                  <h3 className="text-lg font-bold text-[var(--color-ink-deep)]">
                     Đổi mật khẩu
                   </h3>
                 </div>
                 <div className="p-6 space-y-5">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-[#344054]">
+                      <label className="text-xs font-semibold text-[var(--color-ink)]">
                         Mật khẩu hiện tại
                       </label>
                       <div className="relative">
@@ -1637,10 +1677,10 @@ const ProfilePage = () => {
                               current_password: e.target.value,
                             }))
                           }
-                          className={`w-full h-11 px-3 pr-10 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${
+                          className={`w-full h-11 px-3 pr-10 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${
                             passwordErrors.current_password
-                              ? "border-[#EF4444]"
-                              : "border-[#D0D5DD]"
+                              ? "border-[var(--color-danger)]"
+                              : "border-[var(--color-hairline)]"
                           }`}
                           placeholder="••••••••"
                         />
@@ -1651,7 +1691,7 @@ const ProfilePage = () => {
                           onMouseLeave={() => setShowCurrentPassword(false)}
                           onTouchStart={() => setShowCurrentPassword(true)}
                           onTouchEnd={() => setShowCurrentPassword(false)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-[#667085] hover:text-[#101828] transition-colors select-none"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--color-charcoal)] hover:text-[var(--color-ink-deep)] transition-colors select-none"
                         >
                           <span className="material-symbols-outlined text-[20px]">
                             {showCurrentPassword
@@ -1661,13 +1701,13 @@ const ProfilePage = () => {
                         </button>
                       </div>
                       {passwordErrors.current_password && (
-                        <p className="text-[11px] text-[#EF4444] mt-0.5">
+                        <p className="text-[11px] text-[var(--color-danger)] mt-0.5">
                           {passwordErrors.current_password}
                         </p>
                       )}
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-[#344054]">
+                      <label className="text-xs font-semibold text-[var(--color-ink)]">
                         Mật khẩu mới
                       </label>
                       <div className="relative">
@@ -1681,13 +1721,13 @@ const ProfilePage = () => {
                             }));
                             validatePasswordField(e.target.value);
                           }}
-                          className={`w-full h-11 px-3 pr-10 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${
+                          className={`w-full h-11 px-3 pr-10 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${
                             passwordErrors.new_password
-                              ? "border-[#EF4444]"
+                              ? "border-[var(--color-danger)]"
                               : passwordForm.new_password &&
                                   !passwordErrors.new_password
-                                ? "border-[#04844B]"
-                                : "border-[#D0D5DD]"
+                                ? "border-[var(--color-success)]"
+                                : "border-[var(--color-hairline)]"
                           }`}
                           placeholder="••••••••"
                         />
@@ -1698,7 +1738,7 @@ const ProfilePage = () => {
                           onMouseLeave={() => setShowNewPassword(false)}
                           onTouchStart={() => setShowNewPassword(true)}
                           onTouchEnd={() => setShowNewPassword(false)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-[#667085] hover:text-[#101828] transition-colors select-none"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--color-charcoal)] hover:text-[var(--color-ink-deep)] transition-colors select-none"
                         >
                           <span className="material-symbols-outlined text-[20px]">
                             {showNewPassword ? "visibility_off" : "visibility"}
@@ -1715,8 +1755,8 @@ const ProfilePage = () => {
                               <span
                                 className={`material-symbols-outlined text-[14px] ${
                                   check.test(passwordForm.new_password)
-                                    ? "text-[#04844B]"
-                                    : "text-[#667085]"
+                                    ? "text-[var(--color-success)]"
+                                    : "text-[var(--color-charcoal)]"
                                 }`}
                                 style={{
                                   fontVariationSettings: check.test(
@@ -1731,7 +1771,7 @@ const ProfilePage = () => {
                                   : "radio_button_unchecked"}
                               </span>
                               <span
-                                className={`text-[11px] ${check.test(passwordForm.new_password) ? "text-[#04844B]" : "text-[#667085]"}`}
+                                className={`text-[11px] ${check.test(passwordForm.new_password) ? "text-[var(--color-success)]" : "text-[var(--color-charcoal)]"}`}
                               >
                                 {check.label}
                               </span>
@@ -1740,13 +1780,13 @@ const ProfilePage = () => {
                         </div>
                       )}
                       {passwordErrors.new_password && (
-                        <p className="text-[11px] text-[#EF4444] mt-0.5">
+                        <p className="text-[11px] text-[var(--color-danger)] mt-0.5">
                           {passwordErrors.new_password}
                         </p>
                       )}
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-[#344054]">
+                      <label className="text-xs font-semibold text-[var(--color-ink)]">
                         Xác nhận mật khẩu mới
                       </label>
                       <div className="relative">
@@ -1774,13 +1814,13 @@ const ProfilePage = () => {
                               }));
                             }
                           }}
-                          className={`w-full h-11 px-3 pr-10 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${
+                          className={`w-full h-11 px-3 pr-10 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${
                             passwordErrors.confirm_password
-                              ? "border-[#EF4444]"
+                              ? "border-[var(--color-danger)]"
                               : passwordForm.confirm_password &&
                                   !passwordErrors.confirm_password
-                                ? "border-[#04844B]"
-                                : "border-[#D0D5DD]"
+                                ? "border-[var(--color-success)]"
+                                : "border-[var(--color-hairline)]"
                           }`}
                           placeholder="••••••••"
                         />
@@ -1791,7 +1831,7 @@ const ProfilePage = () => {
                           onMouseLeave={() => setShowConfirmPassword(false)}
                           onTouchStart={() => setShowConfirmPassword(true)}
                           onTouchEnd={() => setShowConfirmPassword(false)}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-[#667085] hover:text-[#101828] transition-colors select-none"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--color-charcoal)] hover:text-[var(--color-ink-deep)] transition-colors select-none"
                         >
                           <span className="material-symbols-outlined text-[20px]">
                             {showConfirmPassword
@@ -1801,7 +1841,7 @@ const ProfilePage = () => {
                         </button>
                       </div>
                       {passwordErrors.confirm_password && (
-                        <p className="text-[11px] text-[#EF4444] mt-0.5">
+                        <p className="text-[11px] text-[var(--color-danger)] mt-0.5">
                           {passwordErrors.confirm_password}
                         </p>
                       )}
@@ -1811,7 +1851,7 @@ const ProfilePage = () => {
                     <button
                       onClick={handleChangePassword}
                       disabled={changingPassword}
-                      className="bg-[#2563EB] text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-[#1D4ED8] transition-all active:scale-95 disabled:opacity-50"
+                      className="bg-[var(--color-primary)] text-white px-6 py-2 rounded text-sm font-semibold hover:bg-[var(--color-primary-dark)] transition-all active:scale-95 disabled:opacity-50"
                     >
                       {changingPassword
                         ? "Đang cập nhật..."
