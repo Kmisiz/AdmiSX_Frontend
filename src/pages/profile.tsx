@@ -9,8 +9,10 @@ import ConfirmDialog from "../components/common/ConfirmDialog";
 import DocumentViewer from "../components/common/DocumentViewer";
 import { admissionsApi, type DocumentData } from "../apis/admissions";
 import { authApi } from "../apis/auth";
-import { nationalityApi, type NationalityOption } from "../apis/nationalities";
-import NationalitySelect from "../components/common/NationalitySelect";
+import {
+  vietnamLocationApi,
+  type LocationOption,
+} from "../apis/vietnam-location";
 import { useAuthStore } from "../store/auth";
 
 type ActiveTab = "personal" | "academic" | "security";
@@ -50,6 +52,11 @@ const ProfilePage = () => {
     text: string;
   } | null>(null);
 
+  const [passwordMessage, setPasswordMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
   const [formData, setFormData] = useState({
     full_name: "",
     phone: "",
@@ -61,13 +68,18 @@ const ProfilePage = () => {
     address: "",
     ethnic: "",
     religion: "",
-    nation: "",
+    nation: "Việt Nam",
   });
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [nationalities, setNationalities] = useState<NationalityOption[]>([]);
-  const [nationalitiesLoading, setNationalitiesLoading] = useState(true);
-  const [nationalitiesError, setNationalitiesError] = useState(false);
+
+  const [provinces, setProvinces] = useState<LocationOption[]>([]);
+  const [provincesLoading, setProvincesLoading] = useState(true);
+  const [provincesError, setProvincesError] = useState(false);
+
+  const [wards, setWards] = useState<LocationOption[]>([]);
+  const [wardsLoading, setWardsLoading] = useState(false);
+  const [wardsError, setWardsError] = useState(false);
 
   const [academicForm, setAcademicForm] = useState({
     graduation_year: "",
@@ -203,21 +215,43 @@ const ProfilePage = () => {
   const dismissMessage = useCallback(() => setMessage(null), []);
 
   useEffect(() => {
-    const fetchNationalities = async () => {
+    const fetchProvinces = async () => {
       try {
-        const res = await nationalityApi.list();
-        setNationalities(res.data);
-        setNationalitiesError(false);
+        const res = await vietnamLocationApi.listProvinces();
+        setProvinces(res.data);
+        setProvincesError(false);
       } catch {
-        setNationalities([]);
-        setNationalitiesError(true);
+        setProvinces([]);
+        setProvincesError(true);
       } finally {
-        setNationalitiesLoading(false);
+        setProvincesLoading(false);
       }
     };
 
-    fetchNationalities();
+    fetchProvinces();
   }, []);
+
+  useEffect(() => {
+    const fetchWards = async () => {
+      if (!formData.province) {
+        setWards([]);
+        return;
+      }
+      setWardsLoading(true);
+      setWardsError(false);
+      try {
+        const res = await vietnamLocationApi.listWards(formData.province);
+        setWards(res.data);
+      } catch {
+        setWards([]);
+        setWardsError(true);
+      } finally {
+        setWardsLoading(false);
+      }
+    };
+
+    fetchWards();
+  }, [formData.province]);
 
   const passwordChecks = [
     {
@@ -307,14 +341,14 @@ const ProfilePage = () => {
     }
 
     setChangingPassword(true);
-    setMessage(null);
+    setPasswordMessage(null);
     try {
       const res = await profileApi.changePassword({
         current_password: passwordForm.current_password,
         new_password: passwordForm.new_password,
         confirm_password: passwordForm.confirm_password,
       });
-      setMessage({
+      setPasswordMessage({
         type: "success",
         text: res.data.message || "Đổi mật khẩu thành công!",
       });
@@ -330,7 +364,7 @@ const ProfilePage = () => {
       });
     } catch (err: unknown) {
       const apiErr = err as { response?: { data?: { message?: string } } };
-      setMessage({
+      setPasswordMessage({
         type: "error",
         text:
           apiErr?.response?.data?.message ||
@@ -734,6 +768,11 @@ const ProfilePage = () => {
           g12.avg_score = parseFloat(academicForm.grade_12_score);
         progressPayload.grade_12 = g12;
       }
+      if (academicForm.graduation_year) {
+        await profileApi.upsertAcademicRecord({
+          graduation_year: parseInt(academicForm.graduation_year),
+        });
+      }
       await profileApi.upsertAcademicProgress(progressPayload as never);
 
       const academicRes = await profileApi.getAcademicRecord();
@@ -1117,32 +1156,23 @@ const ProfilePage = () => {
                         <label className="text-xs font-semibold text-[var(--color-ink)]">
                           Quốc tịch
                         </label>
-                        <NationalitySelect
-                          value={formData.nation}
-                          options={nationalities}
-                          loading={nationalitiesLoading}
-                          error={nationalitiesError}
-                          onChange={(value) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              nation: value,
-                            }));
-                          }}
-                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm bg-white disabled:bg-[#F4F6F9] disabled:text-[#667085] ${fieldErrors.nation ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
-                        />
+                        <div className="h-11 px-3 border border-[var(--color-hairline)] rounded bg-[var(--color-canvas-soft)] flex items-center text-sm text-[var(--color-ink-deep)]">
+                          Việt Nam
+                        </div>
                       </div>
                       <div className="flex flex-col gap-1.5 md:col-span-2">
                         <label className="text-xs font-semibold text-[var(--color-ink)]">
                           Tỉnh/Thành phố{" "}
                           <span className="text-[var(--color-danger)]">*</span>
                         </label>
-                        <input
-                          type="text"
+                        <select
                           value={formData.province}
+                          disabled={provincesLoading}
                           onChange={(e) => {
                             setFormData((prev) => ({
                               ...prev,
                               province: e.target.value,
+                              ward: "",
                             }));
                             if (fieldErrors.province)
                               setFieldErrors((prev) => ({
@@ -1150,8 +1180,21 @@ const ProfilePage = () => {
                                 province: "",
                               }));
                           }}
-                          className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${fieldErrors.province ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
-                        />
+                          className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm bg-white disabled:bg-[#F4F6F9] ${fieldErrors.province ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
+                        >
+                          <option value="">
+                            {provincesLoading
+                              ? "Đang tải..."
+                              : provincesError
+                                ? "Không tải được danh sách"
+                                : "Chọn Tỉnh/Thành phố"}
+                          </option>
+                          {provinces.map((p) => (
+                            <option key={p.value} value={p.value}>
+                              {p.label}
+                            </option>
+                          ))}
+                        </select>
                         {fieldErrors.province && (
                           <p className="text-[11px] text-[var(--color-danger)]">
                             {fieldErrors.province}
@@ -1162,9 +1205,9 @@ const ProfilePage = () => {
                         <label className="text-xs font-semibold text-[#344054]">
                           Phường/Xã
                         </label>
-                        <input
-                          type="text"
+                        <select
                           value={formData.ward}
+                          disabled={wardsLoading || !formData.province}
                           onChange={(e) => {
                             setFormData((prev) => ({
                               ...prev,
@@ -1176,8 +1219,23 @@ const ProfilePage = () => {
                                 ward: "",
                               }));
                           }}
-                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm ${fieldErrors.ward ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
-                        />
+                          className={`h-11 px-3 border rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none transition-all text-sm bg-white disabled:bg-[#F4F6F9] ${fieldErrors.ward ? "border-[#EF4444]" : "border-[#D0D5DD]"}`}
+                        >
+                          <option value="">
+                            {!formData.province
+                              ? "Chọn Tỉnh/Thành phố trước"
+                              : wardsLoading
+                                ? "Đang tải..."
+                                : wardsError
+                                  ? "Không tải được danh sách"
+                                  : "Chọn Phường/Xã"}
+                          </option>
+                          {wards.map((w) => (
+                            <option key={w.value} value={w.value}>
+                              {w.label}
+                            </option>
+                          ))}
+                        </select>
                         {fieldErrors.ward && (
                           <p className="text-[11px] text-[#EF4444]">
                             {fieldErrors.ward}
@@ -1237,8 +1295,7 @@ const ProfilePage = () => {
                         Năm tốt nghiệp THPT{" "}
                         <span className="text-[var(--color-danger)]">*</span>
                       </label>
-                      <input
-                        type="number"
+                      <select
                         value={academicForm.graduation_year}
                         onChange={(e) => {
                           setAcademicForm((prev) => ({
@@ -1252,8 +1309,16 @@ const ProfilePage = () => {
                             }));
                         }}
                         className={`h-11 px-3 border rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-all text-sm ${academicFieldErrors.graduation_year ? "border-[var(--color-danger)]" : "border-[var(--color-hairline)]"}`}
-                        placeholder="VD: 2025"
-                      />
+                      >
+                        <option value="">Chọn năm tốt nghiệp</option>
+                        {Array.from({ length: 101 }, (_, i) => 2000 + i).map(
+                          (year) => (
+                            <option key={year} value={year}>
+                              {year}
+                            </option>
+                          ),
+                        )}
+                      </select>
                       {academicFieldErrors.graduation_year && (
                         <p className="text-[11px] text-[var(--color-danger)]">
                           {academicFieldErrors.graduation_year}
@@ -1714,6 +1779,17 @@ const ProfilePage = () => {
                   </h3>
                 </div>
                 <div className="p-6 space-y-5">
+                  {passwordMessage && (
+                    <div
+                      className={`px-4 py-3 rounded text-sm ${
+                        passwordMessage.type === "success"
+                          ? "bg-[var(--color-success)]/10 text-[var(--color-success)] border border-[var(--color-success)]/20"
+                          : "bg-[var(--color-danger)]/10 text-[var(--color-danger)] border border-[var(--color-danger)]/20"
+                      }`}
+                    >
+                      {passwordMessage.text}
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-semibold text-[var(--color-ink)]">

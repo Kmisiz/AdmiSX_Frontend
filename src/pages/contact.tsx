@@ -41,34 +41,34 @@ const ContactPage = () => {
       <section className="hero-gradient px-6 py-16 text-white">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold">
-              <span className="material-symbols-outlined text-[18px]">
+            <div className="mb-4 inline-flex items-center gap-2 rounded border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-[var(--color-ink-deep)]">
+              <span className="material-symbols-outlined text-[18px] ">
                 support_agent
               </span>
               Liên hệ nhanh
             </div>
-            <h1 className="max-w-3xl text-[36px] font-bold leading-tight md:text-[48px]">
+            <h1 className="max-w-3xl text-[36px] font-bold leading-tight text-[var(--color-ink-deep)] md:text-[48px]">
               Đội ngũ tuyển sinh luôn sẵn sàng hỗ trợ cậu
             </h1>
-            <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-white/70">
+            <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-[var(--color-ink)]">
               Gửi câu hỏi hoặc chọn kênh liên hệ phù hợp để được hướng dẫn về
               đăng ký, hồ sơ xét tuyển và trạng thái nguyện vọng.
             </p>
           </div>
 
-          <div className="rounded-3xl border border-white/20 bg-white/10 p-6 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/20 bg-white p-6">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded bg-white text-[var(--color-primary)]">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded bg-[var(--color-primary)] text-white">
                 <span className="material-symbols-outlined">schedule</span>
               </div>
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-[var(--color-info)]">
+                <p className="text-sm font-semibold uppercase tracking-wide text-[var(--color-primary)]">
                   Thời gian hỗ trợ
                 </p>
-                <h2 className="mt-2 text-2xl font-bold">
+                <h2 className="mt-2 text-2xl font-bold text-[var(--color-ink-deep)]">
                   08:00 - 17:30, Thứ 2 đến Thứ 7
                 </h2>
-                <p className="mt-3 text-sm leading-relaxed text-white/80">
+                <p className="mt-3 text-sm leading-relaxed text-[var(--color-charcoal)]">
                   Các yêu cầu ngoài giờ sẽ được ghi nhận và phản hồi vào ca làm
                   việc tiếp theo.
                 </p>

@@ -13,11 +13,13 @@ import {
   type EkycStatusData,
   type EkycStepStatus,
 } from "../apis/ekyc";
-import { nationalityApi, type NationalityOption } from "../apis/nationalities";
+import {
+  vietnamLocationApi,
+  type LocationOption,
+} from "../apis/vietnam-location";
 import { profileApi } from "../apis/profile";
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import DocumentViewer from "../components/common/DocumentViewer";
-import NationalitySelect from "../components/common/NationalitySelect";
 import Toast from "../components/common/Toast";
 
 type Step = 1 | 2 | 3 | 4 | 5;
@@ -381,7 +383,7 @@ const AdmissionsPage = () => {
     province: "",
     ward: "",
     address: "",
-    nation: "",
+    nation: "Việt Nam",
   });
 
   // Step 3 — Wishes
@@ -392,9 +394,14 @@ const AdmissionsPage = () => {
   const [selectedMajor, setSelectedMajor] = useState("");
   const [selectedComb, setSelectedComb] = useState("");
   const [wishes, setWishes] = useState<Wish[]>([]);
-  const [nationalities, setNationalities] = useState<NationalityOption[]>([]);
-  const [nationalitiesLoading, setNationalitiesLoading] = useState(true);
-  const [nationalitiesError, setNationalitiesError] = useState(false);
+
+  const [provinces, setProvinces] = useState<LocationOption[]>([]);
+  const [provincesLoading, setProvincesLoading] = useState(true);
+  const [provincesError, setProvincesError] = useState(false);
+
+  const [wards, setWards] = useState<LocationOption[]>([]);
+  const [wardsLoading, setWardsLoading] = useState(false);
+  const [wardsError, setWardsError] = useState(false);
 
   // Step 4 — Scores & documents
   const [scores, setScores] = useState<ScoreEntry[]>([
@@ -435,21 +442,43 @@ const AdmissionsPage = () => {
   const dismissMessage = useCallback(() => setMessage(null), []);
 
   useEffect(() => {
-    const fetchNationalities = async () => {
+    const fetchProvinces = async () => {
       try {
-        const res = await nationalityApi.list();
-        setNationalities(res.data);
-        setNationalitiesError(false);
+        const res = await vietnamLocationApi.listProvinces();
+        setProvinces(res.data);
+        setProvincesError(false);
       } catch {
-        setNationalities([]);
-        setNationalitiesError(true);
+        setProvinces([]);
+        setProvincesError(true);
       } finally {
-        setNationalitiesLoading(false);
+        setProvincesLoading(false);
       }
     };
 
-    fetchNationalities();
+    fetchProvinces();
   }, []);
+
+  useEffect(() => {
+    const fetchWards = async () => {
+      if (!profileData.province) {
+        setWards([]);
+        return;
+      }
+      setWardsLoading(true);
+      setWardsError(false);
+      try {
+        const res = await vietnamLocationApi.listWards(profileData.province);
+        setWards(res.data);
+      } catch {
+        setWards([]);
+        setWardsError(true);
+      } finally {
+        setWardsLoading(false);
+      }
+    };
+
+    fetchWards();
+  }, [profileData.province]);
 
   useEffect(() => {
     const fetchInitial = async () => {
@@ -533,7 +562,6 @@ const AdmissionsPage = () => {
       ["phone", "số điện thoại"],
       ["ethnic", "dân tộc"],
       ["religion", "tôn giáo"],
-      ["nation", "quốc tịch"],
       ["province", "tỉnh/thành phố"],
       ["ward", "phường/xã"],
       ["address", "địa chỉ thường trú"],
@@ -563,7 +591,6 @@ const AdmissionsPage = () => {
         province: profileData.province || null,
         ward: profileData.ward || null,
         address: profileData.address || null,
-        nation: profileData.nation || null,
       } as never);
       setStep(2);
     } catch {
@@ -1359,47 +1386,64 @@ const AdmissionsPage = () => {
                 />
               </Field>
               <Field label="Quốc tịch">
-                <NationalitySelect
-                  value={profileData.nation}
-                  options={nationalities}
-                  loading={nationalitiesLoading}
-                  error={nationalitiesError}
-                  onChange={(value) =>
-                    setProfileData((prev) => ({
-                      ...prev,
-                      nation: value,
-                    }))
-                  }
-                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full bg-white disabled:bg-[#F4F6F9] disabled:text-[#667085]"
-                />
+                <div className="h-11 px-3 border border-[#D0D5DD] rounded-lg bg-[#F4F6F9] flex items-center text-sm text-[#667085]">
+                  Việt Nam
+                </div>
               </Field>
               <Field label="Tỉnh/Thành phố">
-                <input
-                  type="text"
+                <select
                   value={profileData.province}
+                  disabled={provincesLoading}
                   onChange={(e) =>
                     setProfileData((prev) => ({
                       ...prev,
                       province: e.target.value,
+                      ward: "",
                     }))
                   }
-                  className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full"
-                  placeholder="Nhập tỉnh/thành phố"
-                />
+                  className="h-11 px-3 border border-[var(--color-hairline)] rounded focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none text-sm w-full bg-white disabled:bg-[#F4F6F9]"
+                >
+                  <option value="">
+                    {provincesLoading
+                      ? "Đang tải..."
+                      : provincesError
+                        ? "Không tải được danh sách"
+                        : "Chọn Tỉnh/Thành phố"}
+                  </option>
+                  {provinces.map((p) => (
+                    <option key={p.value} value={p.value}>
+                      {p.label}
+                    </option>
+                  ))}
+                </select>
               </Field>
               <Field label="Phường/Xã">
-                <input
-                  type="text"
+                <select
                   value={profileData.ward}
+                  disabled={wardsLoading || !profileData.province}
                   onChange={(e) =>
                     setProfileData((prev) => ({
                       ...prev,
                       ward: e.target.value,
                     }))
                   }
-                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full"
-                  placeholder="Nhập phường/xã"
-                />
+                  className="h-11 px-3 border border-[#D0D5DD] rounded-lg focus:ring-2 focus:ring-[#032D60]/20 focus:border-[#032D60] outline-none text-sm w-full bg-white disabled:bg-[#F4F6F9]"
+                >
+                  <option value="">
+                    {!profileData.province
+                      ? "Chọn Tỉnh/Thành phố trước"
+                      : wardsLoading
+                        ? "Đang tải..."
+                        : wardsError
+                          ? "Không tải được danh sách"
+                          : "Chọn Phường/Xã"}
+                  </option>
+                  {wards.map((w) => (
+                    <option key={w.value} value={w.value}>
+                      {w.label}
+                    </option>
+                  ))}
+                </select>
               </Field>
               <div className="flex flex-col gap-1.5 md:col-span-2">
                 <label className="text-xs font-semibold text-[var(--color-ink)]">
