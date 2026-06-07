@@ -78,6 +78,12 @@ const documentExamples = [
       "Chụp chính diện, rõ khuôn mặt, nền sáng và không bị ngược sáng.",
   },
   {
+    title: "Bảng điểm",
+    image: "/Cert/Bg_diem.jpg",
+    checklist:
+      "Ảnh cần rõ họ tên, lớp/trường, các cột điểm và dấu xác nhận nếu có.",
+  },
+  {
     title: "Giấy chứng nhận kết quả thi THPT",
     image: "/Cert/giay_chung_nhan_ket_qua_thi_thpt.jpg",
     checklist:
@@ -341,7 +347,7 @@ const UploadGuidePage = () => {
               tải file lên hệ thống.
             </p>
           </div>
-          <div className="grid grid-cols-1 gap-5 p-6 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-5 p-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {documentExamples.map((example) => (
               <div
                 key={example.title}
