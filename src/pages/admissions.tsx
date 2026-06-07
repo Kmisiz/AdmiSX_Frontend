@@ -1054,7 +1054,7 @@ const AdmissionsPage = () => {
     if (mismatchedWish) {
       setMessage({
         type: "error",
-        text: `MÃ´n thi Ä‘Ã£ khai bÃ¡o khÃ´ng khá»›p vá»›i tá»• há»£p ${mismatchedWish.combination.code}.`,
+        text: `Môn thi đã khai báo không khớp với tổ hợp ${mismatchedWish.combination.code}.`,
       });
       return;
     }
