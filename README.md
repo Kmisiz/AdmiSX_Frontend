@@ -19,7 +19,7 @@
   <img src="https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black" alt="Prettier" />
 </p>
 
-Hệ thống quản lý tuyển sinh hiện đại được xây dựng với **React 19**, **TypeScript**, **Vite** và real-time notifications qua **Socket.IO**.
+Hệ thống quản lý tuyển sinh hiện đại xây dựng với **React 19**, **TypeScript**, **Vite**, **Ant Design** và real-time notifications qua **Socket.IO**. Kết nối với backend **AdmiSX** tại `qldangkytuyensinh.up.railway.app`.
 
 ## Công nghệ sử dụng
 
@@ -130,7 +130,44 @@ Dự án sử dụng **Husky** kết hợp **lint-staged** để tự động ki
 
 Cơ chế này giúp đảm bảo code luôn sạch, đúng chuẩn trước khi được commit lên repository.
 
-## Tính năng (Đã lên kế hoạch / Đang phát triển)
+## Triển khai
+
+| Môi trường     | URL                                                                  |
+| -------------- | -------------------------------------------------------------------- |
+| **Production** | [https://system-admisx.vercel.app](https://system-admisx.vercel.app) |
+
+## Tính năng
+
+### 🔐 Xác thực & Bảo mật
+
+- Đăng nhập / đăng xuất qua JWT, tự động xử lý token từ URL
+- Bảo vệ route, tự động redirect khi token hết hạn
+- Avatar upload / xóa
+
+### 📝 Nộp hồ sơ tuyển sinh (5 bước)
+
+1. **Thông tin cá nhân** — Họ tên, ngày sinh, CCCD, địa chỉ, dân tộc, quốc tịch
+2. **Xác thực eKYC** — Upload CCCD mặt trước/sau + ảnh chân dung, xác thực qua FPT OCR
+3. **Chọn nguyện vọng** — Chọn trường → ngành → tổ hợp xét tuyển
+4. **Nhập điểm & minh chứng** — Điểm thi, học bạ, chứng chỉ, upload tài liệu
+5. **Xem lại & nộp** — Tổng quan hồ sơ trước khi gửi
+
+### 📄 Quản lý hồ sơ thí sinh
+
+- Dashboard với tiến độ hoàn thiện hồ sơ, deadline đếm ngược
+- Quản lý thông tin cá nhân, học bạ, điểm thi
+- Upload / xóa chứng chỉ, minh chứng (Cloudinary)
+- Đổi mật khẩu
+
+### 🔔 Thông báo real-time
+
+- Nhận thông báo khi trạng thái hồ sơ thay đổi (Socket.IO)
+- Danh sách thông báo phân trang, đánh dấu đã đọc
+
+### 📑 Quản lý tài liệu
+
+- Xem danh sách tài liệu đã upload, filter theo trạng thái
+- Hướng dẫn upload chi tiết kèm hình ảnh minh họa
 
 ## Giấy phép
 
