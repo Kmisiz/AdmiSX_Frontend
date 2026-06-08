@@ -132,9 +132,16 @@ Cơ chế này giúp đảm bảo code luôn sạch, đúng chuẩn trước khi
 
 ## Triển khai
 
-| Môi trường     | URL                                                                  |
-| -------------- | -------------------------------------------------------------------- |
-| **Production** | [https://system-admisx.vercel.app](https://system-admisx.vercel.app) |
+| Môi trường     | URL                                                                                    |
+| -------------- | -------------------------------------------------------------------------------------- |
+| **Production** | [https://system-admisx.vercel.app](https://system-admisx.vercel.app)                   |
+| **Repository** | [https://github.com/Kmisiz/AdmiSX_Frontend](https://github.com/Kmisiz/AdmiSX_Frontend) |
+
+### Backend & Hệ thống liên quan
+
+Hệ thống này là **Candidate Portal** (giao diện thí sinh), kết nối với backend và admin panel tại repository:
+
+[**RIPT1307-02-2026-Nhom10-KTHP**](https://github.com/TuanLe06/RIPT1307-02-2026-Nhom10-KTHP) — chứa **Backend API** (Express + MySQL) và **Admin Panel** (React).
 
 ## Tính năng
 
