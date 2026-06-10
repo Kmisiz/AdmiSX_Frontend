@@ -1,109 +1,114 @@
-# Admissions System
+# Cổng Tuyển Sinh Đại Học Trực Tuyến
 
 <p align="center">
   <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
   <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
   <img src="https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=white" alt="pnpm" />
-  <img src="https://img.shields.io/badge/TanStack%20Router-FF4154?style=for-the-badge&logo=reactrouter&logoColor=white" alt="TanStack Router" />
-  <img src="https://img.shields.io/badge/TanStack%20Query-FF4154?style=for-the-badge&logo=reactquery&logoColor=white" alt="TanStack Query" />
-  <br/>
-  <img src="https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white" alt="Axios" />
   <img src="https://img.shields.io/badge/Ant%20Design-0170FE?style=for-the-badge&logo=antdesign&logoColor=white" alt="Ant Design" />
-  <img src="https://img.shields.io/badge/Zustand-443E38?style=for-the-badge&logo=zustand&logoColor=white" alt="Zustand" />
-  <img src="https://img.shields.io/badge/React%20Hook%20Form-EC5990?style=for-the-badge&logo=reacthookform&logoColor=white" alt="React Hook Form" />
-  <img src="https://img.shields.io/badge/Zod-3E67B1?style=for-the-badge&logo=zod&logoColor=white" alt="Zod" />
   <img src="https://img.shields.io/badge/Socket.IO-010101?style=for-the-badge&logo=socketdotio&logoColor=white" alt="Socket.IO" />
-  <img src="https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white" alt="ESLint" />
-  <img src="https://img.shields.io/badge/Husky-1B2A33?style=for-the-badge&logo=git&logoColor=white" alt="Husky" />
-  <img src="https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black" alt="Prettier" />
 </p>
 
-Hệ thống quản lý tuyển sinh hiện đại xây dựng với **React 19**, **TypeScript**, **Vite**, **Ant Design** và real-time notifications qua **Socket.IO**. Kết nối với backend **AdmiSX** tại `qldangkytuyensinh.up.railway.app`.
+Ứng dụng này là **Cổng tuyển sinh đại học trực tuyến** dành cho thí sinh, cho phép đăng ký nguyện vọng, nộp hồ sơ, cập nhật trạng thái, và nhận thông báo real-time.
+
+## Tổng quan
+
+- Nền tảng UI xây dựng bằng **React 19** và **TypeScript**
+- Sử dụng **Vite** cho môi trường phát triển nhanh và trải nghiệm build tốt
+- Giao diện được thiết kế với **Ant Design**
+- Kết nối tới backend tuyển sinh để quản lý hồ sơ thí sinh, nguyện vọng và thông báo
+- Hỗ trợ **real-time notification** bằng **Socket.IO**
+
+## Tính năng chính
+
+- Đăng ký / đăng nhập thí sinh
+- Bổ sung thông tin cá nhân và hồ sơ tuyển sinh
+- Xác thực eKYC bằng hình ảnh CCCD và ảnh chân dung
+- Chọn ngành, trường, tổ hợp xét tuyển
+- Upload tài liệu minh chứng, học bạ, chứng chỉ
+- Dashboard theo dõi tiến độ hồ sơ và trạng thái duyệt
+- Nhận thông báo trực tiếp khi hồ sơ thay đổi
 
 ## Công nghệ sử dụng
 
-| Công nghệ           | Mục đích                                            |
-| ------------------- | --------------------------------------------------- |
-| **React 19**        | Thư viện UI                                         |
-| **TypeScript**      | Ngôn ngữ lập trình với kiểu tĩnh                    |
-| **Vite 8**          | Build tool & dev server                             |
-| **pnpm**            | Package manager                                     |
-| **TanStack Router** | Quản lý routing & điều hướng                        |
-| **TanStack Query**  | Quản lý server state, caching & đồng bộ dữ liệu     |
-| **Axios**           | HTTP client (gọi API)                               |
-| **Ant Design**      | UI component library                                |
-| **Zustand**         | Quản lý state (ứng dụng nhẹ, đơn giản)              |
-| **React Hook Form** | Quản lý form & validation                           |
-| **Zod**             | Schema validation (dữ liệu form & API)              |
-| **Socket.IO**       | Real-time notifications & cập nhật trạng thái hồ sơ |
-| **ESLint**          | Linting & kiểm tra chất lượng code                  |
-| **Prettier**        | Format code tự động                                 |
-| **Husky**           | Git hooks (tự động chạy lint/format trước commit)   |
-| **lint-staged**     | Chạy lint-staged trên file thay đổi khi commit      |
-| **React Compiler**  | Tối ưu hiệu năng qua `babel-plugin-react-compiler`  |
+| Công nghệ           | Mục đích                                      |
+| ------------------- | --------------------------------------------- |
+| **React 19**        | Xây dựng giao diện người dùng                 |
+| **TypeScript**      | Kiểm tra kiểu tĩnh và tăng độ an toàn code    |
+| **Vite**            | Dev server nhanh và build production          |
+| **pnpm**            | Quản lý package                               |
+| **Ant Design**      | Thư viện component UI                         |
+| **Axios**           | Gọi API tới backend                           |
+| **Socket.IO**       | Thông báo real-time                           |
+| **Zustand**         | Quản lý state ứng dụng                        |
+| **React Hook Form** | Quản lý form và validation                    |
+| **Zod**             | Validate dữ liệu form                         |
+| **ESLint**          | Kiểm tra chất lượng code                      |
+| **Prettier**        | Định dạng code tự động                        |
+| **Husky**           | Git hooks để kiểm tra trước commit            |
+| **lint-staged**     | Chạy kiểm tra trên file thay đổi trước commit |
 
 ## Cấu trúc thư mục
 
 ```
 src/
-├── apis/          # Định nghĩa các API request (axios instances, endpoints)
-├── assets/        # Tài nguyên tĩnh (hình ảnh, icon, v.v.)
+├── apis/          # Định nghĩa các API request
+├── assets/        # Hình ảnh, icon và tài nguyên tĩnh
 ├── components/    # Component UI tái sử dụng
-│   ├── common/    # Component dùng chung (button, input, v.v.)
-│   └── layout/    # Component bố cục (header, sidebar, footer, v.v.)
+│   ├── common/    # Component dùng chung
+│   └── layout/    # Component bố cục
 ├── configs/       # Cấu hình ứng dụng
-├── constants/     # Hằng số dùng trong toàn bộ ứng dụng
-├── hooks/         # Custom React hooks
-├── layouts/       # Layout bao bọc các trang
-├── locales/       # File dịch đa ngôn ngữ (i18n)
-├── pages/         # Component trang / module theo route
-├── routes/        # Định nghĩa và cấu hình route (TanStack Router)
-├── services/      # Logic nghiệp vụ / tầng service
-├── store/         # Quản lý state (Zustand stores)
-├── types/         # Định nghĩa kiểu dữ liệu TypeScript & interface
-├── utils/         # Hàm tiện ích / helper
-└── validations/   # Schema validate (Zod schemas)
+├── constants/     # Hằng số dùng chung
+├── hooks/         # Custom hooks
+├── layouts/       # Layout chính cho trang
+├── locales/       # File đa ngôn ngữ
+├── pages/         # Các trang chính của ứng dụng
+├── routes/        # Định nghĩa route
+├── services/      # Logic nghiệp vụ
+├── store/         # Zustand store
+├── types/         # Kiểu dữ liệu TypeScript
+├── utils/         # Hàm tiện ích
+└── validations/   # Schema validation (Zod)
 ```
 
-## Bắt đầu
+## Cài đặt
 
 ### Yêu cầu
 
-- **Node.js** >= 18
-- **pnpm** (cài đặt toàn cục: `npm i -g pnpm`)
+- Node.js >= 18
+- pnpm (cài đặt: `npm i -g pnpm`)
 
-### Cài đặt
+### Thực hiện
 
 ```bash
 pnpm install
 ```
 
-### Chạy môi trường phát triển
+## Chạy ứng dụng
 
 ```bash
 pnpm dev
 ```
 
-### Build
+## Build production
 
 ```bash
 pnpm build
 ```
 
-### Xem trước bản build
+## Xem trước production
 
 ```bash
 pnpm preview
 ```
 
-### Kiểm tra mã nguồn
+## Kiểm tra mã nguồn
 
 ```bash
 pnpm lint
 ```
 
-### Format code
+## Định dạng code
 
 ```bash
 pnpm format
@@ -111,70 +116,26 @@ pnpm format
 
 ## Scripts
 
-| Lệnh           | Mô tả                                            |
-| -------------- | ------------------------------------------------ |
-| `pnpm dev`     | Khởi động Vite dev server                        |
-| `pnpm build`   | Kiểm tra kiểu và build production                |
-| `pnpm preview` | Xem trước bản production build                   |
-| `pnpm lint`    | Chạy ESLint trên toàn bộ dự án                   |
-| `pnpm format`  | Format code với Prettier                         |
-| `pnpm prepare` | Kích hoạt Husky hooks (chạy tự động khi cài đặt) |
-
-## Git Hooks (Husky)
-
-Dự án sử dụng **Husky** kết hợp **lint-staged** để tự động kiểm tra chất lượng code trước mỗi lần commit:
-
-- **pre-commit**: Chạy `lint-staged` để tự động:
-  - `eslint --fix` trên file `.ts`, `.tsx`
-  - `prettier --write` trên file `.ts`, `.tsx`, `.json`, `.css`, `.md`
-
-Cơ chế này giúp đảm bảo code luôn sạch, đúng chuẩn trước khi được commit lên repository.
+| Lệnh           | Mô tả                         |
+| -------------- | ----------------------------- |
+| `pnpm dev`     | Chạy dev server               |
+| `pnpm build`   | Build ứng dụng cho production |
+| `pnpm preview` | Xem trước bản production      |
+| `pnpm lint`    | Kiểm tra code với ESLint      |
+| `pnpm format`  | Định dạng code với Prettier   |
+| `pnpm prepare` | Kích hoạt Husky hooks         |
 
 ## Triển khai
 
-| Môi trường     | URL                                                                                    |
-| -------------- | -------------------------------------------------------------------------------------- |
-| **Production** | [https://admisx.vercel.app](https://system-admisx.vercel.app)                          |
-| **Repository** | [https://github.com/Kmisiz/AdmiSX_Frontend](https://github.com/Kmisiz/AdmiSX_Frontend) |
+| Môi trường | URL                                                    |
+| ---------- | ------------------------------------------------------ |
+| Production | [https://admisx.vercel.app](https://admisx.vercel.app) |
 
-### Backend & Hệ thống liên quan
+## Backend liên quan
 
-Hệ thống này là **Candidate Portal** (giao diện thí sinh), kết nối với backend và admin panel tại repository:
+Cổng tuyển sinh này kết nối với backend và admin panel tại repository:
 
-[**RIPT1307-02-2026-Nhom10-KTHP**](https://github.com/TuanLe06/RIPT1307-02-2026-Nhom10-KTHP) — chứa **Backend API** (Express + MySQL) và **Admin Panel** (React).
-
-## Tính năng
-
-### 🔐 Xác thực & Bảo mật
-
-- Đăng nhập / đăng xuất qua JWT, tự động xử lý token từ URL
-- Bảo vệ route, tự động redirect khi token hết hạn
-- Avatar upload / xóa
-
-### 📝 Nộp hồ sơ tuyển sinh (5 bước)
-
-1. **Thông tin cá nhân** — Họ tên, ngày sinh, CCCD, địa chỉ, dân tộc, quốc tịch
-2. **Xác thực eKYC** — Upload CCCD mặt trước/sau + ảnh chân dung, xác thực qua FPT OCR
-3. **Chọn nguyện vọng** — Chọn trường → ngành → tổ hợp xét tuyển
-4. **Nhập điểm & minh chứng** — Điểm thi, học bạ, chứng chỉ, upload tài liệu
-5. **Xem lại & nộp** — Tổng quan hồ sơ trước khi gửi
-
-### 📄 Quản lý hồ sơ thí sinh
-
-- Dashboard với tiến độ hoàn thiện hồ sơ, deadline đếm ngược
-- Quản lý thông tin cá nhân, học bạ, điểm thi
-- Upload / xóa chứng chỉ, minh chứng (Cloudinary)
-- Đổi mật khẩu
-
-### 🔔 Thông báo real-time
-
-- Nhận thông báo khi trạng thái hồ sơ thay đổi (Socket.IO)
-- Danh sách thông báo phân trang, đánh dấu đã đọc
-
-### 📑 Quản lý tài liệu
-
-- Xem danh sách tài liệu đã upload, filter theo trạng thái
-- Hướng dẫn upload chi tiết kèm hình ảnh minh họa
+- [https://github.com/TuanLe06/RIPT1307-02-2026-Nhom10-KTHP](https://github.com/TuanLe06/RIPT1307-02-2026-Nhom10-KTHP)
 
 ## Giấy phép
 
