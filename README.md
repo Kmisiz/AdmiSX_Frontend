@@ -134,7 +134,7 @@ Cơ chế này giúp đảm bảo code luôn sạch, đúng chuẩn trước khi
 
 | Môi trường     | URL                                                                                    |
 | -------------- | -------------------------------------------------------------------------------------- |
-| **Production** | [https://system-admisx.vercel.app](https://system-admisx.vercel.app)                   |
+| **Production** | [https://admisx.vercel.app](https://system-admisx.vercel.app)                          |
 | **Repository** | [https://github.com/Kmisiz/AdmiSX_Frontend](https://github.com/Kmisiz/AdmiSX_Frontend) |
 
 ### Backend & Hệ thống liên quan
